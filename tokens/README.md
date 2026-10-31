@@ -2,7 +2,7 @@
 
 Source: `prism.tokens.json` (W3C DTCG). Build: `pnpm tokens` →
 `src/tokens/tokens.css` (exported as `prism/tokens.css`) and
-`prism.tokens.resolved.json` (exported as `prism/tokens.json`, every value in px per density mode, for Figma and agents). Never edit generated files.
+`prism.tokens.resolved.json` (exported as `prism/tokens.json`, every value in px per density mode, for design files and agents). Never edit generated files.
 
 ## Naming rules
 

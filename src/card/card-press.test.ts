@@ -1,7 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mount } from '../../test/fixture.js';
 import { wait } from '../../test/field.js';
-import { mouseDown, scaleAnims, scaleOf } from '../../test/press.js';
+import {
+  mouseDown,
+  releaseFrames,
+  scaleAnims,
+  scaleOf,
+} from '../../test/press.js';
 
 async function setup(page: Page, markup: string, polish = false) {
   await mount(page, markup);
@@ -26,7 +31,7 @@ const c = (page: Page) => page.locator('#c');
 const body = (page: Page) => page.locator('#body');
 
 test.describe('clickable card press', () => {
-  test('presses by at most about 1%, evenly, and springs back', async ({
+  test('presses by at most about 1%, evenly, and eases back without passing 1.0', async ({
     page,
   }) => {
     await setup(page, LINK);
@@ -34,8 +39,8 @@ test.describe('clickable card press', () => {
     expect(await scaleAnims(c(page), '[part="base"]')).toEqual(['scale']);
     await wait(page, 300);
     expect(await scaleOf(c(page), '[part="base"]')).toBeCloseTo(0.99, 3);
-    await page.mouse.up();
-    await wait(page, 500);
+    const { scales } = await releaseFrames(page, c(page), '[part="base"]');
+    expect(Math.max(...scales)).toBeLessThanOrEqual(1);
     expect(await scaleOf(c(page), '[part="base"]')).toBe(1);
   });
 

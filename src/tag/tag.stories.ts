@@ -95,7 +95,7 @@ export const Dismissible: Story = {
     </div>`,
 };
 
-/** Selectable: on or off, like a filter chip. `aria-pressed` and a solid border. Pressing shrinks it evenly by 3% and springs back (the remove button too). */
+/** Selectable: on or off, like a filter chip. `aria-pressed` and a solid border. Pressing shrinks it evenly by 3% and eases back (the remove button too). */
 export const Selectable: Story = {
   render: () =>
     html`<div style="display:flex;gap:8px">

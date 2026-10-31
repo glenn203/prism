@@ -5,8 +5,8 @@ import { SpringMotion, type Tune } from './spring-motion.js';
 
 /**
  * Private. The press of a button-like control: the whole control scales evenly
- * (never squashed, so text and icons keep their shape) while held, and springs
- * back past rest by a hair on release. One shared spring for every control, so
+ * (never squashed, so text and icons keep their shape) while held, and eases
+ * back to full size on release, never past it. One shared spring for every control, so
  * a tag and a button feel like the same material.
  *
  * It moves the CSS `scale` property, not `transform`, so it stacks with a
@@ -17,8 +17,8 @@ import { SpringMotion, type Tune } from './spring-motion.js';
 
 /** Pressing in: quick and nearly critical. */
 export const PRESS_IN: Tune = { w: 60, z: 0.9 };
-/** Letting go: about 1% past rest on a medium button, settled in about a quarter of a second. */
-export const PRESS_OUT: Tune = { w: 58, z: 0.3 };
+/** Letting go: critically damped, so it eases back to full size without passing it, settled in about a quarter of a second. */
+export const PRESS_OUT: Tune = { w: 24, z: 1 };
 
 /** Size steps for the press depth (fraction of the size the control shrinks). */
 export type PressSize = 'sm' | 'md' | 'lg';
