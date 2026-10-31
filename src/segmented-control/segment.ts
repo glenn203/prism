@@ -15,7 +15,7 @@ import { stateLayer } from '../internal/state-layer.js';
  *   segment (or the first, if none is) is in the tab order.
  * - `checked` is set by the control from its `value`. Set the control's
  *   `value`, not this.
- * - Pressing scales the segment evenly (about 3%) and it springs back. Under
+ * - Pressing scales the segment evenly (about 3%) and it eases back. Under
  *   `prefers-reduced-motion: reduce` only the press colour shows.
  * - State is never colour alone: the picked segment sits on the indicator,
  *   which is a filled shape.

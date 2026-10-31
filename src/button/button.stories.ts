@@ -101,8 +101,8 @@ export const AllVariants: StoryObj = {
 /**
  * Press. The whole button shrinks evenly (never an uneven squish) on the shared
  * spring, by an amount that follows its size: small and icon buttons about 3%,
- * medium 2.5%, large 2%, and wide (over 240px) a notch less. Release springs
- * back past rest by about 1% and settles in about a quarter of a second; a new
+ * medium 2.5%, large 2%, and wide (over 240px) a notch less. Release eases
+ * back to full size without passing it, settling in about 200ms; a new
  * press mid-return takes over from where it is. Enter and Space give a brief
  * press too. Reduced motion shows only the pressed colour. Wrap dense table
  * rows in `data-prism-still` to keep their controls still.

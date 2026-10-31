@@ -2,7 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import { axe } from '../../test/axe.js';
 import { mount } from '../../test/fixture.js';
 import { maxStep, recordFrames, wait } from '../../test/field.js';
-import { mouseDown, scaleAnims, scaleOf } from '../../test/press.js';
+import {
+  mouseDown,
+  releaseFrames,
+  scaleAnims,
+  scaleOf,
+} from '../../test/press.js';
 
 async function setup(page: Page, markup: string, theme = 'light') {
   await mount(page, markup);
@@ -42,8 +47,14 @@ test.describe('press: depth is proportional to size', () => {
       await mouseDown(page, h);
       await wait(page, 350);
       expect(await scaleOf(h, 'button')).toBeCloseTo(1 - depth, 3);
-      await page.mouse.up();
-      await wait(page, 500);
+      const { scales, settleMs } = await releaseFrames(page, h, 'button');
+      // Eases back without ever passing full size.
+      expect(Math.max(...scales)).toBeLessThanOrEqual(1);
+      expect(
+        scales.every((v, i) => i === 0 || v >= scales[i - 1]! - 1e-6),
+      ).toBe(true);
+      expect(settleMs).toBeGreaterThan(150);
+      expect(settleMs).toBeLessThan(300);
       expect(await scaleOf(h, 'button')).toBe(1);
       expect(
         await h.evaluate(
@@ -103,7 +114,7 @@ test.describe('press: motion', () => {
     await page.mouse.up();
   });
 
-  test('release springs back past rest by about 1% and is settled in about 250ms', async ({
+  test('release eases back to full size: never past 1.0, settled in about 250ms', async ({
     page,
   }) => {
     await setup(page, SIZES);
@@ -140,14 +151,13 @@ test.describe('press: motion', () => {
       (_, i) => i > 0 && s[i]! > s[i - 1]! + 1e-4 && i * 16.7 > 480,
     );
     expect(Math.min(...s)).toBeCloseTo(0.975, 3);
-    const over = Math.max(...s.slice(t0)) - 1;
-    expect(over).toBeGreaterThan(0.004);
-    expect(over).toBeLessThan(0.014);
+    // The whole run, press and release, never goes above full size.
+    expect(Math.max(...s)).toBeLessThanOrEqual(1);
     // Last frame that is visibly off rest (more than a tenth of a percent).
     const off = s.map((v, i) => (Math.abs(v - 1) > 0.001 && i >= t0 ? i : -1));
     const settled = (Math.max(...off) - t0) * 16.7;
-    expect(settled).toBeGreaterThan(120);
-    expect(settled).toBeLessThan(340);
+    expect(settled).toBeGreaterThan(150);
+    expect(settled).toBeLessThan(300);
     expect(s.at(-1)).toBe(1);
   });
 
@@ -202,12 +212,13 @@ test.describe('press: motion', () => {
       ],
     );
     const s = rows.map((r) => r[0]!);
-    // The whole move is about 3.5% (2.5% in, 1% past rest): no frame takes
-    // half of it, and the speed itself never changes abruptly.
+    // The whole move is 2.5% in and 2.5% back: no frame takes half of it,
+    // and the speed itself never changes abruptly.
     expect(maxStep(rows)[0]).toBeLessThan(0.0175);
     const accel = s.slice(2).map((v, i) => Math.abs(v - 2 * s[i + 1]! + s[i]!));
     expect(Math.max(...accel)).toBeLessThan(0.014);
     expect(Math.min(...s)).toBeGreaterThan(0.97);
+    expect(Math.max(...s)).toBeLessThanOrEqual(1);
     expect(s.at(-1)).toBe(1);
   });
 });

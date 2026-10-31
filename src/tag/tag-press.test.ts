@@ -1,7 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mount } from '../../test/fixture.js';
 import { wait } from '../../test/field.js';
-import { mouseDown, scaleAnims, scaleOf } from '../../test/press.js';
+import {
+  mouseDown,
+  releaseFrames,
+  scaleAnims,
+  scaleOf,
+} from '../../test/press.js';
 
 async function setup(page: Page, markup: string) {
   await mount(page, markup);
@@ -20,7 +25,7 @@ const h = (page: Page, id: string) => page.locator(id);
 
 test.describe('tag press', () => {
   for (const id of ['#sel', '#trig'])
-    test(`${id} (an interactive tag) squishes by about 3% and springs back`, async ({
+    test(`${id} (an interactive tag) squishes by about 3% and eases back without passing 1.0`, async ({
       page,
     }) => {
       await setup(page, TAGS);
@@ -28,8 +33,12 @@ test.describe('tag press', () => {
       expect(await scaleAnims(h(page, id), '[part="base"]')).toEqual(['scale']);
       await wait(page, 300);
       expect(await scaleOf(h(page, id), '[part="base"]')).toBeCloseTo(0.97, 3);
-      await page.mouse.up();
-      await wait(page, 500);
+      const { scales } = await releaseFrames(
+        page,
+        h(page, id),
+        '[part="base"]',
+      );
+      expect(Math.max(...scales)).toBeLessThanOrEqual(1);
       expect(await scaleOf(h(page, id), '[part="base"]')).toBe(1);
     });
 

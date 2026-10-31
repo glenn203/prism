@@ -596,8 +596,9 @@ One uniform scale on both axes: nothing squishes unevenly.
 | Clickable or choice card                   | 1% (coexists with tilt) |
 
 - Press in: spring `PRESS_IN` (about 100ms to the pressed size). Release: `PRESS_OUT`,
-  springing back past rest by about 1% (0.9% at medium) and settling in about 250ms. A new
-  press mid-return takes over from the current scale and speed.
+  critically damped, so it eases back to full size and never passes it (the scale never
+  goes above 1.0), settling in about 200ms. A new press mid-return takes over from the
+  current scale and speed.
 - Keyboard: Enter and Space on a button give a press that stays visible for at least 90ms
   (`KEY_HOLD`), then the click fires as normal. Holding Space holds the press.
 - A click on the shrunken rim still counts (the host listens, then forwards the click).
@@ -677,10 +678,10 @@ An optional layer for demos and products that want a slightly more finished feel
 - **Reduced motion.** Corners still apply. The ring has no fade, the pointer is not tracked, nothing tilts.
 - **Support.** `corner-shape` is new and not in every browser yet; where it is missing the corners stay round. The ring needs `mask-composite` and `light-dark()`.
 
-## Figma mapping
+## Design file mapping
 
 - States: add a **fill layer** above the resting fill using the element's
   **text colour variable** at **6%** (hover), **12%** (pressed), **11%**
   (selected) or **15%** (selected+hover) opacity. Disabled has no layer.
-- Token names map 1:1. `--prism-color-text` is Figma `color/text`. Resolved
+- Token names map 1:1. `--prism-color-text` is the design-file variable `color/text`. Resolved
   px values come from `prism.tokens.resolved.json`.
