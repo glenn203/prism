@@ -209,6 +209,35 @@ test.describe('prism-segmented-control: semantics', () => {
     await expect(radio(page, 'A')).toBeDisabled();
   });
 
+  test('a segment that leaves the control gets its own slot attribute back', async ({
+    page,
+  }) => {
+    await setup(
+      page,
+      `<prism-segmented-control id="s" label="Range" value="day">
+        <prism-segment value="day">Day</prism-segment>
+        <prism-segment value="week" slot="mine">Week</prism-segment>
+      </prism-segmented-control>`,
+    );
+    const slots = await s(page).evaluate((g) => {
+      const day = g.querySelector('[value="day"]')!;
+      const week = g.querySelector('[value="week"]')!;
+      const inside = [day.getAttribute('slot'), week.getAttribute('slot')];
+      document.body.append(day, week);
+      return new Promise<(string | null)[]>((r) =>
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() =>
+            r([...inside, day.getAttribute('slot'), week.getAttribute('slot')]),
+          ),
+        ),
+      );
+    });
+    expect(slots[0]).toMatch(/^prism-segment/);
+    expect(slots[1]).toMatch(/^prism-segment/);
+    expect(slots[2]).toBeNull();
+    expect(slots[3]).toBe('mine');
+  });
+
   test('segments take icons and text; an icon-only segment is named by `label`', async ({
     page,
   }) => {

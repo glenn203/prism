@@ -207,6 +207,8 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
   );
   readonly #sizes = new ResizeObserver(() => this.#follow());
   readonly #presses = new Map<PrismSegment, PressScale>();
+  /** What each segment's `slot` attribute was before the control took it over. */
+  readonly #authorSlots = new Map<PrismSegment, string | null>();
   #segments: PrismSegment[] = [];
   #bounds: Bounds = { min: 0, max: 0 };
   #defaultValue = '';
@@ -295,18 +297,20 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     }
     for (const segment of this.#segments) {
       segment.checked = this.#isPicked(segment);
-      if (!segment.slot) segment.slot = uniqueId('prism-segment');
-      if (!this.#presses.has(segment)) this.#addPress(segment);
+      if (!this.#presses.has(segment)) this.#addSegment(segment);
     }
     for (const [segment, press] of this.#presses)
       if (!this.#segments.includes(segment)) {
         this.removeController(press);
         press.hostDisconnected();
         this.#presses.delete(segment);
+        this.#releaseSlot(segment);
       }
   }
 
-  #addPress(segment: PrismSegment): void {
+  #addSegment(segment: PrismSegment): void {
+    this.#authorSlots.set(segment, segment.getAttribute('slot'));
+    segment.slot = uniqueId('prism-segment');
     this.#presses.set(
       segment,
       new PressScale(this, {
@@ -318,6 +322,14 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
         mark: true,
       }),
     );
+  }
+
+  /** A segment that leaves the control gets its own `slot` back. */
+  #releaseSlot(segment: PrismSegment): void {
+    const own = this.#authorSlots.get(segment);
+    if (own === null || own === undefined) segment.removeAttribute('slot');
+    else segment.setAttribute('slot', own);
+    this.#authorSlots.delete(segment);
   }
 
   /** The segment's `<label>` in this shadow root: the parent of the slot it fills. */
