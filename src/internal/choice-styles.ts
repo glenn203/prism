@@ -32,6 +32,15 @@ export const choiceStyles = css`
   }
   [part='base'] {
     all: unset;
+    cursor: var(--prism-choice-cursor, pointer);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  /* The hit area. Where a control wraps an input, the wrapper and the input
+     share it. */
+  [part='base'],
+  [part='control'] {
     box-sizing: border-box;
     position: relative;
     display: grid;
@@ -39,10 +48,6 @@ export const choiceStyles = css`
     inline-size: var(--_hit);
     block-size: var(--_hit);
     border-radius: var(--prism-radius-5, 5px);
-    cursor: var(--prism-choice-cursor, pointer);
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
   }
   [part='base']:disabled {
     cursor: var(--prism-choice-cursor-disabled, default);

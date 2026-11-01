@@ -1,4 +1,4 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import {
@@ -118,17 +118,20 @@ function draw(pose: Pose<Key>): Record<Layer, Keyframe> {
  * items from a list. Use a switch for a setting that applies at once, and
  * radios when exactly one of several choices must be picked.
  *
- * - A native `<button role="checkbox" aria-checked>` in shadow DOM (`mixed`
- *   while indeterminate). Space toggles it; Enter does not, as with a native
- *   checkbox. It takes part in the tab order.
- * - Named by `label` (and any default-slot content). The label is visible by
- *   default; `hide-label` hides it from sight only. Put help text in the
- *   `description` slot and the message for a failed check in the `error` slot.
+ * - A native `<input type="checkbox">` in shadow DOM, drawn over with a box
+ *   and mark. Space, label clicks and the tab order are the browser's, and
+ *   indeterminate shows as `mixed` with no script.
+ * - Named by `label` (and any default-slot content) through a real `<label>`.
+ *   The label is visible by default; `hide-label` hides it from sight only.
+ *   Put help text in the `description` slot and the message for a failed check
+ *   in the `error` slot.
  * - Joins the surrounding form: submits `value` (default "on") under `name`
  *   while checked, and nothing otherwise. `required` makes an unchecked box
- *   fail validation. Resets to its starting state with the form.
+ *   fail validation. Resets to its starting state with the form. The native
+ *   input lives in shadow DOM, so the host mirrors its value and validity
+ *   through ElementInternals.
  * - `indeterminate` is for a parent of a partly picked group. The next user
- *   click clears it and checks the box, as a native checkbox does.
+ *   click clears it and toggles the box, as a native checkbox does.
  * - Fires `input` and `change` after each user toggle.
  * - Motion: pressing squishes the box; letting go springs it back with a
  *   small pop. Checking grows the fill out of the centre, then draws the
@@ -148,7 +151,8 @@ function draw(pose: Pose<Key>): Record<Layer, Keyframe> {
  * @slot description - Help text under the label.
  * @slot error - Message shown while the checkbox is invalid.
  * @csspart container - Wraps the control and its text.
- * @csspart base - The native button; the 24px minimum hit area.
+ * @csspart control - Wraps the input and the drawn box; the 24px minimum hit area.
+ * @csspart base - The native checkbox input, laid over the whole control; it carries the focus ring.
  * @csspart box - The drawn box (squishes while pressed).
  * @csspart edge - The resting border.
  * @csspart fill - The accent fill that grows from the centre.
@@ -175,6 +179,11 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
     visuallyHidden,
     choiceStyles,
     css`
+      /* The input fills the control and is invisible; the box is drawn above it. */
+      [part='base'],
+      [part='box'] {
+        grid-area: 1 / 1;
+      }
       [part='mark'] {
         position: absolute;
         inset: 0;
@@ -217,10 +226,10 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
         }
       }
     `,
-    stateLayer("[part='base']"),
+    stateLayer("[part='control']"),
     // After the state layer: its overlay is drawn by the box, above the fill.
     css`
-      [part='base'] {
+      [part='control'] {
         background-image: none;
       }
     `,
@@ -247,7 +256,7 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
   /** Size: sm, md or lg. */
   @property({ reflect: true }) size: 'sm' | 'md' | 'lg' = 'md';
 
-  @query('[part="base"]') private readonly base!: HTMLButtonElement;
+  @query('[part="base"]') private readonly base!: HTMLInputElement;
 
   readonly #id = uniqueId('prism-checkbox');
   readonly #validity = new FieldValidityController(this);
@@ -350,12 +359,15 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
     }
   }
 
-  #toggle(): void {
-    if (this.isDisabled) return;
-    this.checked = this.indeterminate || !this.checked;
-    this.indeterminate = false;
+  /** Takes the native input's new state; its own `input` event reaches the host as it is. */
+  #onInput(): void {
+    this.checked = this.base.checked;
+    this.indeterminate = this.base.indeterminate;
     this.#validity.touch();
-    this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  }
+
+  /** A native `change` stays inside the shadow root, so say it again on the host. */
+  #onChange(): void {
     this.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
@@ -391,26 +403,25 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
   override render() {
     const rest = draw(this.#pose());
     return html`<div part="container">
-      <button
-        part="base"
-        id="control"
-        type="button"
-        role="checkbox"
-        aria-checked=${
-          this.indeterminate ? 'mixed' : this.checked ? 'true' : 'false'
-        }
-        aria-required=${this.required ? 'true' : nothing}
-        aria-labelledby="${this.#id}-label"
-        ?disabled=${this.isDisabled}
-        @click=${() => this.#toggle()}
-        @keydown=${this.#press.keyDown}
-        @keyup=${this.#press.up}
-        @blur=${this.#press.up}
-        @pointerdown=${this.#press.down}
-        @pointerup=${this.#press.up}
-        @pointercancel=${this.#press.up}
-        @pointerleave=${this.#press.up}
-      >
+      <span part="control">
+        <input
+          part="base"
+          id="control"
+          type="checkbox"
+          .checked=${this.checked}
+          .indeterminate=${this.indeterminate}
+          ?required=${this.required}
+          ?disabled=${this.isDisabled}
+          @input=${() => this.#onInput()}
+          @change=${() => this.#onChange()}
+          @keydown=${this.#press.down}
+          @keyup=${this.#press.up}
+          @blur=${this.#press.up}
+          @pointerdown=${this.#press.down}
+          @pointerup=${this.#press.up}
+          @pointercancel=${this.#press.up}
+          @pointerleave=${this.#press.up}
+        />
         <span part="box" style=${styleMap(rest.box)}>
           <span part="edge"></span>
           <span part="fill" style=${styleMap(rest.fill)}></span>
@@ -419,11 +430,10 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
             <line x2=${ARM_MAX} style=${styleMap(rest.armB)}></line>
           </svg>
         </span>
-      </button>
+      </span>
       <div part="text">
         <label
           part="label"
-          id="${this.#id}-label"
           for="control"
           class=${this.hideLabel ? 'visually-hidden' : ''}
           >${this.label}<slot></slot
