@@ -415,31 +415,72 @@ test.describe('prism-text-input: error', () => {
   });
 });
 
-test.describe('prism-text-input: glow and forced colors', () => {
-  const glow = (page: Page) =>
-    host(page).evaluate((el) => {
-      const c = el.shadowRoot!.querySelector('[part="control"]')!;
-      const g = getComputedStyle(c, '::before');
-      return {
-        opacity: Number(g.opacity),
-        display: g.display,
-        shadow: g.boxShadow,
-      };
-    });
-
-  test('a soft glow fades in on focus and is opacity only', async ({
+test.describe('prism-text-input: focus ring and forced colors', () => {
+  test('focus shows only the tight ring: no bloom, reach of 4px, and no blur past 1px', async ({
     page,
   }) => {
     await setup(page, FLOAT);
-    const before = await glow(page);
-    expect(before.opacity).toBe(0);
-    expect(before.shadow).not.toBe('none');
     await page.getByRole('textbox', { name: 'Email' }).focus();
     await wait(page, 500);
-    expect((await glow(page)).opacity).toBe(1);
+    const { bloom, input } = await host(page).evaluate((el) => {
+      const part = (name: string) =>
+        el.shadowRoot!.querySelector(`[part="${name}"]`)!;
+      return {
+        bloom: getComputedStyle(part('control'), '::before').boxShadow,
+        input: getComputedStyle(part('input')).boxShadow,
+      };
+    });
+    expect(bloom).toBe('none');
+    // Each layer is "<colour> x y blur spread": read the four lengths of each.
+    const lengths = input.replace(/\w+\([^)]*\)/g, '').match(/[\d.-]+px/g)!;
+    const layers = Array.from({ length: lengths.length / 4 }, (_, i) =>
+      lengths.slice(i * 4, i * 4 + 4).map(Number.parseFloat),
+    );
+    expect(layers).toHaveLength(3);
+    for (const [, , blur, spread] of layers) {
+      expect(blur).toBeLessThanOrEqual(1);
+      expect(spread).toBeLessThanOrEqual(4);
+    }
   });
 
-  test('forced colors: no stray outline at rest, an outline while focused, no glow', async ({
+  for (const theme of ['light', 'dark']) {
+    test(`${theme}: the focus ring stays visible (2px thick, 3:1 against the page)`, async ({
+      page,
+    }) => {
+      await setup(page, FLOAT, theme);
+      await page.getByRole('textbox', { name: 'Email' }).focus();
+      await wait(page, 500);
+      const { ratio, thickness } = await page.evaluate(() => {
+        const css = (v: string) =>
+          getComputedStyle(document.documentElement).getPropertyValue(v);
+        const rgb = (colour: string) => {
+          const ctx = document.createElement('canvas').getContext('2d')!;
+          ctx.fillStyle = colour;
+          ctx.fillRect(0, 0, 1, 1);
+          return [...ctx.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+        };
+        const luminance = (c: number[]) => {
+          const [r, g, b] = c.map((v) => {
+            const x = v / 255;
+            return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+        };
+        const [hi, lo] = [
+          luminance(rgb(css('--prism-color-focus-ring'))),
+          luminance(rgb(css('--prism-color-bg'))),
+        ].sort((a, b) => b - a);
+        return {
+          ratio: (hi! + 0.05) / (lo! + 0.05),
+          thickness: Number.parseFloat(css('--prism-focus-ring-width')),
+        };
+      });
+      expect(ratio).toBeGreaterThanOrEqual(3);
+      expect(thickness).toBeGreaterThanOrEqual(2);
+    });
+  }
+
+  test('forced colors: no stray outline at rest, an outline while focused', async ({
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
@@ -451,7 +492,6 @@ test.describe('prism-text-input: glow and forced colors', () => {
             .outlineStyle,
       );
     expect(await outline()).toBe('none');
-    expect((await glow(page)).display).toBe('none');
     await page.getByRole('textbox', { name: 'Email' }).focus();
     expect(await outline()).toBe('solid');
     // The label's patch is the canvas colour, so the edge is cleanly cut.

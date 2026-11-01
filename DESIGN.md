@@ -551,9 +551,10 @@ a change from code moves like a user's, and reduced motion changes state at once
 - **Clear button** (`clearable`, name set with `clear-label`) shows while there is an
   editable value, pops in on a spring, clears, fires `input` and `change`, and returns
   focus to the input. Not shown when read-only, disabled or empty.
-- **Focus glow.** A soft bloom of the focus colour (error colour when invalid) around the
-  field, fading in on the same spring as the ring. Opacity only. The polish layer adds the
-  light-following ring to the field's control and the select's trigger on hover and focus.
+- **Focus ring only.** Focus is the shared ring (1px gap, 2px ring, 1px halo, 4px reach) and
+  nothing wider: no bloom or soft shadow, so the floating label stays crisp on the edge. The
+  polish layer adds the light-following ring to the field's control and the select's trigger
+  on hover and focus.
 - **Error.** On the change to invalid the field makes one small sideways nudge (`n`, spring
   46 and 0.3, up to 5px, about two swings, transform only). Not on focus, and not again
   while it stays invalid. The attached error box, `aria-invalid` and `aria-describedby`

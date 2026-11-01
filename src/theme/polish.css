@@ -263,13 +263,7 @@ prism-select:state(invalid)::part(trigger)::after,
   }
 }
 
-/* The fields' ring and glow follow the squircle setting like the input does. */
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-search-input,
-    prism-text-field
-  )::part(control)::before,
+/* The fields' light-following ring follows the squircle setting like the input does. */
 :is(
     prism-text-input,
     prism-password-input,

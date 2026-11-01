@@ -323,7 +323,7 @@ test('components consume elevation tokens, no hard-coded shadows', () => {
   );
   for (const m of block.matchAll(/box-shadow:\s*([^;]+);/g))
     assert.ok(
-      /var\(--prism-elevation-(default|hover|track)|var\(--_(elev|sh-sel|sh-focus|glow)|--prism-focus-ring|--prism-color-focus-ring|^4px 0 10px -2px\s+color-mix\(\s*in oklch,\s*var\(--_tone-high-bg\)\s+var\(--prism-progress-glow-alpha|^none$/.test(
+      /var\(--prism-elevation-(default|hover|track)|var\(--_(elev|sh-sel|sh-focus)|--prism-focus-ring|--prism-color-focus-ring|^4px 0 10px -2px\s+color-mix\(\s*in oklch,\s*var\(--_tone-high-bg\)\s+var\(--prism-progress-glow-alpha|^none$/.test(
         m[1].trim(),
       ),
       `unexpected shadow: ${m[1]}`,
