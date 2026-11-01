@@ -76,6 +76,7 @@ const pairs = [
   ['accent', 'bg', 3],
   ['accent', 'surface-pressed', 3], // progress fill on its track
   ['error-text', 'bg', 4.5],
+  ['error-text', 'surface', 4.5], // invalid label on a read-only field's fill
   ['border-strong', 'bg', 3],
   ['border-strong', 'surface', 3], // interactive card edge on a surface page
   ['focus-ring', 'bg', 3],
