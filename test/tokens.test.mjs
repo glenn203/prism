@@ -80,6 +80,8 @@ const pairs = [
   ['border-strong', 'surface', 3], // interactive card edge on a surface page
   ['focus-ring', 'bg', 3],
   ['focus-ring', 'surface', 3],
+  ['focus-border', 'bg', 3], // focused field border
+  ['focus-border', 'surface', 3],
   ['error', 'bg', 3],
   ['neutral', 'bg', 3],
   ['neutral', 'surface-pressed', 3],
@@ -275,6 +277,22 @@ test('focus ring: 1px gap + 2px ring + 1px halo; reach fits the space-1 label ga
   assert.ok(d['space.2'].value > extent);
 });
 
+test('field focus colours are the focus border (the accent) and the error colour at 50% and 12%', () => {
+  for (const theme of THEMES) {
+    const withAlpha = (colour, alpha) => `${colour.slice(0, -1)} / ${alpha})`;
+    const border = colorIn(theme, 'focus-border');
+    assert.equal(border, colorIn(theme, 'accent'));
+    const error = colorIn(theme, 'error');
+    assert.equal(tokIn(theme, 'focus.ring-color'), withAlpha(border, 0.5));
+    assert.equal(tokIn(theme, 'focus.halo-color'), withAlpha(border, 0.12));
+    assert.equal(tokIn(theme, 'focus.ring-error-color'), withAlpha(error, 0.5));
+    assert.equal(
+      tokIn(theme, 'focus.halo-error-color'),
+      withAlpha(error, 0.12),
+    );
+  }
+});
+
 test('elevation: three shared levels, slate-based, urgent tinted from error red', () => {
   const t = resolved.modes.default;
   for (const level of ['default', 'hover', 'urgent']) {
@@ -305,7 +323,15 @@ test('components consume elevation tokens, no hard-coded shadows', () => {
     'utf8',
   );
   const block = theme.slice(theme.indexOf('/* ---------- Select'));
-  assert.ok(!/box-shadow:[^;]*inset/.test(block), 'no inside-border focus');
+  // The only inside-border line is the focused field's border thickening.
+  const withoutFieldLine = block.replace(
+    /inset 0 0 0 [^;]*?var\(--_focus-border\)/g,
+    '',
+  );
+  assert.ok(
+    !/box-shadow:[^;]*inset/.test(withoutFieldLine),
+    'no inside-border focus ring',
+  );
   assert.ok(
     !/box-shadow:\s*var\(--prism-elevation-urgent/.test(theme),
     'elevation-urgent is reserved, unused',
@@ -323,7 +349,7 @@ test('components consume elevation tokens, no hard-coded shadows', () => {
   );
   for (const m of block.matchAll(/box-shadow:\s*([^;]+);/g))
     assert.ok(
-      /var\(--prism-elevation-(default|hover|track)|var\(--_(elev|sh-sel|sh-focus)|--prism-focus-ring|--prism-color-focus-ring|^4px 0 10px -2px\s+color-mix\(\s*in oklch,\s*var\(--_tone-high-bg\)\s+var\(--prism-progress-glow-alpha|^none$/.test(
+      /var\(--prism-elevation-(default|hover|track)|var\(--_(elev|sh-sel|sh-focus|focus-ring)|--prism-focus-ring|--prism-color-focus-ring|^4px 0 10px -2px\s+color-mix\(\s*in oklch,\s*var\(--_tone-high-bg\)\s+var\(--prism-progress-glow-alpha|^none$/.test(
         m[1].trim(),
       ),
       `unexpected shadow: ${m[1]}`,

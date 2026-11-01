@@ -683,6 +683,10 @@
       "$value": "color-mix(in oklch, {color.focus-ring} 12%, transparent)",
       "$description": "Focus halo band: the focus ring at 12%."
     },
+    "focus-border": {
+      "$value": "{color.accent}",
+      "$description": "Border of a focused field (text-style inputs and select). The single source for the field focus colours: swap the accent and the border, the ring and the halo follow. Same 3:1 on bg as accent."
+    },
     "shadow": {
       "$value": "{color.slate.950}",
       "$description": "Base colour of elevation shadows.",
@@ -863,7 +867,7 @@
     }
   },
   "focus": {
-    "$description": "Focus indicator that grows in: ring-offset gap (1px) in color-bg, a ring-width ring (2px, ring-blur edge) in color-focus-ring, then a halo-width halo (1px). Total reach = 4px, so label (space-1) and description (space-2) gaps stay normal.",
+    "$description": "Focus indicator that grows in: ring-offset gap (1px) in color-bg, a ring-width ring (2px, ring-blur edge) in color-focus-ring (fields: ring-color, the focus border at 50%), then a halo-width halo (1px). Total reach = 4px, so label (space-1) and description (space-2) gaps stay normal.",
     "ring-width": {
       "$type": "dimension",
       "$value": "2px",
@@ -887,6 +891,26 @@
       "$type": "color",
       "$value": "{color.focus-halo}",
       "$description": "Alias of color-focus-halo (kept for existing references)."
+    },
+    "ring-color": {
+      "$type": "color",
+      "$value": "color-mix(in oklch, {color.focus-border} 50%, transparent)",
+      "$description": "Field focus ring: the focus border colour at 50%. The border carries the 3:1 contrast, so the ring can be translucent."
+    },
+    "halo-color": {
+      "$type": "color",
+      "$value": "color-mix(in oklch, {color.focus-border} 12%, transparent)",
+      "$description": "Field focus halo band: the focus border colour at 12%."
+    },
+    "ring-error-color": {
+      "$type": "color",
+      "$value": "color-mix(in oklch, {color.error} 50%, transparent)",
+      "$description": "Invalid field focus ring: the error colour at 50%."
+    },
+    "halo-error-color": {
+      "$type": "color",
+      "$value": "color-mix(in oklch, {color.error} 12%, transparent)",
+      "$description": "Invalid field focus halo band: the error colour at 12%."
     }
   },
   "duration": {
