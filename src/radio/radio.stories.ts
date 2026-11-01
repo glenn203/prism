@@ -45,8 +45,8 @@ type Story = StoryObj<Args>;
 
 /**
  * Exactly one choice. Click a radio, or Tab to the group and use the arrow
- * keys: they move focus and pick together, wrapping round and skipping
- * disabled radios. Pressing squishes the circle a little. The new dot springs
+ * keys: they move focus and pick together and skip disabled radios (the
+ * browser wraps round at the ends, except WebKit). Pressing squishes the circle a little. The new dot springs
  * in with a gentle overshoot while the old one shrinks out, started on the
  * same frame, in about 400ms. A pick in the middle of a move turns each dot
  * round from where it is.

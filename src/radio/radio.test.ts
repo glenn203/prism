@@ -24,6 +24,8 @@ const GROUP = `<prism-radio-group id="g" name="speed" label="Delivery speed" val
 const radio = (page: Page, name: string) =>
   page.getByRole('radio', { name, exact: true });
 const host = (page: Page, id: string) => page.locator(id);
+const WEBKIT_NO_WRAP =
+  'WebKit radios do not wrap at the ends or flip for right-to-left, in plain HTML too';
 const value = (page: Page) =>
   host(page, '#g').evaluate((el) => (el as never as { value: string }).value);
 
@@ -142,7 +144,9 @@ test.describe('prism-radio-group: semantics', () => {
 
   test('arrow keys move focus and pick, wrap round, and skip disabled radios', async ({
     page,
+    browserName,
   }) => {
+    test.skip(browserName === 'webkit', WEBKIT_NO_WRAP);
     await setup(
       page,
       `<prism-radio-group id="g" label="G" value="a">
@@ -164,7 +168,8 @@ test.describe('prism-radio-group: semantics', () => {
     expect(await value(page)).toBe('a');
   });
 
-  test('rtl swaps Left and Right', async ({ page }) => {
+  test('rtl swaps Left and Right', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', WEBKIT_NO_WRAP);
     await setup(page, `<div dir="rtl">${GROUP}</div>`);
     await radio(page, 'Weekly').focus();
     await page.keyboard.press('ArrowLeft');
@@ -275,10 +280,11 @@ test.describe('prism-radio-group: forms', () => {
       (el as never as HTMLInputElement).reportValidity(),
     );
     await expect(err).toBeVisible();
-    await expect(page.getByRole('group')).toHaveAttribute(
-      'aria-invalid',
-      'true',
+    // The error is the group's description; the native inputs hold the invalid state.
+    await expect(page.getByRole('group')).toHaveAccessibleDescription(
+      /Pick one/,
     );
+    await expect(page.getByRole('group')).not.toHaveAttribute('aria-invalid');
     await radio(page, 'X').click();
     await expect(err).toBeHidden();
     expect(
@@ -286,6 +292,24 @@ test.describe('prism-radio-group: forms', () => {
         (el) => (el as never as HTMLInputElement).validity.valid,
       ),
     ).toBe(true);
+  });
+
+  test('a radio that leaves the group gets its slot attribute back', async ({
+    page,
+  }) => {
+    await setup(page, GROUP);
+    const slots = await host(page, '#g').evaluate((g) => {
+      const c = g.querySelector('#c')!;
+      const inside = c.getAttribute('slot');
+      document.body.append(c);
+      return new Promise<[string | null, string | null]>((r) =>
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => r([inside, c.getAttribute('slot')])),
+        ),
+      );
+    });
+    expect(slots[0]).toMatch(/^prism-option/);
+    expect(slots[1]).toBeNull();
   });
 
   test('form reset returns to the starting value', async ({ page }) => {
@@ -391,8 +415,8 @@ test.describe('prism-radio: motion', () => {
     expect((await anims(host(page, '#c'))).length).toBe(3);
     expect((await anims(host(page, '#b'))).length).toBe(3);
     await wait(page, 600);
-    await page.keyboard.press('ArrowDown'); // wraps to the first
-    expect((await anims(host(page, '#a'))).length).toBe(3);
+    await page.keyboard.press('ArrowUp'); // back to the second
+    expect((await anims(host(page, '#b'))).length).toBe(3);
   });
 
   test('a change from code moves the same way as a click', async ({ page }) => {

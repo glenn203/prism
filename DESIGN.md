@@ -523,8 +523,10 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 **Radio group.**
 
 - Native radios in one shadow root, so the browser gives one tab stop (the picked radio,
-  else the first), arrow keys that move and pick together, wrap and skip disabled radios,
-  and Space to pick; there is no key handling in the component. `prism-radio` children
+  else the first), arrow keys that move and pick together and skip disabled radios, and
+  Space to pick; there is no key handling in the component. Chrome and Firefox also wrap
+  at the ends and flip Left and Right in right-to-left; WebKit does neither, as for any
+  native radios. `prism-radio` children
   are slotted into each input's `label`, which is why they must be direct children and
   why `description` is an attribute (an id reference cannot cross into a child's
   shadow root).

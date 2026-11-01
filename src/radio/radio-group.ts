@@ -27,8 +27,11 @@ import { RadioOption } from './radio-option.js';
  *   slot.
  * - Each child `prism-radio` is drawn as a native `<input type="radio">` with
  *   a real `<label>`, all in this one shadow root so they share a name. Tab
- *   stop, arrow keys (wrapping, skipping disabled radios, right-to-left aware)
- *   and Space are the browser's, with no key handling here.
+ *   stop, arrow keys and Space are the browser's, with no key handling here.
+ *   Chrome and Firefox wrap round at the ends and flip Left and Right in
+ *   right-to-left text; WebKit does neither, as for any native radios.
+ *   A radio's `slot` attribute is used by the group while it is a child, and
+ *   put back when it leaves.
  * - `value` is the picked radio's `value` (empty: none). It is what is
  *   submitted under `name`; the inputs are in shadow DOM, so the group mirrors
  *   the value and validity through ElementInternals. `required` fails
@@ -165,6 +168,8 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
   readonly #id = uniqueId('prism-radio-group');
   readonly #validity = new FieldValidityController(this);
   readonly #options = new Map<PrismRadio, RadioOption>();
+  /** What each radio's `slot` attribute was before the group took it over. */
+  readonly #authorSlots = new Map<PrismRadio, string | null>();
   #radios: PrismRadio[] = [];
   #defaultValue = '';
   #adopted = false;
@@ -221,7 +226,15 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
       'Pick one of these choices to continue.',
       this.#radios.length ? (this.#radios[0]?.input ?? this.group) : this.group,
     );
-    syncFieldA11y(this.renderRoot, this.group, this.#id, this.#validity.sync());
+    syncFieldA11y(
+      this.renderRoot,
+      this.group,
+      this.#id,
+      this.#validity.sync(),
+      {
+        ariaInvalid: false,
+      },
+    );
     for (const option of this.#options.values()) option.settle();
   }
 
@@ -248,10 +261,12 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
       if (!this.#radios.includes(radio)) {
         option.stop();
         this.#options.delete(radio);
+        this.#releaseSlot(radio);
       }
   }
 
   #addOption(radio: PrismRadio): void {
+    this.#authorSlots.set(radio, radio.getAttribute('slot'));
     radio.slot = uniqueId('prism-option');
     this.#options.set(
       radio,
@@ -262,6 +277,14 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
         () => this.#isOff(radio),
       ),
     );
+  }
+
+  /** A radio that leaves the group gets its own `slot` back. */
+  #releaseSlot(radio: PrismRadio): void {
+    const own = this.#authorSlots.get(radio);
+    if (own === null || own === undefined) radio.removeAttribute('slot');
+    else radio.setAttribute('slot', own);
+    this.#authorSlots.delete(radio);
   }
 
   #isPicked(radio: PrismRadio): boolean {
@@ -328,7 +351,7 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
       </span>
       <div part="option-text">
         <label part="option-label${state}" for=${id}
-          ><slot name=${id}></slot
+          ><slot name=${id} @slotchange=${this.#redraw}></slot
         ></label>
         ${
           radio.description
