@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { mount } from '../../test/fixture.js';
+import { needsBaseSelect } from '../../test/select.js';
 import { expected, near, painted, PCT } from '../../test/paint.js';
 
 const withTheme = async (page: Page) => {
@@ -196,6 +197,7 @@ test('option: hover and keyboard focus use the hover fill, the chosen one the pr
     `<prism-select label="Fruit" value="apricot"><prism-option value="apricot">Apricot</prism-option><prism-option value="pear">Pear</prism-option></prism-select>`,
   );
   await withTheme(page);
+  await needsBaseSelect(page);
   const box = page.getByRole('combobox');
   await box.click();
   const fill = (name: string) =>

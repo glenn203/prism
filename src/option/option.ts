@@ -24,7 +24,7 @@ export class PrismOption extends LitElement {
   @property() label = '';
 
   get resolvedValue(): string {
-    return this.getAttribute('value') ?? this.value ?? this.text;
+    return this.getAttribute('value') ?? (this.value || this.text);
   }
   get text(): string {
     return this.label || (this.textContent ?? '').trim();

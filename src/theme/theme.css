@@ -1805,8 +1805,11 @@ prism-segment::part(base):focus-visible {
     border-color: GrayText;
     color: GrayText;
   }
-  /* Tints are dropped, so the active option is the system highlight. */
+  /* Tints are dropped, so the active option is the system highlight. The
+   * browser would put a Canvas plate behind its text and check mark (white
+   * boxes on the highlight), so these colours are set by hand. */
   prism-select::part(option):is(:hover, :focus-visible) {
+    forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
   }

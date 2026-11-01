@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
+import '../button/define.js';
 import './define.js';
 
 interface Args {
@@ -101,14 +102,28 @@ export const ErrorState: Story = {
   },
 };
 
-/** The open popup overlays the helper text below the control. */
+/**
+ * The open popup overlays the helper text below the control. A popup can only
+ * open from a user gesture, so press the button (or the select itself).
+ */
 export const OpenMenuWithHelper: Story = {
   args: { description: 'We ship fruit on Mondays.' },
-  play: async ({ canvasElement }) => {
-    const el = canvasElement.querySelector('prism-select')!;
-    await el.updateComplete;
-    el.showPicker();
-  },
+  render: ({ label, description }) => html`
+    <div style="max-inline-size: 320px; min-block-size: 320px">
+      <prism-select label=${label} placeholder="Select a fruit">
+        ${options}<span slot="description">${description}</span>
+      </prism-select>
+      <prism-button
+        type="button"
+        variant="outline"
+        @click=${(e: Event) =>
+          (e.target as HTMLElement)
+            .parentElement!.querySelector('prism-select')!
+            .showPicker()}
+        >Open the list</prism-button
+      >
+    </div>
+  `,
 };
 
 /**

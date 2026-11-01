@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mount } from '../../test/fixture.js';
+import { needsBaseSelect } from '../../test/select.js';
 
 const FIXTURE = `<prism-text-field label="Email" required><span slot="error">Enter an email.</span></prism-text-field>
 <prism-select label="Fruit" required><prism-option value="a">A</prism-option><prism-option value="b">B</prism-option><span slot="error">Choose.</span></prism-select>`;
@@ -74,6 +75,7 @@ test('reduced motion: popup does not travel, error and ring are instant, tokens 
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await setup(page);
+  await needsBaseSelect(page);
   const root = await page.evaluate(() => {
     const s = getComputedStyle(document.documentElement);
     return [

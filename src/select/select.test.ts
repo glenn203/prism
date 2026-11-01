@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
+import { needsBaseSelect } from '../../test/select.js';
 
 const OPTIONS = `
   <prism-option value="apricot">Apricot</prism-option>
@@ -24,19 +25,33 @@ const isOpen = (page: Page) =>
       el.shadowRoot!.querySelector('[part="trigger"]')!.matches(':open'),
     );
 
-test('is a native select: labelled combobox, arrow keys open, skip disabled, Enter picks', async ({
+test('is a native select: a labelled combobox, with one native option per prism-option', async ({
   page,
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
-  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await expect(page.getByRole('combobox', { name: 'Fruit' })).toHaveCount(1);
   expect(
-    await page
-      .locator('prism-select')
-      .evaluate((el) => el.shadowRoot!.querySelector('select')?.id),
-  ).toBe('control');
+    await page.locator('prism-select').evaluate((el) => {
+      const select = el.shadowRoot!.querySelector('select')!;
+      return [select.id, select.labels?.length, select.options.length];
+    }),
+  ).toEqual(['control', 1, 5]); // the hidden placeholder is the fifth
+});
+
+test('keys: Space opens, arrows skip disabled options, Enter picks, type-ahead picks', async ({
+  page,
+}) => {
+  await mount(
+    page,
+    `<prism-select label="Fruit" value="apricot">${OPTIONS}</prism-select>`,
+  );
+  await needsBaseSelect(page);
+  const box = page.getByRole('combobox', { name: 'Fruit' });
   await box.focus();
   expect(await isOpen(page)).toBe(false);
-  await box.press('ArrowDown');
+  // With a value chosen (a hidden placeholder row also stops WebKit's arrows).
+  // Space opens it everywhere; ArrowDown does not in WebKit's base-select.
+  await box.press('Space');
   expect(await isOpen(page)).toBe(true);
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown'); // Cherry is disabled
@@ -48,10 +63,27 @@ test('is a native select: labelled combobox, arrow keys open, skip disabled, Ent
   expect(await valueOf(page)).toBe('banana');
 });
 
+test('without base-select the browser select takes the arrows: they change the value, skipping disabled options', async ({
+  page,
+}) => {
+  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  test.skip(
+    await page.evaluate(() => CSS.supports('appearance', 'base-select')),
+    'this browser draws the popup itself',
+  );
+  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await box.focus();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown'); // Cherry is disabled
+  expect(await valueOf(page)).toBe('date');
+});
+
 test('pointer: click opens, click option selects and fires input and change once', async ({
   page,
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  await needsBaseSelect(page);
   await page.evaluate(() => {
     const seen: string[] = [];
     (window as unknown as { seen: string[] }).seen = seen;
@@ -72,28 +104,84 @@ test('pointer: click opens, click option selects and fires input and change once
   expect(await valueOf(page)).toBe('banana');
 });
 
-test('showPicker() opens the popup', async ({ page }) => {
-  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
-  await page.getByRole('combobox', { name: 'Fruit' }).focus();
-  await page
-    .locator('prism-select')
-    .evaluate((e: HTMLElement & { showPicker(): void }) => e.showPicker());
+test('showPicker() opens the popup from a click', async ({
+  page,
+  browserName,
+}) => {
+  await mount(
+    page,
+    `<button id="open">Open</button><prism-select label="Fruit">${OPTIONS}</prism-select>`,
+  );
+  await needsBaseSelect(page);
+  test.skip(browserName === 'webkit', 'WebKit has no showPicker() on a select');
+  await page.evaluate(() =>
+    document.querySelector('#open')!.addEventListener('click', () =>
+      (
+        document.querySelector('prism-select') as HTMLElement & {
+          showPicker(): void;
+        }
+      ).showPicker(),
+    ),
+  );
+  await page.locator('#open').click();
   expect(await isOpen(page)).toBe(true);
 });
 
-test('the placeholder shows while empty and can never be picked', async ({
+test('showPicker() never throws a TypeError, whether or not the browser has it', async ({
+  page,
+}) => {
+  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  const error = await page.locator('prism-select').evaluate((el) => {
+    try {
+      (el as HTMLElement & { showPicker(): void }).showPicker();
+      return null;
+    } catch (e) {
+      return (e as Error).name; // no user gesture: NotAllowedError is expected
+    }
+  });
+  expect(error).not.toBe('TypeError');
+});
+
+test('the placeholder shows while empty, is hidden in the popup and can never be picked', async ({
   page,
 }) => {
   await mount(
     page,
     `<prism-select label="Fruit" placeholder="Pick fruit">${OPTIONS}</prism-select>`,
   );
+  await withTheme(page);
   const box = page.getByRole('combobox', { name: 'Fruit' });
   await expect(box).toHaveText(/Pick fruit/);
-  await box.press('ArrowDown');
-  await page.keyboard.press('Enter');
+  const placeholder = await page.locator('prism-select').evaluate((el) => {
+    const o =
+      el.shadowRoot!.querySelector<HTMLOptionElement>('option[value=""]')!;
+    return [o.hidden, o.disabled, getComputedStyle(o).display];
+  });
+  expect(placeholder).toEqual([true, true, 'none']);
+  await box.selectOption('apricot');
   expect(await valueOf(page)).toBe('apricot');
   await expect(box).not.toHaveText(/Pick fruit/);
+});
+
+test('the open popup lists the real options only, with no row for the placeholder', async ({
+  page,
+}) => {
+  await mount(
+    page,
+    `<prism-select label="Fruit" placeholder="Pick fruit">${OPTIONS}</prism-select>`,
+  );
+  await needsBaseSelect(page);
+  await withTheme(page);
+  await page.getByRole('combobox', { name: 'Fruit' }).press('Space');
+  expect(await isOpen(page)).toBe(true);
+  const rows = await page
+    .locator('prism-select')
+    .evaluate((el) =>
+      [...el.shadowRoot!.querySelectorAll('option')]
+        .filter((o) => o.getBoundingClientRect().height > 0)
+        .map((o) => o.text.trim()),
+    );
+  expect(rows).toEqual(['Apricot', 'Banana', 'Cherry', 'Date']);
 });
 
 test('options follow the prism-option children: added, disabled and renamed', async ({
@@ -139,9 +227,7 @@ test('form: submits value, required blocks submit, reset restores', async ({
   expect(await submitted(page)).toBeUndefined();
   const box = page.getByRole('combobox', { name: 'Fruit' });
   await expect(box).toHaveAttribute('aria-invalid', 'true');
-  await box.focus();
-  await box.press('ArrowDown');
-  await page.keyboard.press('Enter');
+  await box.selectOption('apricot');
   await page.getByRole('button', { name: 'Go' }).click();
   expect(await submitted(page)).toEqual({ fruit: 'apricot' });
   await page.getByRole('button', { name: 'Reset' }).click();
@@ -168,13 +254,15 @@ test('focus stays on the select after Escape, Enter and a click pick; Tab leaves
 }) => {
   await mount(
     page,
-    `<prism-select label="Fruit">${OPTIONS}</prism-select><button id="next">next</button>`,
+    `<prism-select label="Fruit" value="apricot">${OPTIONS}</prism-select><button id="next">next</button>`,
   );
+  await needsBaseSelect(page);
   const box = page.getByRole('combobox', { name: 'Fruit' });
   await box.focus();
-  await page.keyboard.press('ArrowDown');
+  await box.press('Space');
   await page.keyboard.press('Escape');
   await expect(box).toBeFocused();
+  await box.press('Space');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
   await expect(box).toBeFocused();
@@ -244,6 +332,7 @@ test('popup: elevated, and with reduced motion it only fades, in under a frame',
     `<prism-select label="Fruit" required>${OPTIONS}<span slot="error">Pick one</span></prism-select>`,
   );
   await withTheme(page);
+  await needsBaseSelect(page);
   await page
     .locator('prism-select')
     .evaluate((e: HTMLElement & { reportValidity(): boolean }) =>
@@ -273,6 +362,7 @@ test('with motion allowed the popup grows out of the trigger on a transition', a
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
   await withTheme(page);
+  await needsBaseSelect(page);
   await page.getByRole('combobox', { name: 'Fruit' }).click();
   const props = await page
     .locator('prism-select')
@@ -285,6 +375,80 @@ test('with motion allowed the popup grows out of the trigger on a transition', a
     );
   expect(props).toContain('transform');
   expect(props).toContain('opacity');
+});
+
+test('forced colors: the highlighted option is Highlight with readable text and check mark, not boxes', async ({
+  page,
+  browserName,
+}) => {
+  // Only Chromium paints forced colors in a screenshot (and only it plates text).
+  test.skip(browserName !== 'chromium', 'forced colors are drawn by Chromium');
+  await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+  await mount(
+    page,
+    `<div style="padding:20px;inline-size:300px"><prism-select label="Fruit" value="banana">${OPTIONS}</prism-select></div>`,
+  );
+  await withTheme(page);
+  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await box.focus();
+  await box.press('Space'); // focus lands on the chosen Banana
+  await page.keyboard.press('ArrowDown'); // Cherry is off, so Date
+  await page.waitForTimeout(200);
+  const rect = await page.locator('prism-select').evaluate((el) => {
+    const option = [...el.shadowRoot!.querySelectorAll('option')].find((o) =>
+      o.matches(':focus-visible, :hover'),
+    )!;
+    const range = document.createRange();
+    range.selectNodeContents(option);
+    const r = range.getBoundingClientRect();
+    const o = option.getBoundingClientRect();
+    return {
+      text: { x: r.x, y: r.y, w: r.width, h: r.height },
+      row: { x: o.x, y: o.y, w: o.width, h: o.height },
+    };
+  });
+  const shot = await page.screenshot();
+  const stats = await page.evaluate(
+    async ([b64, r]) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${b64}`;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      const { row, text } = r as unknown as Record<
+        'row' | 'text',
+        { x: number; y: number; w: number; h: number }
+      >;
+      const px = (x: number, y: number) => [
+        ...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data,
+      ];
+      // The row's fill, read where there is no text, and the text box's pixels.
+      const fill = px(row.x + row.w - 12, row.y + row.h / 2);
+      const data = ctx.getImageData(
+        Math.floor(text.x),
+        Math.floor(text.y),
+        Math.ceil(text.w),
+        Math.ceil(text.h),
+      ).data;
+      let other = 0;
+      for (let i = 0; i < data.length; i += 4)
+        if (
+          Math.abs(data[i]! - fill[0]!) +
+            Math.abs(data[i + 1]! - fill[1]!) +
+            Math.abs(data[i + 2]! - fill[2]!) >
+          150
+        )
+          other++;
+      return { fill, share: other / (data.length / 4) };
+    },
+    [shot.toString('base64'), rect] as const,
+  );
+  // Glyphs cover a minority of their box; a solid plate covers all of it.
+  expect(stats.share).toBeGreaterThan(0.03);
+  expect(stats.share).toBeLessThan(0.6);
 });
 
 test('attached error box is inset 8px on each side of the control', async ({

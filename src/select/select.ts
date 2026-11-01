@@ -150,6 +150,10 @@ export class PrismSelect extends FormAssociated(LitElement) {
           min-block-size: 1.5rem;
           cursor: default;
         }
+        /* The placeholder: the rule above would otherwise show it in the popup. */
+        [part='option'][hidden] {
+          display: none;
+        }
       }
     `,
   ];
@@ -197,9 +201,13 @@ export class PrismSelect extends FormAssociated(LitElement) {
   override focus(options?: FocusOptions): void {
     this.trigger?.focus(options);
   }
-  /** Opens the popup, as native `showPicker()` does. */
+  /**
+   * Opens the popup, as native `showPicker()` does: it needs a user gesture (a
+   * click or key press) and throws `NotAllowedError` without one. Does nothing
+   * where the browser has no `showPicker()` on a select (WebKit).
+   */
   showPicker(): void {
-    this.trigger?.showPicker();
+    if (this.trigger && 'showPicker' in this.trigger) this.trigger.showPicker();
   }
 
   override connectedCallback(): void {
