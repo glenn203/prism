@@ -177,7 +177,7 @@ export const Disabled: Story = {
     </div>`,
 };
 
-/** Right-to-left: the row mirrors, Left and Right swap, and the indicator follows. */
+/** Right-to-left: the row mirrors and the indicator follows. Left and Right swap where the browser does it (not WebKit). */
 export const RightToLeft: Story = {
   render: () =>
     html`<div dir="rtl">

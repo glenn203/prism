@@ -2,7 +2,6 @@ import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
 import { canAnimate } from '../internal/choice-motion.js';
 import { controlSize, textRole } from '../internal/control-styles.js';
 import {
@@ -39,8 +38,10 @@ import type { PrismSegment } from './segment.js';
  *   and the message for a failed check in the `error` slot.
  * - Each child `prism-segment` is drawn as a native `<input type="radio">` inside
  *   a real `<label>`, all in this one shadow root so they share a name. Tab
- *   stop, arrow keys (all four, wrapping, skipping disabled segments,
- *   right-to-left aware) and Space are the browser's, with no key handling here.
+ *   stop, arrow keys (all four, skipping disabled segments) and Space are the
+ *   browser's, with no key handling here. Chrome and Firefox also wrap round at
+ *   the ends and flip Left and Right in right-to-left text; WebKit does
+ *   neither, as for any native radios.
  * - `value` is the picked segment's `value` (empty: none, and no indicator).
  *   It is what is submitted under `name`. `required` fails validation while
  *   none is picked. A segment with `checked` in the markup sets the starting
@@ -163,10 +164,13 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     stateLayer("[part~='segment']"),
     css`
       /* The picked segment is painted by the indicator beneath it: the state
-         layer adds nothing on top (!important beats its hover and pressed
-         rules without repeating their selectors). */
+         layer adds nothing on top. Its overlays are all empty, so every state
+         rule resolves to nothing. */
       [part~='segment']:has(> :checked) {
-        --_prism-state-overlay: transparent !important;
+        --_prism-ov-hover: transparent;
+        --_prism-ov-pressed: transparent;
+        --_prism-ov-selected: transparent;
+        --_prism-ov-selected-hover: transparent;
       }
     `,
   ];
@@ -421,7 +425,6 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
         part="base${state}"
         type="radio"
         name=${this.#id}
-        aria-label=${ifDefined(segment.label || undefined)}
         .checked=${this.#isPicked(segment)}
         ?required=${this.required}
         ?disabled=${off}

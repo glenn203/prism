@@ -35,6 +35,9 @@ const SEVEN = `
     <prism-segment value="c">Mid</prism-segment>
   </prism-segmented-control>`;
 
+const WEBKIT_NO_WRAP =
+  'WebKit radios do not wrap at the ends or flip for right-to-left, in plain HTML too';
+
 const s = (page: Page) => page.locator('#s');
 const seg = (page: Page, v: string) =>
   page.locator(`#s prism-segment[value=${v}]`);
@@ -130,21 +133,32 @@ test.describe('prism-segmented-control: semantics', () => {
     await expect(page.locator('#after')).toBeFocused();
   });
 
-  test('arrows move focus and pick, wrap, and skip a disabled segment', async ({
-    page,
-  }) => {
+  test('arrows move focus and pick', async ({ page }) => {
     await setup(page, RANGE());
     await radio(page, 'Week').focus();
     await page.keyboard.press('ArrowRight');
     await expect(radio(page, 'Month')).toBeFocused();
     expect(await value(page)).toBe('month');
+    await page.keyboard.press('ArrowLeft');
+    expect(await value(page)).toBe('week');
+    await page.keyboard.press('ArrowDown');
+    expect(await value(page)).toBe('month');
+    await page.keyboard.press('ArrowUp');
+    expect(await value(page)).toBe('week');
+  });
+
+  test('arrows wrap round the ends and skip a disabled segment', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName === 'webkit', WEBKIT_NO_WRAP);
+    await setup(page, RANGE());
+    await radio(page, 'Month').focus();
     await page.keyboard.press('ArrowDown'); // skips disabled Year, wraps to Day
     await expect(radio(page, 'Day')).toBeFocused();
     expect(await value(page)).toBe('day');
     await page.keyboard.press('ArrowLeft'); // wraps back to Month
     expect(await value(page)).toBe('month');
-    await page.keyboard.press('ArrowUp');
-    expect(await value(page)).toBe('week');
   });
 
   test('Space picks the focused segment', async ({ page }) => {
@@ -154,15 +168,18 @@ test.describe('prism-segmented-control: semantics', () => {
     expect(await value(page)).toBe('month');
   });
 
-  test('right-to-left: Left and Right swap, and the order is mirrored', async ({
-    page,
-  }) => {
+  test('right-to-left: Left and Right swap', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', WEBKIT_NO_WRAP);
     await setup(page, `<div dir="rtl">${RANGE()}</div>`);
     await radio(page, 'Week').focus();
     await page.keyboard.press('ArrowLeft');
     expect(await value(page)).toBe('month');
     await page.keyboard.press('ArrowRight');
     expect(await value(page)).toBe('week');
+  });
+
+  test('right-to-left: the order is mirrored', async ({ page }) => {
+    await setup(page, `<div dir="rtl">${RANGE()}</div>`);
     const x = await s(page).evaluate((e) =>
       ['day', 'month'].map(
         (v) =>
@@ -635,6 +652,34 @@ test.describe('prism-segmented-control: contrast and forced colors', () => {
     }));
     expect(c.on).not.toBe(c.off);
     expect(c.ind).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  test('the picked segment takes no hover or press fill: the indicator is its fill', async ({
+    page,
+  }) => {
+    await setup(page, RANGE());
+    // The invisible input lies over the segment, so move the mouse, not a click target.
+    const moveOver = async (page: Page, v: string) => {
+      const b = (await seg(page, v).boundingBox())!;
+      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    };
+    const fill = (v: string) =>
+      s(page).evaluate((e, v) => {
+        const l = e.querySelector(`prism-segment[value=${v}]`)!.assignedSlot!
+          .parentElement!;
+        return getComputedStyle(l).backgroundImage;
+      }, v);
+    await moveOver(page, 'day');
+    expect(await fill('day')).not.toBe(await fill('week'));
+    await moveOver(page, 'week');
+    expect(await fill('week')).toBe(
+      'linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))',
+    );
+    await mouseDown(page, seg(page, 'week'));
+    expect(await fill('week')).toBe(
+      'linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))',
+    );
+    await page.mouse.up();
   });
 
   test('forced colors: Highlight indicator, HighlightText label, and a focus outline only while focused', async ({

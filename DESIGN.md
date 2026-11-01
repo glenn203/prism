@@ -650,8 +650,9 @@ need its own timing and placement per component.
 | `prism-segment`           | One option, a direct child of the control that holds its text and icon; the control draws it. `value`, `disabled`, `label` (names the input; needed when icon only); `icon` slot and default slot.                                                                                                                                                                                                               |
 
 - Keys are the browser's: one tab stop (the picked segment, else the first), all four
-  arrows move and pick, wrap and skip disabled segments (Left and Right swap in
-  right-to-left), Space picks; there is no key handling in the component. Home and End do
+  arrows move and pick and skip disabled segments, Space picks; there is no key handling
+  in the component. Chrome and Firefox also wrap at the ends and swap Left and Right in
+  right-to-left; WebKit does neither, as for any native radios. Home and End do
   nothing, as on native radios. `prism-segment` children are slotted into each input's
   `label`, which is why they must be direct children. The native `input` event is composed
   and reaches the control as it is; its `change` is not, so the control sends one. The inputs

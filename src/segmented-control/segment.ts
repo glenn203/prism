@@ -1,5 +1,6 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { visuallyHidden } from '../internal/visually-hidden.js';
 
 /**
  * One choice in a `prism-segmented-control`: `<prism-segment value="week">Week</prism-segment>`.
@@ -8,8 +9,8 @@ import { property, state } from 'lit/decorators.js';
  * element inside that label. A segment on its own selects nothing.
  *
  * - It holds what the choice says: its text and an optional icon. The text
- *   names the input. An icon-only segment needs `label`, which names the input
- *   instead.
+ *   names the input. An icon-only segment needs `label`, which is then read as
+ *   its name; where there is text, the text is the name and `label` is not used.
  * - Segments must be direct children of the control.
  * - `checked` is set by the control from its `value`. Set the control's
  *   `value`, not this.
@@ -25,31 +26,34 @@ import { property, state } from 'lit/decorators.js';
  * @cssstate disabled - This segment is disabled.
  */
 export class PrismSegment extends LitElement {
-  static override styles = css`
-    :host {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--prism-space-2, 0.5rem);
-      min-inline-size: 0;
-    }
-    :host([hidden]) {
-      display: none;
-    }
-    [part='icon'] {
-      display: inline-flex;
-      flex: none;
-      inline-size: 1rem;
-      block-size: 1rem;
-    }
-    [part='icon'] ::slotted(*) {
-      inline-size: 100%;
-      block-size: 100%;
-    }
-    [part='icon'][hidden] {
-      display: none;
-    }
-  `;
+  static override styles = [
+    visuallyHidden,
+    css`
+      :host {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--prism-space-2, 0.5rem);
+        min-inline-size: 0;
+      }
+      :host([hidden]) {
+        display: none;
+      }
+      [part='icon'] {
+        display: inline-flex;
+        flex: none;
+        inline-size: 1rem;
+        block-size: 1rem;
+      }
+      [part='icon'] ::slotted(*) {
+        inline-size: 100%;
+        block-size: 100%;
+      }
+      [part='icon'][hidden] {
+        display: none;
+      }
+    `,
+  ];
 
   /** Value the control takes when this segment is picked. */
   @property() value = '';
@@ -66,6 +70,7 @@ export class PrismSegment extends LitElement {
   input: HTMLInputElement | null = null;
 
   @state() private hasIcon = false;
+  @state() private hasText = false;
 
   readonly #internals = this.attachInternals();
 
@@ -107,6 +112,17 @@ export class PrismSegment extends LitElement {
             (this.hasIcon =
               (e.target as HTMLSlotElement).assignedNodes().length > 0)}
         ></slot></span
-      ><span part="label"><slot></slot></span>`;
+      ><span part="label"
+        ><slot
+          @slotchange=${(e: Event) =>
+            (this.hasText = (e.target as HTMLSlotElement)
+              .assignedNodes()
+              .some((node) => node.textContent?.trim()))}
+        ></slot></span
+      >${
+        this.label && !this.hasText
+          ? html`<span class="visually-hidden">${this.label}</span>`
+          : nothing
+      }`;
   }
 }
