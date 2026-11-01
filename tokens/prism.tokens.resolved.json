@@ -968,6 +968,12 @@
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
       },
+      "color.focus-border": {
+        "cssVar": "--prism-color-focus-border",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300)",
+        "hex": "#7d24d3"
+      },
       "color.shadow": {
         "cssVar": "--prism-color-shadow",
         "type": "color",
@@ -1177,6 +1183,32 @@
         "type": "color",
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
+      },
+      "focus.ring-color": {
+        "cssVar": "--prism-focus-ring-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.5)",
+        "hex": "#7d24d380"
+      },
+      "focus.halo-color": {
+        "cssVar": "--prism-focus-halo-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.12)",
+        "hex": "#7d24d31f"
+      },
+      "focus.ring-error-color": {
+        "cssVar": "--prism-focus-ring-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.5)",
+        "hex": "#b8004480",
+        "gamut": "p3"
+      },
+      "focus.halo-error-color": {
+        "cssVar": "--prism-focus-halo-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.12)",
+        "hex": "#b800441f",
+        "gamut": "p3"
       },
       "duration.fast": {
         "cssVar": "--prism-duration-fast",
@@ -2310,6 +2342,12 @@
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
       },
+      "color.focus-border": {
+        "cssVar": "--prism-color-focus-border",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300)",
+        "hex": "#7d24d3"
+      },
       "color.shadow": {
         "cssVar": "--prism-color-shadow",
         "type": "color",
@@ -2519,6 +2557,32 @@
         "type": "color",
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
+      },
+      "focus.ring-color": {
+        "cssVar": "--prism-focus-ring-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.5)",
+        "hex": "#7d24d380"
+      },
+      "focus.halo-color": {
+        "cssVar": "--prism-focus-halo-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.12)",
+        "hex": "#7d24d31f"
+      },
+      "focus.ring-error-color": {
+        "cssVar": "--prism-focus-ring-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.5)",
+        "hex": "#b8004480",
+        "gamut": "p3"
+      },
+      "focus.halo-error-color": {
+        "cssVar": "--prism-focus-halo-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.12)",
+        "hex": "#b800441f",
+        "gamut": "p3"
       },
       "duration.fast": {
         "cssVar": "--prism-duration-fast",
@@ -3652,6 +3716,12 @@
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
       },
+      "color.focus-border": {
+        "cssVar": "--prism-color-focus-border",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300)",
+        "hex": "#7d24d3"
+      },
       "color.shadow": {
         "cssVar": "--prism-color-shadow",
         "type": "color",
@@ -3861,6 +3931,32 @@
         "type": "color",
         "value": "oklch(0.5 0.24 300 / 0.12)",
         "hex": "#7d24d31f"
+      },
+      "focus.ring-color": {
+        "cssVar": "--prism-focus-ring-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.5)",
+        "hex": "#7d24d380"
+      },
+      "focus.halo-color": {
+        "cssVar": "--prism-focus-halo-color",
+        "type": "color",
+        "value": "oklch(0.5 0.24 300 / 0.12)",
+        "hex": "#7d24d31f"
+      },
+      "focus.ring-error-color": {
+        "cssVar": "--prism-focus-ring-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.5)",
+        "hex": "#b8004480",
+        "gamut": "p3"
+      },
+      "focus.halo-error-color": {
+        "cssVar": "--prism-focus-halo-error-color",
+        "type": "color",
+        "value": "oklch(0.5 0.218 12 / 0.12)",
+        "hex": "#b800441f",
+        "gamut": "p3"
       },
       "duration.fast": {
         "cssVar": "--prism-duration-fast",
@@ -4135,6 +4231,13 @@
         "value": "oklch(0.82 0.1 300 / 0.12)",
         "hex": "#ceb6fc1f"
       },
+      "color.focus-border": {
+        "cssVar": "--prism-color-focus-border",
+        "type": "color",
+        "value": "oklch(0.7 0.196 300)",
+        "hex": "#b17eff",
+        "gamut": "p3"
+      },
       "color.shadow": {
         "cssVar": "--prism-color-shadow",
         "type": "color",
@@ -4278,6 +4381,34 @@
         "type": "color",
         "value": "oklch(0.82 0.1 300 / 0.12)",
         "hex": "#ceb6fc1f"
+      },
+      "focus.ring-color": {
+        "cssVar": "--prism-focus-ring-color",
+        "type": "color",
+        "value": "oklch(0.7 0.196 300 / 0.5)",
+        "hex": "#b17eff80",
+        "gamut": "p3"
+      },
+      "focus.halo-color": {
+        "cssVar": "--prism-focus-halo-color",
+        "type": "color",
+        "value": "oklch(0.7 0.196 300 / 0.12)",
+        "hex": "#b17eff1f",
+        "gamut": "p3"
+      },
+      "focus.ring-error-color": {
+        "cssVar": "--prism-focus-ring-error-color",
+        "type": "color",
+        "value": "oklch(0.7 0.24 12 / 0.5)",
+        "hex": "#ff5e7e80",
+        "gamut": "p3"
+      },
+      "focus.halo-error-color": {
+        "cssVar": "--prism-focus-halo-error-color",
+        "type": "color",
+        "value": "oklch(0.7 0.24 12 / 0.12)",
+        "hex": "#ff5e7e1f",
+        "gamut": "p3"
       },
       "progress.fill-lift": {
         "cssVar": "--prism-progress-fill-lift",

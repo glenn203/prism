@@ -364,7 +364,8 @@ test('select focus matches text field focus (outer ring), incl. invalid', async 
     () => page.getByRole('combobox', { name: 'Fruit' }).focus(),
     'prism-select|[part="trigger"]',
   );
-  expect(tf).not.toContain('inset');
+  // The ring is outside the border; the one inset layer is the border line.
+  expect(tf.match(/inset/g)).toHaveLength(1);
   expect(se).toBe(tf);
   await page.evaluate(() =>
     document
