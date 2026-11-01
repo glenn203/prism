@@ -314,6 +314,8 @@ test.describe('prism-radio: motion', () => {
   }) => {
     await setup(page, GROUP);
     await radio(page, 'Monthly').click();
+    // Both have a start time once the frame after the click has run.
+    await wait(page, 50);
     const mine = await anims(host(page, '#c'));
     const prev = await anims(host(page, '#b'));
     expect(mine.length).toBe(3);
