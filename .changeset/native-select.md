@@ -6,6 +6,8 @@
 
 `showPicker()` needs a user gesture (a click or key press), as the native one does, and does nothing in WebKit, whose select has no `showPicker()`. The empty-select placeholder is no longer listed in the popup, and a `prism-option` with no `value` attribute now submits its text.
 
+Where `appearance: base-select` is missing (Firefox), the browser's select now gets the same box as the text field: 5px corners, 1px border, height, padding and type.
+
 Before and after:
 
 ```html

@@ -87,7 +87,8 @@ export class PrismSelect extends FormAssociated(LitElement) {
         position: relative;
         z-index: 1;
         inline-size: 100%;
-        font: inherit;
+        ${controlBox}
+        ${textRole('body')}
       }
       @supports (appearance: base-select) {
         [part='trigger'],
@@ -100,8 +101,6 @@ export class PrismSelect extends FormAssociated(LitElement) {
           gap: var(--prism-space-2, 0.5rem);
           cursor: default;
           user-select: none;
-          ${controlBox}
-          ${textRole('body')}
         }
         [part='trigger']::picker-icon {
           content: '';
