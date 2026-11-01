@@ -1230,6 +1230,11 @@
         "type": "duration",
         "value": "400ms"
       },
+      "motion.segmented": {
+        "cssVar": "--prism-motion-segmented",
+        "type": "duration",
+        "value": "325ms"
+      },
       "ease.standard": {
         "cssVar": "--prism-ease-standard",
         "type": "cubicBezier",
@@ -2604,6 +2609,11 @@
         "type": "duration",
         "value": "400ms"
       },
+      "motion.segmented": {
+        "cssVar": "--prism-motion-segmented",
+        "type": "duration",
+        "value": "325ms"
+      },
       "ease.standard": {
         "cssVar": "--prism-ease-standard",
         "type": "cubicBezier",
@@ -3977,6 +3987,11 @@
         "cssVar": "--prism-motion-switch",
         "type": "duration",
         "value": "400ms"
+      },
+      "motion.segmented": {
+        "cssVar": "--prism-motion-segmented",
+        "type": "duration",
+        "value": "325ms"
       },
       "ease.standard": {
         "cssVar": "--prism-ease-standard",

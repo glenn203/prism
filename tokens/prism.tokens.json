@@ -935,6 +935,10 @@
     "switch": {
       "$value": "400ms",
       "$description": "Switch: time one move takes to settle, on or off (400ms). Two springs, one per thumb edge, set the motion; the track fill, the colours and the glint follow the thumb on the same clock."
+    },
+    "segmented": {
+      "$value": "325ms",
+      "$description": "Segmented control: time the indicator takes to settle on a segment (325ms). Two springs, one per edge, set the motion."
     }
   },
   "ease": {
