@@ -2,12 +2,12 @@ import { css } from 'lit';
 import { textRole } from './control-styles.js';
 
 /**
- * Private. Layout shared by the checkbox and the radio: a control cell and a
- * text column, a 24px minimum hit area around a drawn box, and the layers
- * inside the box (edge, fill, light pass, state overlay). Colour and shape
- * come from the theme through ::part().
+ * Private. The control shared by the checkbox and the radio: a 24px minimum
+ * hit area around a drawn box, and the layers inside the box (edge, fill,
+ * light pass, state overlay). Colour and shape come from the theme through
+ * ::part().
  */
-export const choiceStyles = css`
+export const choiceControlStyles = css`
   :host {
     /* The drawn box (default size md); the hit area is at least 24px. */
     --_box: 1.25rem;
@@ -24,14 +24,17 @@ export const choiceStyles = css`
   :host([hidden]) {
     display: none;
   }
-  [part='container'] {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: var(--prism-space-3, 0.75rem);
-    align-items: start;
-  }
-  [part='base'] {
+  [part~='base'] {
     all: unset;
+    cursor: var(--prism-choice-cursor, pointer);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  /* The hit area. Where a control wraps an input, the wrapper and the input
+     share it. */
+  [part~='base'],
+  [part~='control'] {
     box-sizing: border-box;
     position: relative;
     display: grid;
@@ -39,16 +42,12 @@ export const choiceStyles = css`
     inline-size: var(--_hit);
     block-size: var(--_hit);
     border-radius: var(--prism-radius-5, 5px);
-    cursor: var(--prism-choice-cursor, pointer);
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
   }
-  [part='base']:disabled {
+  [part~='base']:disabled {
     cursor: var(--prism-choice-cursor-disabled, default);
   }
   /* The drawn box. Its squish is the press motion. */
-  [part='box'] {
+  [part~='box'] {
     position: relative;
     box-sizing: border-box;
     inline-size: var(--_box);
@@ -56,8 +55,8 @@ export const choiceStyles = css`
     overflow: hidden;
     pointer-events: none;
   }
-  [part='edge'],
-  [part='ring'] {
+  [part~='edge'],
+  [part~='ring'] {
     position: absolute;
     inset: 0;
     box-sizing: border-box;
@@ -65,7 +64,7 @@ export const choiceStyles = css`
     border-radius: inherit;
   }
   /* The state layer's overlay, above the fill and below the mark. */
-  [part='box']::after {
+  [part~='box']::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -73,35 +72,46 @@ export const choiceStyles = css`
     border-radius: inherit;
     background-color: var(--_prism-state-overlay, transparent);
   }
-  [part='text'] {
+  @media (prefers-reduced-motion: reduce) {
+    /* No travel, squish or draw: the state changes at once and the colours
+       (opacity) fade over 120ms. */
+    [part~='fill'],
+    [part~='ring'],
+    [part~='dot'],
+    [part~='mark'] line {
+      transition: opacity 120ms linear;
+    }
+  }
+`;
+
+/** Private. The checkbox's layout: a control cell beside a text column. */
+export const choiceStyles = css`
+  ${choiceControlStyles}
+  [part~='container'] {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--prism-space-3, 0.75rem);
+    align-items: start;
+  }
+  [part~='text'] {
     min-inline-size: 0;
     padding-block-start: calc((var(--_hit) - 1.25rem) / 2);
   }
-  [part='label'] {
+  [part~='label'] {
     ${textRole('body')}
     display: block;
     cursor: var(--prism-choice-cursor, pointer);
     user-select: none;
   }
-  :host(:state(disabled)) [part='label'] {
+  :host(:state(disabled)) [part~='label'] {
     cursor: var(--prism-choice-cursor-disabled, default);
   }
-  [part='description'],
-  [part='error'] {
+  [part~='description'],
+  [part~='error'] {
     ${textRole('caption')}
   }
-  [part='description'][hidden],
-  [part='error'][hidden] {
+  [part~='description'][hidden],
+  [part~='error'][hidden] {
     display: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    /* No travel, squish or draw: the state changes at once and the colours
-       (opacity) fade over 120ms. */
-    [part='fill'],
-    [part='ring'],
-    [part='dot'],
-    [part='mark'] line {
-      transition: opacity 120ms linear;
-    }
   }
 `;

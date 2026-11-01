@@ -21,16 +21,19 @@ const box = (page: Page, name: string) =>
 const host = (page: Page, id = '#c') => page.locator(id);
 const tap = (page: Page, id = '#c') =>
   host(page, id).evaluate((el) => (el as HTMLElement).click());
-const part = (loc: Locator, name: string) =>
+const size = (loc: Locator, name: string, side: 'width' | 'height') =>
   loc.evaluate(
-    (el, name) =>
-      el.shadowRoot!.querySelector(`[part="${name}"]`)!.getBoundingClientRect()
-        .width,
-    name,
+    (el, [name, side]) =>
+      el.shadowRoot!.querySelector(`[part="${name}"]`)!.getBoundingClientRect()[
+        side as 'width' | 'height'
+      ],
+    [name, side],
   );
+const part = (loc: Locator, name: string) => size(loc, name, 'width');
+const height = (loc: Locator, name: string) => size(loc, name, 'height');
 
 test.describe('prism-checkbox: semantics', () => {
-  test('role checkbox, named by its label, aria-checked follows state (mixed when indeterminate)', async ({
+  test('a native input type=checkbox, named by its label, with no role or aria-checked', async ({
     page,
   }) => {
     const errors = await setup(
@@ -40,9 +43,46 @@ test.describe('prism-checkbox: semantics', () => {
        <prism-checkbox label="Some" indeterminate></prism-checkbox>`,
     );
     expect(errors).toEqual([]);
-    await expect(box(page, 'Off')).toHaveAttribute('aria-checked', 'false');
-    await expect(box(page, 'On')).toHaveAttribute('aria-checked', 'true');
-    await expect(box(page, 'Some')).toHaveAttribute('aria-checked', 'mixed');
+    await expect(box(page, 'Off')).not.toBeChecked();
+    await expect(box(page, 'On')).toBeChecked();
+    await expect(box(page, 'Some')).toBeChecked({ indeterminate: true });
+    for (const name of ['Off', 'On', 'Some']) {
+      const input = box(page, name);
+      expect(await input.evaluate((el) => el.tagName)).toBe('INPUT');
+      await expect(input).toHaveAttribute('type', 'checkbox');
+      await expect(input).not.toHaveAttribute('role');
+      await expect(input).not.toHaveAttribute('aria-checked');
+      await expect(input).not.toHaveAttribute('aria-labelledby');
+    }
+    const label = host(page, 'prism-checkbox').first();
+    expect(
+      await label.evaluate(
+        (el) =>
+          el.shadowRoot!.querySelector('label')!.htmlFor ===
+          el.shadowRoot!.querySelector('input')!.id,
+      ),
+    ).toBe(true);
+  });
+
+  test('a checked and indeterminate box unchecks on click, as a native one does', async ({
+    page,
+  }) => {
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C" checked indeterminate></prism-checkbox>',
+    );
+    await box(page, 'C').click();
+    await expect(box(page, 'C')).not.toBeChecked({ indeterminate: false });
+    expect(
+      await host(page).evaluate((el) => el.hasAttribute('indeterminate')),
+    ).toBe(false);
+  });
+
+  test('required sets the native required state on the input', async ({
+    page,
+  }) => {
+    await setup(page, '<prism-checkbox label="C" required></prism-checkbox>');
+    await expect(box(page, 'C')).toHaveJSProperty('required', true);
   });
 
   test('click, label click and Space toggle; Enter does not', async ({
@@ -54,14 +94,14 @@ test.describe('prism-checkbox: semantics', () => {
     );
     const c = box(page, 'Weekly summary');
     await c.click();
-    await expect(c).toHaveAttribute('aria-checked', 'true');
+    await expect(c).toBeChecked();
     await page.getByText('Weekly summary').click();
-    await expect(c).toHaveAttribute('aria-checked', 'false');
+    await expect(c).not.toBeChecked();
     await c.focus();
     await page.keyboard.press('Space');
-    await expect(c).toHaveAttribute('aria-checked', 'true');
+    await expect(c).toBeChecked();
     await page.keyboard.press('Enter');
-    await expect(c).toHaveAttribute('aria-checked', 'true');
+    await expect(c).toBeChecked();
   });
 
   test('fires input and change once per user toggle, not for property changes', async ({
@@ -91,12 +131,12 @@ test.describe('prism-checkbox: semantics', () => {
       '<prism-checkbox id="c" label="C" indeterminate></prism-checkbox>',
     );
     await box(page, 'C').click();
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'true');
+    await expect(box(page, 'C')).toBeChecked();
     expect(
       await host(page).evaluate((el) => el.hasAttribute('indeterminate')),
     ).toBe(false);
     await box(page, 'C').click();
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'false');
+    await expect(box(page, 'C')).not.toBeChecked();
   });
 
   test('host.click() toggles; :state(checked), :state(indeterminate), :state(selected)', async ({
@@ -158,7 +198,7 @@ test.describe('prism-checkbox: disabled', () => {
       '<prism-checkbox id="c" label="C" disabled></prism-checkbox>',
     );
     await host(page).click({ force: true });
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'false');
+    await expect(box(page, 'C')).not.toBeChecked();
     await page.keyboard.press('Tab');
     await expect(box(page, 'C')).not.toBeFocused();
     expect(
@@ -234,9 +274,9 @@ test.describe('prism-checkbox: forms', () => {
       '<form><prism-checkbox id="c" name="a" label="C" checked></prism-checkbox></form>',
     );
     await box(page, 'C').click();
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'false');
+    await expect(box(page, 'C')).not.toBeChecked();
     await page.evaluate(() => document.querySelector('form')!.reset());
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'true');
+    await expect(box(page, 'C')).toBeChecked();
   });
 });
 
@@ -257,6 +297,7 @@ test.describe('prism-checkbox: shape', () => {
     ] as const) {
       expect(await part(host(page, id), 'box')).toBe(boxPx);
       expect(await part(host(page, id), 'base')).toBeGreaterThanOrEqual(24);
+      expect(await height(host(page, id), 'base')).toBeGreaterThanOrEqual(24);
     }
   });
 
@@ -465,7 +506,7 @@ test.describe('prism-checkbox: motion', () => {
       await wait(page, 55);
     }
     await wait(page, 800);
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'true');
+    await expect(box(page, 'C')).toBeChecked();
     expect(await anims(host(page))).toEqual([]);
     const f = await drawn(host(page));
     expect(f.fill!.s).toBe(1);
@@ -552,7 +593,7 @@ test.describe('prism-checkbox: motion', () => {
     await page.mouse.move(b.x + 200, b.y + 200);
     await page.mouse.up();
     await wait(page, 700);
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'false');
+    await expect(box(page, 'C')).not.toBeChecked();
     expect((await drawn(host(page))).sy).toBe(1);
   });
 
@@ -565,7 +606,7 @@ test.describe('prism-checkbox: motion', () => {
     await wait(page, 300);
     expect((await drawn(host(page))).sy).toBeCloseTo(0.88, 2);
     await page.keyboard.up('Space');
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'true');
+    await expect(box(page, 'C')).toBeChecked();
     await wait(page, 700);
     expect((await drawn(host(page))).sy).toBe(1);
   });
@@ -578,7 +619,7 @@ test.describe('prism-checkbox: motion', () => {
     expect((await anims(host(page))).length).toBe(5);
     expect(new Set((await anims(host(page))).map((a) => a.start)).size).toBe(1);
     await wait(page, 700);
-    await expect(box(page, 'C')).toHaveAttribute('aria-checked', 'true');
+    await expect(box(page, 'C')).toBeChecked();
   });
 
   test('reduced motion: no animation, the state changes at once, colour fades over 120ms', async ({
@@ -595,14 +636,14 @@ test.describe('prism-checkbox: motion', () => {
         fillProps: cs(q('fill')).transitionProperty,
         fillMs: parseFloat(cs(q('fill')).transitionDuration) * 1000,
         glint: cs(q('box'), '::before').display,
-        checked: q('base').getAttribute('aria-checked'),
+        checked: (q('base') as HTMLInputElement).checked,
       };
     });
     expect(r).toEqual({
       fillProps: 'opacity',
       fillMs: 120,
       glint: 'none',
-      checked: 'true',
+      checked: true,
     });
     // Press does not squish.
     const b = (await box(page, 'C').boundingBox())!;
@@ -723,7 +764,7 @@ async function looks(page: Page, state: 'rest' | 'hover' | 'pressed') {
     const cs = (n: Element, pe?: string) => getComputedStyle(n, pe);
     const bg = cs(el.parentElement!).backgroundColor;
     const overlay = cs(q('box'), '::after').backgroundColor;
-    const on = q('base').getAttribute('aria-checked') === 'true';
+    const on = (q('base') as HTMLInputElement).checked;
     const face = on
       ? cs(q('fill')).backgroundColor
       : cs(q('box')).backgroundColor;

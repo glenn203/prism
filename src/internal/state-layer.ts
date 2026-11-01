@@ -23,17 +23,21 @@ import { css, unsafeCSS, type CSSResult } from 'lit';
  *             (keyboard highlight, e.g. aria-activedescendant)
  *   pressed  12%  :active, or [data-pressed]
  *   selected 11%  [aria-selected=true] / [aria-pressed=true] / [aria-current] /
- *             [aria-checked=true] on the surface, or host :state(selected).
+ *             [aria-checked=true] on the surface, a checked native input
+ *             directly inside it, or host :state(selected).
  *             Selected+hover is its own token (15%); selected+pressed uses
  *             pressed (12%). Colour is never the only cue: the component MUST
  *             also show a non-colour indicator (WCAG 1.4.1).
- *   disabled  :disabled / [aria-disabled=true] / host :state(disabled):
+ *   disabled  :disabled / [aria-disabled=true] / a disabled native input
+ *             directly inside it / host :state(disabled):
  *             no hover/pressed/selected change at all.
  * Headless-safe: with no theme, --_bg/--_on are unset and nothing paints.
  */
 export function stateLayer(selector: string): CSSResult {
   const s = unsafeCSS(selector);
-  const live = unsafeCSS(`${selector}:not(:disabled, [aria-disabled='true'])`);
+  const live = unsafeCSS(
+    `${selector}:not(:disabled, [aria-disabled='true'], :has(> :disabled))`,
+  );
   return css`
     ${s} {
       --_prism-ov-hover: color-mix(
@@ -78,6 +82,7 @@ export function stateLayer(selector: string): CSSResult {
         [aria-selected='true'],
         [aria-pressed='true'],
         [aria-checked='true'],
+        :has(> :checked),
         [aria-current]:not([aria-current='false'])
       ),
     :host(:state(selected):not(:state(disabled))) ${s} {
@@ -102,6 +107,7 @@ export function stateLayer(selector: string): CSSResult {
           [aria-selected='true'],
           [aria-pressed='true'],
           [aria-checked='true'],
+          :has(> :checked),
           [aria-current]:not([aria-current='false'])
         ),
       :host(:state(selected):not(:state(disabled))) ${live}:hover {

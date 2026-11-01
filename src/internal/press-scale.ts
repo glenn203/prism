@@ -60,6 +60,8 @@ export interface PressScaleOptions {
   accept?: (event: Event) => boolean;
   /** Forward a click that ends on the control's edge (not for a stretched link). Default true. */
   rim?: boolean;
+  /** Enter presses too (a button, unlike a native radio). Default true. */
+  enter?: boolean;
   /** Mark the target `data-pressed` while held, so the state layer shows the press colour. */
   mark?: boolean;
 }
@@ -80,7 +82,7 @@ export class PressScale implements ReactiveController {
       host,
       () => this.#enabled(),
       () => this.#retarget(),
-      { enter: true, keyHold: KEY_HOLD },
+      { enter: this.o.enter ?? true, keyHold: KEY_HOLD },
     );
     this.#motion = new SpringMotion<'q', 'el'>(
       ['q'],

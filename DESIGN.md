@@ -460,11 +460,11 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 ### Checkbox, Radio and Radio group (names provisional)
 
-| Element             | Role and props                                                                                                                                                                                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. Native `button role="checkbox"` with `aria-checked` (`mixed` while indeterminate). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots. |
-| `prism-radio-group` | Exactly one of several choices. `role="radiogroup"` named by `label` (required). `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal); `description` and `error` slots. Owns the form value, the tab stop and the arrow keys.                                                                    |
-| `prism-radio`       | One choice. Native `button role="radio"`. `value`, `label` (required), `disabled`, `size`; `description` slot. `checked` is set by the group from its `value`.                                                                                                                                                            |
+| Element             | Role and props                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. A native `input type="checkbox"` in shadow DOM, named by a real `label` (`.indeterminate` shows as mixed). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots.                                                                             |
+| `prism-radio-group` | Exactly one of several choices. A native `fieldset` with a `legend` from `label` (required). Draws a native `input type="radio"` and `label` for each child radio, all in its own shadow root so they share one name. `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal), `size` (sm, md, lg); `description` and `error` slots. Owns the form value; the browser owns the tab stop and arrow keys. |
+| `prism-radio`       | One choice, a direct child of the group that holds its text. `value`, `label` (required), `description`, `disabled`; default slot for extra label content. `checked` is set by the group from its `value`.                                                                                                                                                                                                                    |
 
 **Shared.**
 
@@ -496,12 +496,17 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 **Checkbox.**
 
-- Space toggles. Enter does not, as on a native checkbox. Fires `input` and `change` after
-  a user toggle, not after a property change. Submits `value` under `name` while
+- The browser handles Space, label clicks, focus order and disabled. Enter does not
+  toggle. Fires `input` and `change` after a user toggle, not after a property change.
+  The native input's own `input` event is composed and reaches the host as it is; its
+  `change` is not, so the host sends one. The input lives in shadow DOM, so the host
+  mirrors its value and validity through ElementInternals. Submits `value` under `name` while
   checked. `required` fails validation while unchecked; the error shows after the box
   is touched or the form is submitted. A reset returns it to how it started.
-- Indeterminate: a click clears it and checks the box, as a native checkbox does. It
+- Indeterminate: a click clears it and toggles `checked`, as a native checkbox does. It
   submits like a native one (by `checked`).
+- Layers: `control` (24px hit area, carries the state layer) holds the invisible input
+  (`base`, which carries the focus ring) and the drawn `box`.
 - Four springs. `q` squish, `f` fill, `c` check, `m` dash. The fill is a circle growing
   from the centre (spring 30 and 0.8, about 100ms to full). The check is one stroke,
   the short arm then the long, drawn with `stroke-dashoffset` once the fill is about a
@@ -517,9 +522,19 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 **Radio group.**
 
-- One tab stop: the picked radio, else the first enabled one. Arrow keys move focus and
-  pick together, wrap, skip disabled radios; Left and Right swap in right-to-left text.
-  Space picks the focused radio; Enter does not.
+- Native radios in one shadow root, so the browser gives one tab stop (the picked radio,
+  else the first), arrow keys that move and pick together and skip disabled radios, and
+  Space to pick; there is no key handling in the component. Chrome and Firefox also wrap
+  at the ends and flip Left and Right in right-to-left; WebKit does neither, as for any
+  native radios. `prism-radio` children
+  are slotted into each input's `label`, which is why they must be direct children and
+  why `description` is an attribute (an id reference cannot cross into a child's
+  shadow root).
+- The native `input` event is composed and reaches the group as it is; its `change` is
+  not, so the group sends one. The inputs are in shadow DOM, so the group mirrors the
+  value and validity through ElementInternals.
+- Each option's parts carry `checked` and `disabled` tokens while they apply, so a theme
+  targets `::part(edge disabled)`.
 - `value` is the picked radio's value; a radio marked `checked` in the markup sets the
   starting value. Submits the value under `name`; `required` fails while none is picked.
   Disabling the group disables every radio.
@@ -629,14 +644,23 @@ need its own timing and placement per component.
 
 **Segmented control.**
 
-| Element                   | Role and props                                                                                                                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-segmented-control` | One choice from a few. `role="radiogroup"` named by `label` (required, or `hide-label`). `value`, `name`, `required`, `disabled`, `size` (sm, md, lg), `full-width`; `description` and `error` slots. Form associated; owns value and keys. |
-| `prism-segment`           | One option. Native `button role="radio"` with `aria-checked`. `value`, `disabled`, `label` (needed when icon only); `icon` slot and default slot.                                                                                           |
+| Element                   | Role and props                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prism-segmented-control` | One choice from a few. A native `fieldset` with a `legend` from `label` (required, or `hide-label`). Draws a native `input type="radio"` in a real `label` for each child segment, all in its own shadow root so they share one name. `value`, `name`, `required`, `disabled`, `size` (sm, md, lg), `full-width`; `description` and `error` slots. Form associated; owns the value, the indicator and the press. |
+| `prism-segment`           | One option, a direct child of the control that holds its text and icon; the control draws it. `value`, `disabled`, `label` (names the input; needed when icon only); `icon` slot and default slot.                                                                                                                                                                                                               |
 
-- Keys: roving tab stop (the picked segment, else the first enabled), arrows move and pick
-  (Left and Right swap in right-to-left), Home and End, disabled segments are skipped.
+- Keys are the browser's: one tab stop (the picked segment, else the first), all four
+  arrows move and pick and skip disabled segments, Space picks; there is no key handling
+  in the component. Chrome and Firefox also wrap at the ends and swap Left and Right in
+  right-to-left; WebKit does neither, as for any native radios. Home and End do
+  nothing, as on native radios. `prism-segment` children are slotted into each input's
+  `label`, which is why they must be direct children. The native `input` event is composed
+  and reaches the control as it is; its `change` is not, so the control sends one. The inputs
+  are in shadow DOM, so the control mirrors the value and validity through ElementInternals.
   `input` and `change` fire on user picks only. Reset returns to the starting segment.
+- Each segment's `label` (part `segment`) holds the invisible input (part `base`, laid over
+  it, with the inset focus ring) and carries `checked` and `disabled` part tokens while they
+  apply, so a theme targets `::part(segment checked)`. The press scales the label by about 3%.
 - Indicator: one element sized by two edge springs (`LEAD` 44/0.74 for the edge in the
   direction of travel, `TRAIL` 34/0.9 for the other), drawn with `translateX` and
   `scaleX` of a fixed 100px box, so only transform and opacity animate. The shape stretches
