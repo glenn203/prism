@@ -1,5 +1,8 @@
 name: CI
 
+# The pull request gate: lint and the Chromium suite, the suite split across
+# four parallel jobs. Firefox and WebKit run in browsers.yml, nightly and after
+# each push to main. Branch protection requires the `check` job.
 on:
   push:
     branches: [main]
@@ -8,9 +11,32 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: node --test test/tokens.test.mjs
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,7 +49,46 @@ jobs:
       # Layout tests measure glyph boxes; the theme's first font is Inter, so
       # CI needs it installed or text metrics differ from local runs.
       - run: sudo apt-get update && sudo apt-get install -y fonts-inter && fc-match Inter
-      - run: pnpm build
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm test
+      # The tests read the generated tokens.css; `pnpm build` regenerates it in the lint job.
+      - run: pnpm tokens
+      - run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report
+          retention-days: 7
+
+  report:
+    needs: test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - run: pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
+
+  # The one required check: green only when lint and every shard pass.
+  check:
+    needs: [lint, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          test "${{ needs.lint.result }}" = success
+          test "${{ needs.test.result }}" = success
