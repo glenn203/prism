@@ -23,7 +23,7 @@ const FIELDS = {
   },
   select: {
     markup: `<prism-select id="f" label="Plan" required>${OPTIONS}${ERROR}</prism-select>`,
-    value: 'value',
+    value: 'trigger',
   },
 };
 

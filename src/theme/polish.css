@@ -209,7 +209,7 @@ prism-select::part(trigger)::after {
     prism-search-input,
     prism-text-field
   ):is(:hover, :focus-within)::part(control)::after,
-prism-select:is(:hover, :focus-within, :state(open))::part(trigger)::after {
+prism-select:is(:hover, :focus-within)::part(trigger)::after {
   opacity: var(--prism-polish-light);
 }
 :is(

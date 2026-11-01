@@ -279,40 +279,37 @@ prism-select::part(trigger) {
 prism-select:hover::part(trigger) {
   border-color: var(--prism-color-text-muted);
 }
-prism-select:state(placeholder)::part(value),
-prism-select::part(indicator) {
+prism-select:state(placeholder)::part(trigger),
+prism-select::part(trigger)::picker-icon {
   color: var(--prism-color-text-muted);
 }
-prism-select::part(listbox) {
+/* The popup is the browser's own, drawn in Prism's look; it grows out of the
+ * trigger (the component's motion). */
+prism-select::part(trigger)::picker(select) {
   /* 4px block, 2px inline (half unit). */
   padding: var(--prism-space-1) calc(var(--prism-space-1) / 2);
-  /* "A tad darker" than color-border: color-border-popup (next ramp step). */
   border: var(--prism-border-width) solid var(--prism-color-border-popup);
-  border-radius: 0 0 var(--prism-radius-7) var(--prism-radius-7);
+  border-radius: var(--prism-radius-7);
   background: var(--prism-color-bg);
+  color: var(--prism-color-text);
   box-shadow: var(--prism-elevation-default);
-  transform-origin: top;
 }
-/* The list grows out of the trigger on springs (the component's motion). With
- * reduced motion it only fades in. */
-@media (prefers-reduced-motion: reduce) {
-  prism-select:state(open)::part(listbox) {
-    animation: prism-fade-in var(--prism-duration-fast)
-      var(--prism-ease-standard);
-  }
-}
-/* The marker behind the active option: the hover tint, sliding. It replaces the
- * option's own hover and keyboard tint (pressed and selected stay). */
-prism-select::part(highlight) {
+/* An option: the shared hover tint for the pointer and the keyboard, the
+ * selected fill, and a check mark as the non-colour cue. */
+prism-select::part(option) {
+  min-block-size: max(24px, calc(var(--_prism-control-height, 2.25rem) - 4px));
+  padding-inline: var(--prism-space-2);
   border-radius: var(--prism-radius-5);
-  background: color-mix(
-    in srgb,
-    var(--prism-color-text) var(--prism-state-hover, 6%),
-    transparent
-  );
+  color: var(--prism-color-text);
 }
-prism-select prism-option::part(base) {
-  --_prism-ov-hover: transparent;
+prism-select::part(option):is(:hover, :focus-visible) {
+  background: var(--prism-color-surface-hover);
+}
+prism-select::part(option):checked {
+  background: var(--prism-color-surface-pressed);
+}
+prism-select::part(option):disabled {
+  color: var(--prism-color-text-muted);
 }
 prism-select::part(description) {
   margin-block-start: var(--prism-space-1);
@@ -391,7 +388,7 @@ prism-select::part(trigger) {
   position: relative;
   z-index: 1;
 }
-/* Select trigger sits above its listbox (z 1) and error box. */
+/* Select trigger sits above the attached error box. */
 prism-select::part(trigger) {
   z-index: 2;
 }
@@ -596,26 +593,6 @@ prism-select:state(invalid)::part(label) {
   color: var(--prism-color-error-text);
 }
 
-/* ---------- Option (NAME PENDING) ---------- */
-prism-option::part(base) {
-  --_bg: var(--prism-color-bg);
-  --_on: var(--prism-color-text);
-  --_bg-hover: var(--prism-color-surface-hover);
-  --_bg-pressed: var(--prism-color-surface-pressed);
-  --_bg-selected: var(--prism-color-surface-pressed);
-  min-block-size: max(24px, calc(var(--_prism-control-height, 2.25rem) - 4px));
-  padding-inline: var(--prism-space-2);
-  border-radius: var(--prism-radius-5);
-  transition: background-color var(--prism-duration-fast)
-    var(--prism-ease-standard);
-}
-/* Hover/active, pressed and selected fills come from the shared state layer
- * (flat: no shadow; --prism-elevation-hover stays reserved). Selected also
- * shows the check mark (non-colour indicator). */
-prism-option:state(disabled)::part(base) {
-  color: var(--prism-color-text-muted);
-}
-
 /* ---------- Text input adornments (password toggle, search clear) ----------
  * Transparent icon buttons on the shared state layer (on-colour veil). */
 :is(prism-password-input, prism-search-input)::part(toggle),
@@ -766,8 +743,8 @@ prism-otp-input:state(disabled)::part(cell) {
     --prism-ease-spring: linear;
     --prism-ease-spring-bouncy: linear;
   }
-  prism-select:state(open)::part(listbox) {
-    animation-name: prism-fade-in; /* opacity only, no translate/scale */
+  prism-select::part(trigger)::picker(select) {
+    transform: none; /* opacity only, no translate/scale */
   }
   prism-button::part(base),
   :is(
@@ -779,7 +756,6 @@ prism-otp-input:state(disabled)::part(cell) {
     prism-text-field
   )::part(input),
   prism-select::part(trigger),
-  prism-option::part(base),
   prism-otp-input::part(cell),
   :is(prism-password-input, prism-search-input)::part(toggle),
   :is(prism-password-input, prism-search-input)::part(clear) {
@@ -848,7 +824,7 @@ prism-icon-button:state(disabled)::part(base) {
 }
 
 /* ---------- Menu (NAME PROVISIONAL) ----------
- * Popup uses the shared elevation level, like the select listbox. */
+ * Popup uses the shared elevation level, like the select popup. */
 prism-menu::part(popup) {
   background: var(--prism-color-bg);
   color: var(--prism-color-text);
@@ -1829,10 +1805,9 @@ prism-segment::part(base):focus-visible {
     border-color: GrayText;
     color: GrayText;
   }
-  /* The active option has no tint to show, so it is boxed. */
-  prism-select::part(highlight) {
-    box-sizing: border-box;
-    border: 2px solid Highlight;
-    background: transparent;
+  /* Tints are dropped, so the active option is the system highlight. */
+  prism-select::part(option):is(:hover, :focus-visible) {
+    background: Highlight;
+    color: HighlightText;
   }
 }

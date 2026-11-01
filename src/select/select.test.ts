@@ -12,68 +12,119 @@ const withTheme = async (page: Page) => {
   await page.addStyleTag({ path: 'src/theme/theme.css' });
 };
 
-const activeText = (page: Page) =>
-  page.locator('prism-select').evaluate((el) => {
-    const t = el.shadowRoot!.querySelector(
-      '[part="trigger"]',
-    ) as HTMLElement & {
-      ariaActiveDescendantElement: Element | null;
-    };
-    return t.ariaActiveDescendantElement?.textContent ?? null;
-  });
+const valueOf = (page: Page) =>
+  page
+    .locator('prism-select')
+    .evaluate((e: HTMLElement & { value: string }) => e.value);
 
-test('combobox is labelled, keyboard opens, navigates (skips disabled) and selects', async ({
+const isOpen = (page: Page) =>
+  page
+    .locator('prism-select')
+    .evaluate((el) =>
+      el.shadowRoot!.querySelector('[part="trigger"]')!.matches(':open'),
+    );
+
+test('is a native select: labelled combobox, arrow keys open, skip disabled, Enter picks', async ({
   page,
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
   const box = page.getByRole('combobox', { name: 'Fruit' });
+  expect(
+    await page
+      .locator('prism-select')
+      .evaluate((el) => el.shadowRoot!.querySelector('select')?.id),
+  ).toBe('control');
   await box.focus();
-  await expect(box).toHaveAttribute('aria-expanded', 'false');
+  expect(await isOpen(page)).toBe(false);
   await box.press('ArrowDown');
-  await expect(box).toHaveAttribute('aria-expanded', 'true');
-  expect(await activeText(page)).toBe('Apricot');
-  await box.press('ArrowDown');
-  await box.press('ArrowDown');
-  expect(await activeText(page)).toBe('Date'); // Cherry is disabled
-  await box.press('Home');
-  expect(await activeText(page)).toBe('Apricot');
-  await box.press('End');
-  await box.press('Enter');
-  await expect(box).toHaveAttribute('aria-expanded', 'false');
+  expect(await isOpen(page)).toBe(true);
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown'); // Cherry is disabled
+  await page.keyboard.press('Enter');
+  expect(await isOpen(page)).toBe(false);
   await expect(box).toBeFocused();
-  expect(
-    await page
-      .locator('prism-select')
-      .evaluate((e: HTMLElement & { value: string }) => e.value),
-  ).toBe('date');
-  await box.press('ArrowDown');
-  await box.press('Escape');
-  expect(
-    await page
-      .locator('prism-select')
-      .evaluate((e: HTMLElement & { value: string }) => e.value),
-  ).toBe('date');
-  await box.press('b'); // typeahead opens on Banana
-  expect(await activeText(page)).toBe('Banana');
+  expect(await valueOf(page)).toBe('date');
+  await box.press('b'); // type-ahead picks Banana without opening
+  expect(await valueOf(page)).toBe('banana');
 });
 
-test('pointer: click opens, click option selects and fires change', async ({
+test('pointer: click opens, click option selects and fires input and change once', async ({
   page,
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
   await page.evaluate(() => {
-    document.querySelector('prism-select')!.addEventListener('change', () => {
-      (window as unknown as { changed: number }).changed = 1;
-    });
+    const seen: string[] = [];
+    (window as unknown as { seen: string[] }).seen = seen;
+    for (const type of ['input', 'change'])
+      document
+        .querySelector('prism-select')!
+        .addEventListener(type, (e) =>
+          seen.push(`${type}:${e.target === e.currentTarget}`),
+        );
   });
   await page.getByRole('combobox', { name: 'Fruit' }).click();
+  expect(await isOpen(page)).toBe(true);
   await page.getByRole('option', { name: 'Banana' }).click();
+  expect(await isOpen(page)).toBe(false);
   expect(
-    await page.evaluate(
-      () => (window as unknown as { changed?: number }).changed,
-    ),
-  ).toBe(1);
-  await expect(page.getByRole('option', { name: 'Banana' })).toBeHidden();
+    await page.evaluate(() => (window as unknown as { seen: string[] }).seen),
+  ).toEqual(['input:true', 'change:true']);
+  expect(await valueOf(page)).toBe('banana');
+});
+
+test('showPicker() opens the popup', async ({ page }) => {
+  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  await page.getByRole('combobox', { name: 'Fruit' }).focus();
+  await page
+    .locator('prism-select')
+    .evaluate((e: HTMLElement & { showPicker(): void }) => e.showPicker());
+  expect(await isOpen(page)).toBe(true);
+});
+
+test('the placeholder shows while empty and can never be picked', async ({
+  page,
+}) => {
+  await mount(
+    page,
+    `<prism-select label="Fruit" placeholder="Pick fruit">${OPTIONS}</prism-select>`,
+  );
+  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await expect(box).toHaveText(/Pick fruit/);
+  await box.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  expect(await valueOf(page)).toBe('apricot');
+  await expect(box).not.toHaveText(/Pick fruit/);
+});
+
+test('options follow the prism-option children: added, disabled and renamed', async ({
+  page,
+}) => {
+  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  const names = () =>
+    page
+      .locator('prism-select')
+      .evaluate((el) =>
+        [
+          ...el.shadowRoot!.querySelectorAll<HTMLOptionElement>(
+            'option:not([hidden])',
+          ),
+        ].map((o) => `${o.text.trim()}${o.disabled ? ' (off)' : ''}`),
+      );
+  expect(await names()).toEqual(['Apricot', 'Banana', 'Cherry (off)', 'Date']);
+  await page.evaluate(() => {
+    const select = document.querySelector('prism-select')!;
+    select
+      .querySelector('[value="cherry"]')!
+      .toggleAttribute('disabled', false);
+    select.querySelector('[value="date"]')!.textContent = 'Dates';
+    const fig = document.createElement('prism-option');
+    fig.setAttribute('value', 'fig');
+    fig.textContent = 'Fig';
+    select.append(fig);
+  });
+  await expect
+    .poll(names)
+    .toEqual(['Apricot', 'Banana', 'Cherry', 'Dates', 'Fig']);
 });
 
 test('form: submits value, required blocks submit, reset restores', async ({
@@ -90,15 +141,11 @@ test('form: submits value, required blocks submit, reset restores', async ({
   await expect(box).toHaveAttribute('aria-invalid', 'true');
   await box.focus();
   await box.press('ArrowDown');
-  await box.press('Enter');
+  await page.keyboard.press('Enter');
   await page.getByRole('button', { name: 'Go' }).click();
   expect(await submitted(page)).toEqual({ fruit: 'apricot' });
   await page.getByRole('button', { name: 'Reset' }).click();
-  expect(
-    await page
-      .locator('prism-select')
-      .evaluate((e: HTMLElement & { value: string }) => e.value),
-  ).toBe('');
+  expect(await valueOf(page)).toBe('');
   await expect(box).toHaveAttribute('aria-invalid', 'false');
 });
 
@@ -110,11 +157,34 @@ test('disabled: excluded from submit and does not open', async ({ page }) => {
   await captureSubmit(page);
   await page.getByRole('button', { name: 'Go' }).click();
   expect(await submitted(page)).toEqual({});
-  await page.getByRole('combobox', { name: 'Fruit' }).click({ force: true });
-  await expect(page.getByRole('combobox', { name: 'Fruit' })).toHaveAttribute(
-    'aria-expanded',
-    'false',
+  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await box.click({ force: true });
+  expect(await isOpen(page)).toBe(false);
+  await expect(box).toBeDisabled();
+});
+
+test('focus stays on the select after Escape, Enter and a click pick; Tab leaves it', async ({
+  page,
+}) => {
+  await mount(
+    page,
+    `<prism-select label="Fruit">${OPTIONS}</prism-select><button id="next">next</button>`,
   );
+  const box = page.getByRole('combobox', { name: 'Fruit' });
+  await box.focus();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Escape');
+  await expect(box).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(box).toBeFocused();
+  await box.click();
+  await page.getByRole('option', { name: 'Date' }).click();
+  await expect(box).toBeFocused();
+  expect(await valueOf(page)).toBe('date');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#next')).toBeFocused();
+  expect(await isOpen(page)).toBe(false);
 });
 
 test('error replaces helper text', async ({ page }) => {
@@ -165,7 +235,7 @@ test('error animation runs on invalid only, never on focus', async ({
   expect(await errorAnimations(page)).toBe(0);
 });
 
-test('reduced motion: error has no animation; menu is an opacity-only ~0ms fade', async ({
+test('popup: elevated, and with reduced motion it only fades, in under a frame', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -181,56 +251,40 @@ test('reduced motion: error has no animation; menu is an opacity-only ~0ms fade'
     );
   expect(await errorAnimations(page)).toBe(0);
   await page.getByRole('combobox', { name: 'Fruit' }).click();
-  const anims = await page.locator('prism-select').evaluate((el) =>
-    el
-      .shadowRoot!.querySelector('[part="listbox"]')!
-      .getAnimations()
-      .map((a) => {
-        const fx = a.effect as KeyframeEffect;
-        return {
-          props: [
-            ...new Set(
-              fx
-                .getKeyframes()
-                .flatMap((k) =>
-                  Object.keys(k).filter(
-                    (p) =>
-                      ![
-                        'offset',
-                        'easing',
-                        'composite',
-                        'computedOffset',
-                      ].includes(p),
-                  ),
-                ),
-            ),
-          ],
-          ms: Number(fx.getTiming().duration),
-        };
-      }),
-  );
-  // Motion tokens collapse to 0.01ms; nothing moves, only opacity.
-  for (const a of anims) {
-    expect(a.props).toEqual(['opacity']);
-    expect(a.ms).toBeLessThan(1);
-  }
+  const popup = await page.locator('prism-select').evaluate((el) => {
+    const s = getComputedStyle(
+      el.shadowRoot!.querySelector('[part="trigger"]')!,
+      '::picker(select)',
+    );
+    return {
+      shadow: s.boxShadow,
+      props: s.transitionProperty.split(', '),
+      ms: s.transitionDuration.split(', ').map((d) => parseFloat(d)),
+    };
+  });
+  expect(popup.shadow).not.toBe('none');
+  expect(popup.props).toContain('opacity');
+  // Motion tokens collapse to 0.01ms: the popup does not travel.
+  for (const ms of popup.ms) expect(ms).toBeLessThan(0.001);
 });
 
-test('menu uses elevation tokens and plays no CSS animation with motion allowed', async ({
+test('with motion allowed the popup grows out of the trigger on a transition', async ({
   page,
 }) => {
   await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
   await withTheme(page);
   await page.getByRole('combobox', { name: 'Fruit' }).click();
-  const r = await page.locator('prism-select').evaluate((el) => {
-    const lb = el.shadowRoot!.querySelector('[part="listbox"]')!;
-    return {
-      css: lb.getAnimations().filter((a) => a instanceof CSSAnimation).length,
-      shadow: getComputedStyle(lb).boxShadow,
-    };
-  });
-  expect(r.css).toBe(0);
-  expect(r.shadow).not.toBe('none');
+  const props = await page
+    .locator('prism-select')
+    .evaluate(
+      (el) =>
+        getComputedStyle(
+          el.shadowRoot!.querySelector('[part="trigger"]')!,
+          '::picker(select)',
+        ).transitionProperty,
+    );
+  expect(props).toContain('transform');
+  expect(props).toContain('opacity');
 });
 
 test('attached error box is inset 8px on each side of the control', async ({
@@ -490,54 +544,6 @@ for (const tag of ['prism-select', 'prism-text-field']) {
   });
 }
 
-test('hover and keyboard-active are one sliding marker in the shared hover tint, no shadow; the option paints nothing of its own', async ({
-  page,
-}) => {
-  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
-  await withTheme(page);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  const read = (v: string) =>
-    page.locator('prism-select').evaluate((el, v) => {
-      const o = el.querySelector(`prism-option[value="${v}"]`)!;
-      const base = getComputedStyle(
-        o.shadowRoot!.querySelector('[part="base"]')!,
-      );
-      const marker = el.shadowRoot!.querySelector('[part="highlight"]')!;
-      const m = getComputedStyle(marker);
-      const probe = document.createElement('div');
-      probe.style.color =
-        'color-mix(in srgb, var(--prism-color-text) var(--prism-state-hover), transparent)';
-      document.body.append(probe);
-      const want = getComputedStyle(probe).color;
-      probe.remove();
-      const mr = marker.getBoundingClientRect();
-      const or = o.getBoundingClientRect();
-      return {
-        shadow: m.boxShadow,
-        marker: m.backgroundColor,
-        want,
-        own: base.backgroundImage,
-        dy: Math.abs(mr.top - or.top),
-        dh: Math.abs(mr.height - or.height),
-        opacity: m.opacity,
-      };
-    }, v);
-  await page.getByRole('combobox', { name: 'Fruit' }).click();
-  await page.locator('prism-option[value="banana"]').hover();
-  const hover = await read('banana');
-  expect(hover.shadow).toBe('none');
-  expect(hover.marker).toBe(hover.want);
-  expect(hover.own).toBe('linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))');
-  expect(hover.dy).toBeLessThan(1);
-  expect(hover.dh).toBeLessThan(1);
-  expect(hover.opacity).toBe('1');
-  await page.mouse.move(0, 0);
-  await page.getByRole('combobox', { name: 'Fruit' }).press('End');
-  const active = await read('date');
-  expect(active.marker).toBe(active.want);
-  expect(active.dy).toBeLessThan(1);
-});
-
 test('select error box matches the text field error box exactly', async ({
   page,
 }) => {
@@ -725,239 +731,3 @@ for (const tag of ['prism-text-field', 'prism-select']) {
     expect(px[2]![1]).toBeLessThan(250);
   });
 }
-
-test('open listbox tucks 3px under the trigger (trigger on top), inset 6px', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await mount(
-    page,
-    `<div style="inline-size:280px"><prism-select label="Fruit">${OPTIONS}<span slot="description">Help</span></prism-select></div>`,
-  );
-  await withTheme(page);
-  await page.getByRole('combobox', { name: 'Fruit' }).click();
-  const g = await page.locator('prism-select').evaluate((el) => {
-    const r = el.shadowRoot!;
-    const trig = r.querySelector('[part="trigger"]')!;
-    const lb = r.querySelector('[part="listbox"]')!;
-    const t = trig.getBoundingClientRect();
-    const l = lb.getBoundingClientRect();
-    const cs = getComputedStyle(lb);
-    const probe = document.createElement('div');
-    probe.style.color = 'var(--prism-color-slate-400)';
-    document.body.append(probe);
-    const slate400 = getComputedStyle(probe).color;
-    probe.remove();
-    const hit = r.elementFromPoint(t.left + t.width / 2, t.bottom - 1.5);
-    return {
-      overlap: t.bottom - l.top,
-      left: l.left - t.left,
-      right: t.right - l.right,
-      trigZ: Number(getComputedStyle(trig).zIndex),
-      lbZ: Number(cs.zIndex),
-      radii: [
-        cs.borderTopLeftRadius,
-        cs.borderTopRightRadius,
-        cs.borderBottomRightRadius,
-        cs.borderBottomLeftRadius,
-      ],
-      padding: [
-        cs.paddingTop,
-        cs.paddingRight,
-        cs.paddingBottom,
-        cs.paddingLeft,
-      ],
-      border: cs.borderTopColor,
-      slate400,
-      shadow: cs.boxShadow,
-      trigBg: getComputedStyle(trig).backgroundColor,
-      topHit: hit === trig,
-      popover: lb.hasAttribute('popover'),
-    };
-  });
-  expect(g.overlap).toBeCloseTo(3, 0);
-  expect(g.left).toBeCloseTo(6, 0);
-  expect(g.right).toBeCloseTo(6, 0);
-  expect(g.trigZ).toBeGreaterThan(g.lbZ);
-  expect(g.topHit).toBe(true);
-  expect(g.radii).toEqual(['0px', '0px', '7px', '7px']);
-  expect(g.padding).toEqual(['4px', '2px', '4px', '2px']);
-  expect(g.border).toBe(g.slate400);
-  expect(g.shadow).not.toBe('none');
-  expect(g.trigBg).toBe('oklch(1 0 260)'); // opaque white (color-bg)
-  expect(g.popover).toBe(false); // in-page, not top layer
-});
-
-test('description is hidden (space kept) while open, shown on close', async ({
-  page,
-}) => {
-  await mount(
-    page,
-    `<prism-select label="Fruit">${OPTIONS}<span slot="description">We ship on Mondays.</span></prism-select><p id="after">x</p>`,
-  );
-  await withTheme(page);
-  const read = () =>
-    page.locator('prism-select').evaluate((el) => {
-      const d = el.shadowRoot!.querySelector('[part="description"]')!;
-      return {
-        vis: getComputedStyle(d).visibility,
-        h: d.getBoundingClientRect().height,
-        after: document.querySelector('#after')!.getBoundingClientRect().top,
-      };
-    });
-  const before = await read();
-  expect(before.vis).toBe('visible');
-  const cb = page.getByRole('combobox', { name: 'Fruit' });
-  await expect(cb).toHaveAccessibleDescription('We ship on Mondays.');
-  await cb.click();
-  const open = await read();
-  expect(open.vis).toBe('hidden');
-  expect(open.h).toBe(before.h);
-  expect(open.after).toBe(before.after);
-  await expect(cb).toHaveAccessibleDescription('We ship on Mondays.');
-  await page.keyboard.press('Escape');
-  expect((await read()).vis).toBe('visible');
-});
-
-const ERR_SELECT = `<prism-select label="Fruit" required placeholder="Pick">${OPTIONS}<span slot="description">We ship on Mondays.</span><span slot="error">Choose a fruit.</span></prism-select><button id="next">next</button>`;
-async function erroredOpen(page: Page, density = 'default', size = 'md') {
-  await mount(
-    page,
-    `<div data-prism-density="${density}">${ERR_SELECT.replace('<prism-select', `<prism-select size="${size}"`)}</div>`,
-  );
-  await withTheme(page);
-  await page
-    .locator('prism-select')
-    .evaluate((e: HTMLElement & { reportValidity(): boolean }) =>
-      e.reportValidity(),
-    );
-}
-const geom = (page: Page) =>
-  page.locator('prism-select').evaluate((el) => {
-    const r = el.shadowRoot!;
-    const q = (p: string) => r.querySelector(`[part="${p}"]`)!;
-    const t = q('trigger').getBoundingClientRect();
-    const l = q('listbox').getBoundingClientRect();
-    const e = q('error').getBoundingClientRect();
-    return {
-      gap: t.bottom - l.top,
-      left: l.left - t.left,
-      errVis: getComputedStyle(q('error')).visibility,
-      errH: e.height,
-      errTop: e.top,
-      coversErr: l.top <= e.top && l.bottom >= e.bottom,
-      hitInErr:
-        r.elementFromPoint(e.left + e.width / 2, e.top + e.height / 2) ===
-        q('error'),
-    };
-  });
-
-for (const density of ['compact', 'default', 'comfortable'])
-  for (const size of ['sm', 'md', 'lg'])
-    test(`error + open (${density}/${size}): listbox tucks 3px under trigger, covers the hidden error`, async ({
-      page,
-    }) => {
-      await page.emulateMedia({ reducedMotion: 'reduce' });
-      await erroredOpen(page, density, size);
-      const closed = await geom(page);
-      expect(closed.errVis).toBe('visible');
-      const cb = page.getByRole('combobox', { name: 'Fruit' });
-      await cb.click();
-      const g = await geom(page);
-      expect(g.gap).toBeCloseTo(3, 0);
-      expect(g.left).toBeCloseTo(6, 0);
-      expect(g.coversErr).toBe(true);
-      expect(g.hitInErr).toBe(false);
-      expect(g.errVis).toBe('hidden');
-      expect(g.errH).toBe(closed.errH); // space kept
-      expect(g.errTop).toBe(closed.errTop);
-      await expect(cb).toHaveAccessibleDescription('Choose a fruit.');
-      await page.keyboard.press('Escape');
-      expect((await geom(page)).errVis).toBe('visible');
-    });
-
-test('no error: listbox still tucks 3px under trigger with and without description', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  for (const desc of ['<span slot="description">Help</span>', '']) {
-    await mount(
-      page,
-      `<prism-select label="Fruit">${OPTIONS}${desc}</prism-select>`,
-    );
-    await withTheme(page);
-    await page.getByRole('combobox', { name: 'Fruit' }).click();
-    expect((await geom(page)).gap).toBeCloseTo(3, 0);
-  }
-});
-
-const focusState = (page: Page) =>
-  page.locator('prism-select').evaluate((el) => {
-    const t = el.shadowRoot!.querySelector<HTMLElement>('[part="trigger"]')!;
-    return {
-      onTrigger: el.shadowRoot!.activeElement === t,
-      ring: getComputedStyle(t).boxShadow,
-      open: el.hasAttribute('open'),
-    };
-  });
-
-test('focus returns to the trigger with the ring on Escape, Enter and click selection', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await mount(
-    page,
-    `<prism-select label="Fruit">${OPTIONS}</prism-select><button id="next">next</button>`,
-  );
-  await withTheme(page);
-  const cb = page.getByRole('combobox', { name: 'Fruit' });
-  const restRing = await focusState(page).then((s) => s.ring);
-  // Keyboard: Escape
-  await cb.focus();
-  await page.keyboard.press('ArrowDown');
-  expect((await focusState(page)).open).toBe(true);
-  await page.keyboard.press('Escape');
-  let s = await focusState(page);
-  expect(s).toMatchObject({ onTrigger: true, open: false });
-  expect(s.ring).not.toBe(restRing);
-  // Keyboard: Enter selects
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Enter');
-  s = await focusState(page);
-  expect(s).toMatchObject({ onTrigger: true, open: false });
-  expect(s.ring).not.toBe(restRing);
-  // Mouse: option pointerdown never takes focus; selection leaves it on trigger.
-  await cb.click();
-  await page.locator('prism-option[value="banana"]').click();
-  s = await focusState(page);
-  expect(s).toMatchObject({ onTrigger: true, open: false });
-  expect(s.ring).not.toBe(restRing); // ring shows after click selection too (:focus)
-  await expect(page.locator('prism-select')).toHaveJSProperty(
-    'value',
-    'banana',
-  );
-});
-
-test('Tab out closes and moves on; outside click does not steal focus back', async ({
-  page,
-}) => {
-  await mount(
-    page,
-    `<prism-select label="Fruit">${OPTIONS}</prism-select><button id="next">next</button>`,
-  );
-  await withTheme(page);
-  const cb = page.getByRole('combobox', { name: 'Fruit' });
-  await cb.focus();
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Tab');
-  await expect(page.locator('#next')).toBeFocused();
-  expect((await focusState(page)).open).toBe(false);
-  await cb.click();
-  await page.mouse.click(5, 400);
-  const s = await focusState(page);
-  expect(s).toMatchObject({ onTrigger: false, open: false });
-  expect(await page.evaluate(() => document.activeElement?.localName)).toBe(
-    'body',
-  );
-});
