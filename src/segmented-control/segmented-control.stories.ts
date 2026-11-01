@@ -42,8 +42,8 @@ type Story = StoryObj<Args>;
 
 /**
  * One choice from a few, with one indicator that slides to it. Click, or Tab
- * to the control and use the arrow keys (they move focus and pick together),
- * Home and End. The indicator is two springs, one per edge: the edge that
+ * to the control and use the arrow keys (they move focus and pick together).
+ * The indicator is two springs, one per edge: the edge that
  * leads is quick and bouncy, the one behind follows, so the shape stretches on
  * the way and pulls together on the new segment. Pick again mid-move and it
  * turns round from where it is. Pressing a segment squishes it evenly by about

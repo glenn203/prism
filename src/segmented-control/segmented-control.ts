@@ -1,7 +1,10 @@
 import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
+import { ref } from 'lit/directives/ref.js';
+import { repeat } from 'lit/directives/repeat.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { canAnimate } from '../internal/choice-motion.js';
-import { controlSize } from '../internal/control-styles.js';
+import { controlSize, textRole } from '../internal/control-styles.js';
 import {
   fieldPartsStyles,
   renderDescription,
@@ -11,6 +14,8 @@ import {
 import { FieldValidityController } from '../internal/field-validity.js';
 import { FormAssociated } from '../internal/form-associated.js';
 import { uniqueId } from '../internal/ids.js';
+import { PressScale, pressDepth } from '../internal/press-scale.js';
+import { stateLayer } from '../internal/state-layer.js';
 import { SpringMotion, type Tune } from '../internal/spring-motion.js';
 import { visuallyHidden } from '../internal/visually-hidden.js';
 import {
@@ -29,19 +34,23 @@ import type { PrismSegment } from './segment.js';
  * set of radio buttons drawn as a switch between views: `<prism-segmented-control
  * label="Range"><prism-segment value="day">Day</prism-segment>…`.
  *
- * - `role="radiogroup"`, named by `label` (`hide-label` keeps it for screen
- *   readers only). Put help text in the `description` slot and the message for
- *   a failed check in the `error` slot.
- * - One tab stop: the picked segment, or the first enabled one. Arrow keys
- *   (Left and Up go back, Right and Down go forward, Left and Right swap in
- *   right-to-left text) move focus to the next enabled segment, wrapping, and
- *   pick it, as radios do. Home and End go to the first and last enabled
- *   segment. Space picks the focused one. Disabled segments are skipped.
+ * - A native `<fieldset>` with a `<legend>` carrying `label` (`hide-label`
+ *   keeps it for screen readers only). Put help text in the `description` slot
+ *   and the message for a failed check in the `error` slot.
+ * - Each child `prism-segment` is drawn as a native `<input type="radio">` inside
+ *   a real `<label>`, all in this one shadow root so they share a name. Tab
+ *   stop, arrow keys (all four, wrapping, skipping disabled segments,
+ *   right-to-left aware) and Space are the browser's, with no key handling here.
  * - `value` is the picked segment's `value` (empty: none, and no indicator).
  *   It is what is submitted under `name`. `required` fails validation while
  *   none is picked. A segment with `checked` in the markup sets the starting
  *   value. Resets to the starting value with the form.
  * - Fires `input` and `change` after each user pick.
+ * - Disabling the control disables every segment in it.
+ * - Pressing scales the segment evenly (about 3%) and it eases back. Under
+ *   `prefers-reduced-motion: reduce` only the press colour shows.
+ * - Each segment's parts also carry `checked` and `disabled` while they apply,
+ *   so a theme can target `::part(segment checked)`.
  * - Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`
  *   shares the row equally.
  * - Motion: the indicator slides to the picked segment on two springs (one per
@@ -56,11 +65,13 @@ import type { PrismSegment } from './segment.js';
  * @slot - The `prism-segment` choices.
  * @slot description - Help text under the label.
  * @slot error - Message shown while the control is invalid.
- * @csspart group - The radiogroup element.
- * @csspart label - The control's label.
+ * @csspart group - The fieldset.
+ * @csspart label - The control's legend.
  * @csspart description - The help text.
  * @csspart track - The rounded row that holds the segments.
  * @csspart indicator - The sliding shape under the picked segment.
+ * @csspart segment - One segment's label: it holds the input and the segment, and scales while pressed.
+ * @csspart base - A segment's native radio input, laid over it; it carries the focus ring.
  * @csspart error - The error message.
  * @cssstate disabled - The control is disabled.
  * @cssstate invalid - Fails validation (after interaction or submit).
@@ -80,6 +91,13 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
         display: grid;
         justify-items: start;
         row-gap: var(--prism-space-1, 0.25rem);
+        min-inline-size: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      [part='label'] {
+        padding: 0;
       }
       :host([full-width]) [part='group'] {
         justify-items: stretch;
@@ -98,7 +116,7 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
       :host([full-width]) [part='track'] {
         display: flex;
       }
-      :host([full-width]) ::slotted(prism-segment) {
+      :host([full-width]) [part~='segment'] {
         flex: 1 1 0;
       }
       [part='indicator'] {
@@ -111,8 +129,44 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
         pointer-events: none;
         z-index: 0;
       }
-      ::slotted(prism-segment) {
+      [part~='segment'] {
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-inline-size: 1.5rem;
+        padding-inline: var(--prism-control-padding-inline, 0.75rem);
         border-radius: var(--prism-radius-3, 3px);
+        white-space: nowrap;
+        cursor: var(--prism-button-cursor, pointer);
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        ${textRole('label')}
+      }
+      [part~='segment'][part~='disabled'] {
+        cursor: var(--prism-button-cursor-disabled, default);
+      }
+      /* The input fills the segment and is invisible; its outline is the focus ring. */
+      [part~='base'] {
+        all: unset;
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        cursor: inherit;
+        outline: 2px solid transparent;
+        outline-offset: -3px;
+      }
+    `,
+    stateLayer("[part~='segment']"),
+    css`
+      /* The picked segment is painted by the indicator beneath it: the state
+         layer adds nothing on top (!important beats its hover and pressed
+         rules without repeating their selectors). */
+      [part~='segment']:has(> :checked) {
+        --_prism-state-overlay: transparent !important;
       }
     `,
   ];
@@ -136,7 +190,7 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
   @property({ type: Boolean, reflect: true, attribute: 'full-width' })
   fullWidth = false;
 
-  @query('[part="group"]') private readonly group!: HTMLElement;
+  @query('[part="group"]') private readonly group!: HTMLFieldSetElement;
   @query('[part="track"]') private readonly track!: HTMLElement;
   @query('[part="indicator"]') private readonly indicator!: HTMLElement;
 
@@ -148,9 +202,23 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     (pose) => ({ ind: indicatorLook(pose, this.#bounds) }),
   );
   readonly #sizes = new ResizeObserver(() => this.#follow());
+  readonly #presses = new Map<PrismSegment, PressScale>();
+  #segments: PrismSegment[] = [];
   #bounds: Bounds = { min: 0, max: 0 };
   #defaultValue = '';
   #adopted = false;
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener('prism-segment-change', this.#redraw);
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener('prism-segment-change', this.#redraw);
+    this.#sizes.disconnect();
+    this.#motion.stop();
+  }
 
   get validity(): ValidityState {
     return this.internals.validity;
@@ -174,15 +242,9 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     this.value = typeof state === 'string' ? state : '';
   }
 
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.#sizes.disconnect();
-    this.#motion.stop();
-  }
-
   override willUpdate(changed: Map<PropertyKey, unknown>): void {
     super.willUpdate(changed);
-    this.#adoptStartingValue();
+    this.#readSegments();
     if (changed.has('value'))
       this.internals.setFormValue(this.value || null, this.value);
   }
@@ -200,56 +262,82 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     this.internals.setValidity(
       this.required && !this.value ? { valueMissing: true } : {},
       'Pick one of these choices to continue.',
-      this.group,
+      this.#segments[0]?.input ?? this.group,
     );
     syncFieldA11y(this.renderRoot, this.group, this.#id, this.#validity.sync());
-    this.#syncSegments();
+    for (const segment of this.#segments) {
+      const label = this.#labelOf(segment);
+      if (label) this.#sizes.observe(label);
+    }
     if (changed.has('value') && changed.get('value') !== undefined)
       this.#slide();
   }
 
-  #segments(): PrismSegment[] {
-    return [...this.querySelectorAll<PrismSegment>(':scope > prism-segment')];
-  }
-
-  #picked(): PrismSegment | undefined {
-    return this.value === ''
-      ? undefined
-      : this.#segments().find((s) => s.value === this.value);
-  }
-
-  /** Pushes the value, the disabled state and the tab stop into the segments. */
-  #syncSegments(): void {
-    const segments = this.#segments();
-    const enabled = segments.filter((s) => !s.disabled && !this.isDisabled);
-    const stop = enabled.find((s) => s === this.#picked()) ?? enabled[0];
-    for (const s of segments) {
-      s.checked = s === this.#picked();
-      s.groupDisabled = this.isDisabled;
-      s.tabStop = s === stop;
-      this.#sizes.observe(s);
+  /**
+   * Reads the child segments: gives each a slot of its own (the control puts
+   * it inside that segment's `<label>`), pushes the picked state into it, gives
+   * it a press, and sets the starting value from a segment marked `checked` in
+   * the markup, once.
+   */
+  #readSegments(): void {
+    this.#segments = [
+      ...this.querySelectorAll<PrismSegment>(':scope > prism-segment'),
+    ];
+    if (!this.#adopted && this.#segments.length) {
+      this.#adopted = true;
+      if (!this.value)
+        this.value = this.#segments.find((s) => s.checked)?.value ?? '';
+      this.#defaultValue = this.value;
     }
+    for (const segment of this.#segments) {
+      segment.checked = this.#isPicked(segment);
+      if (!segment.slot) segment.slot = uniqueId('prism-segment');
+      if (!this.#presses.has(segment)) this.#addPress(segment);
+    }
+    for (const [segment, press] of this.#presses)
+      if (!this.#segments.includes(segment)) {
+        this.removeController(press);
+        press.hostDisconnected();
+        this.#presses.delete(segment);
+      }
   }
 
-  /** A segment marked `checked` in the markup sets the starting value. Runs once. */
-  #adoptStartingValue(): void {
-    if (this.#adopted) return;
-    const segments = this.#segments();
-    if (!segments.length) return;
-    this.#adopted = true;
-    if (!this.value) this.value = segments.find((s) => s.checked)?.value ?? '';
-    this.#defaultValue = this.value;
+  #addPress(segment: PrismSegment): void {
+    this.#presses.set(
+      segment,
+      new PressScale(this, {
+        target: () => this.#labelOf(segment),
+        depth: () => pressDepth('sm', 0),
+        enabled: () => !this.#isOff(segment),
+        enter: false,
+        rim: false,
+        mark: true,
+      }),
+    );
   }
 
-  #onSlotChange = (): void => {
-    this.#adoptStartingValue();
-    this.#syncSegments();
-    this.#follow();
+  /** The segment's `<label>` in this shadow root: the parent of the slot it fills. */
+  #labelOf(segment: PrismSegment): HTMLElement | null {
+    return segment.assignedSlot?.parentElement ?? null;
+  }
+
+  #isPicked(segment: PrismSegment): boolean {
+    return this.value !== '' && segment.value === this.value;
+  }
+
+  #isOff(segment: PrismSegment): boolean {
+    return segment.disabled || this.isDisabled;
+  }
+
+  /** A segment was added, removed or changed: draw again. */
+  #redraw = (): void => {
+    this.requestUpdate();
   };
 
   /** The pose that has the indicator on the picked segment (or hidden). */
   #pose(): IndicatorPose | undefined {
-    const seg = this.#picked();
+    const picked = this.#segments.find((s) => this.#isPicked(s));
+    const label = picked && this.#labelOf(picked);
     const track = this.track;
     if (!track) return undefined;
     // Rects are on screen: undo any scale an ancestor has (a pressed card).
@@ -261,11 +349,11 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
       min: 0,
       max: track.clientWidth,
     };
-    if (!seg || !seg.isConnected) {
+    if (!label?.isConnected) {
       const t = this.#motion.target;
       return { l: t?.l ?? 0, r: t?.r ?? 0, o: 0 };
     }
-    const r = seg.getBoundingClientRect();
+    const r = label.getBoundingClientRect();
     if (r.width === 0) return undefined;
     return { l: inner(r.left), r: inner(r.right), o: 1 };
   }
@@ -309,73 +397,58 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     return to.l + to.r >= from.l + from.r ? 'r' : 'l';
   }
 
-  #pick(segment: PrismSegment): void {
-    if (segment.isDisabled || segment.value === this.value) return;
+  /** The native `input` event reaches the host as it is; take the value first. */
+  #onInput(segment: PrismSegment): void {
     this.value = segment.value;
     this.#validity.touch();
-    this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  }
+
+  /** A native `change` stays inside the shadow root, so say it again on the host. */
+  #onChange(): void {
     this.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  #onSelect = (event: Event): void => {
-    this.#pick(event.target as PrismSegment);
-  };
-
-  #onKeyDown = (event: KeyboardEvent): void => {
-    const segment = (event.target as Element).closest<PrismSegment>(
-      'prism-segment',
-    );
-    if (!segment || event.ctrlKey || event.altKey || event.metaKey) return;
-    const rtl = getComputedStyle(this).direction === 'rtl';
-    const enabled = this.#segments().filter((s) => !s.isDisabled);
-    const at = enabled.indexOf(segment);
-    const step = {
-      ArrowDown: 1,
-      ArrowUp: -1,
-      ArrowRight: rtl ? -1 : 1,
-      ArrowLeft: rtl ? 1 : -1,
-    }[event.key];
-    const next =
-      event.key === 'Home'
-        ? enabled[0]
-        : event.key === 'End'
-          ? enabled.at(-1)
-          : step
-            ? enabled[(at + step + enabled.length) % enabled.length]
-            : undefined;
-    if (!next) return;
-    event.preventDefault();
-    next.focus();
-    this.#pick(next);
-  };
-
   #onFocusOut = (event: FocusEvent): void => {
-    if (!this.contains(event.relatedTarget as Node | null))
+    if (!this.group.contains(event.relatedTarget as Node | null))
       this.#validity.touch();
   };
 
+  #renderSegment(segment: PrismSegment) {
+    const off = this.#isOff(segment);
+    const state = `${this.#isPicked(segment) ? ' checked' : ''}${off ? ' disabled' : ''}`;
+    return html`<label part="segment${state}">
+      <input
+        part="base${state}"
+        type="radio"
+        name=${this.#id}
+        aria-label=${ifDefined(segment.label || undefined)}
+        .checked=${this.#isPicked(segment)}
+        ?required=${this.required}
+        ?disabled=${off}
+        ${ref((el) => (segment.input = (el as HTMLInputElement) ?? null))}
+        @input=${() => this.#onInput(segment)}
+        @change=${() => this.#onChange()}
+      />
+      <slot name=${segment.slot} @slotchange=${this.#redraw}></slot>
+    </label>`;
+  }
+
   override render() {
-    return html`<div
-      part="group"
-      role="radiogroup"
-      aria-labelledby="${this.#id}-label"
-      aria-required=${this.required ? 'true' : 'false'}
-      @prism-segment-select=${this.#onSelect}
-      @keydown=${this.#onKeyDown}
-      @focusout=${this.#onFocusOut}
-    >
-      <span
-        part="label"
-        id="${this.#id}-label"
-        class=${this.hideLabel ? 'visually-hidden' : ''}
-        >${this.label}</span
-      >
+    return html`<fieldset part="group" @focusout=${this.#onFocusOut}>
+      <legend part="label" class=${this.hideLabel ? 'visually-hidden' : ''}>
+        ${this.label}
+      </legend>
       ${renderDescription(this.#id)}
       <div part="track">
         <div part="indicator" style="opacity: 0"></div>
-        <slot @slotchange=${this.#onSlotChange}></slot>
+        ${repeat(
+          this.#segments,
+          (segment) => segment,
+          (segment) => this.#renderSegment(segment),
+        )}
+        <slot @slotchange=${this.#redraw}></slot>
       </div>
       ${renderError(this.#id)}
-    </div>`;
+    </fieldset>`;
   }
 }

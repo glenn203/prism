@@ -51,7 +51,7 @@ const rects = (page: Page, v: string) =>
       .getBoundingClientRect();
     const g = e
       .querySelector(`prism-segment[value="${v}"]`)!
-      .getBoundingClientRect();
+      .assignedSlot!.parentElement!.getBoundingClientRect();
     return {
       il: i.left,
       ir: i.right,
@@ -65,25 +65,40 @@ const rects = (page: Page, v: string) =>
   }, v);
 
 test.describe('prism-segmented-control: semantics', () => {
-  test('a radiogroup named by its label, with a radio per segment', async ({
+  test('a fieldset named by its legend, with a native radio and label per segment, and no role or aria-checked from script', async ({
     page,
   }) => {
     const errors = await setup(page, RANGE());
     expect(errors).toEqual([]);
-    const group = page.getByRole('radiogroup', { name: 'Range' });
-    await expect(group).toHaveCount(1);
+    await expect(page.getByRole('group', { name: 'Range' })).toHaveCount(1);
     await expect(page.getByRole('radio')).toHaveCount(4);
-    await expect(radio(page, 'Week')).toHaveAttribute('aria-checked', 'true');
-    await expect(radio(page, 'Day')).toHaveAttribute('aria-checked', 'false');
+    await expect(radio(page, 'Week')).toBeChecked();
+    await expect(radio(page, 'Day')).not.toBeChecked();
+    const dom = await s(page).evaluate((e) => {
+      const root = e.shadowRoot!;
+      const inputs = [...root.querySelectorAll('input')];
+      return {
+        fieldset: root.querySelector('fieldset > legend') !== null,
+        types: inputs.map((i) => i.type),
+        names: new Set(inputs.map((i) => i.name)).size,
+        labelled: inputs.every((i) => i.closest('label') !== null),
+        scripted: root.querySelectorAll('[role], [aria-checked]').length,
+      };
+    });
+    expect(dom).toEqual({
+      fieldset: true,
+      types: ['radio', 'radio', 'radio', 'radio'],
+      names: 1,
+      labelled: true,
+      scripted: 0,
+    });
   });
 
   test('hide-label keeps the name for assistive technology and hides it from sight', async ({
     page,
   }) => {
     await setup(page, RANGE('hide-label'));
-    await expect(page.getByRole('radiogroup', { name: 'Range' })).toHaveCount(
-      1,
-    );
+    await expect(page.getByRole('group', { name: 'Range' })).toHaveCount(1);
     const box = await s(page).evaluate(
       (e) =>
         e.shadowRoot!.querySelector('[part="label"]')!.getBoundingClientRect()
@@ -99,28 +114,23 @@ test.describe('prism-segmented-control: semantics', () => {
       page,
       `<button id="before">b</button>${RANGE()}<button id="after">a</button>`,
     );
-    const stops = await s(page).evaluate((e) =>
-      [...e.querySelectorAll('prism-segment')].map(
-        (g) => g.shadowRoot!.querySelector('button')!.tabIndex,
-      ),
-    );
-    expect(stops).toEqual([-1, 0, -1, -1]);
     await page.locator('#before').focus();
     await page.keyboard.press('Tab');
     await expect(radio(page, 'Week')).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.locator('#after')).toBeFocused();
-    await setup(page, RANGE('', ''));
-    expect(
-      await s(page).evaluate((e) =>
-        [...e.querySelectorAll('prism-segment')].map(
-          (g) => g.shadowRoot!.querySelector('button')!.tabIndex,
-        ),
-      ),
-    ).toEqual([0, -1, -1, -1]);
+    await setup(
+      page,
+      `<button id="before">b</button>${RANGE('', '')}<button id="after">a</button>`,
+    );
+    await page.locator('#before').focus();
+    await page.keyboard.press('Tab');
+    await expect(radio(page, 'Day')).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#after')).toBeFocused();
   });
 
-  test('arrows move focus and pick, wrap, and skip a disabled segment; Home and End jump', async ({
+  test('arrows move focus and pick, wrap, and skip a disabled segment', async ({
     page,
   }) => {
     await setup(page, RANGE());
@@ -135,10 +145,6 @@ test.describe('prism-segmented-control: semantics', () => {
     expect(await value(page)).toBe('month');
     await page.keyboard.press('ArrowUp');
     expect(await value(page)).toBe('week');
-    await page.keyboard.press('End');
-    expect(await value(page)).toBe('month');
-    await page.keyboard.press('Home');
-    expect(await value(page)).toBe('day');
   });
 
   test('Space picks the focused segment', async ({ page }) => {
@@ -241,8 +247,8 @@ test.describe('prism-segmented-control: semantics', () => {
   test('full-width shares the row equally', async ({ page }) => {
     await setup(page, SEVEN);
     const w = await s(page).evaluate((e) =>
-      [...e.querySelectorAll('prism-segment')].map(
-        (g) => g.getBoundingClientRect().width,
+      [...e.shadowRoot!.querySelectorAll('label')].map(
+        (l) => l.getBoundingClientRect().width,
       ),
     );
     expect(Math.max(...w) - Math.min(...w)).toBeLessThan(1);
@@ -285,7 +291,7 @@ test.describe('prism-segmented-control: form participation', () => {
       (e as unknown as { reportValidity(): boolean }).reportValidity(),
     );
     await expect(page.getByText('Pick a range.')).toBeVisible();
-    await expect(page.getByRole('radiogroup')).toHaveAttribute(
+    await expect(page.getByRole('group')).toHaveAttribute(
       'aria-invalid',
       'true',
     );
@@ -576,14 +582,14 @@ test.describe('prism-segmented-control: motion', () => {
     await setup(page, RANGE());
     await mouseDown(page, seg(page, 'day'));
     await wait(page, 300);
-    expect(await scaleOf(seg(page, 'day'), 'button')).toBeCloseTo(0.97, 3);
+    expect(await scaleOf(s(page), 'label:nth-of-type(1)')).toBeCloseTo(0.97, 3);
     await page.mouse.up();
     await wait(page, 500);
-    expect(await scaleOf(seg(page, 'day'), 'button')).toBe(1);
+    expect(await scaleOf(s(page), 'label:nth-of-type(1)')).toBe(1);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mouseDown(page, seg(page, 'month'));
     await wait(page, 150);
-    expect(await scaleOf(seg(page, 'month'), 'button')).toBe(1);
+    expect(await scaleOf(s(page), 'label:nth-of-type(3)')).toBe(1);
     await page.mouse.up();
   });
 });
@@ -619,14 +625,12 @@ test.describe('prism-segmented-control: contrast and forced colors', () => {
       ind: getComputedStyle(e.shadowRoot!.querySelector('[part="indicator"]')!)
         .backgroundColor,
       on: getComputedStyle(
-        e
-          .querySelector('prism-segment[value=week]')!
-          .shadowRoot!.querySelector('button')!,
+        e.querySelector('prism-segment[value=week]')!.assignedSlot!
+          .parentElement!,
       ).color,
       off: getComputedStyle(
-        e
-          .querySelector('prism-segment[value=day]')!
-          .shadowRoot!.querySelector('button')!,
+        e.querySelector('prism-segment[value=day]')!.assignedSlot!
+          .parentElement!,
       ).color,
     }));
     expect(c.on).not.toBe(c.off);
@@ -640,9 +644,11 @@ test.describe('prism-segmented-control: contrast and forced colors', () => {
     await setup(page, RANGE());
     const read = () =>
       s(page).evaluate((e) => {
-        const b = e
-          .querySelector('prism-segment[value=week]')!
-          .shadowRoot!.querySelector('button')!;
+        const b = (
+          e.querySelector('prism-segment[value=week]') as unknown as {
+            input: HTMLInputElement;
+          }
+        ).input;
         return {
           ind: getComputedStyle(
             e.shadowRoot!.querySelector('[part="indicator"]')!,
