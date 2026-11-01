@@ -20,6 +20,7 @@ import { visuallyHidden } from '../internal/visually-hidden.js';
 import {
   FADE,
   LEAD,
+  NOMINAL_MS,
   REF,
   TRAIL,
   indicatorLook,
@@ -55,7 +56,7 @@ import type { PrismSegment } from './segment.js';
  * - Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`
  *   shares the row equally.
  * - Motion: the indicator slides to the picked segment on two springs (one per
- *   edge) so it stretches on the way, about 300ms, with a small overshoot that
+ *   edge) so it stretches on the way, about 325ms (`--prism-motion-segmented`), with a small overshoot that
  *   never leaves the track. A new pick during the move turns it round from where
  *   it is. Transform and opacity only. Nothing moves on first paint, on a
  *   resize, or when the width of a segment changes: the indicator just follows.
@@ -66,6 +67,7 @@ import type { PrismSegment } from './segment.js';
  * @slot - The `prism-segment` choices.
  * @slot description - Help text under the label.
  * @slot error - Message shown while the control is invalid.
+ * @cssprop [--prism-segmented-duration=325ms] - Time the indicator takes to settle on a segment. Defaults to `--prism-motion-segmented`.
  * @csspart group - The fieldset.
  * @csspart label - The control's legend.
  * @csspart description - The help text.
@@ -87,6 +89,11 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     css`
       :host {
         --_pad: var(--prism-segmented-padding, 2px);
+        /* Time the indicator takes to settle on a segment. */
+        --_duration: var(
+          --prism-segmented-duration,
+          var(--prism-motion-segmented, 325ms)
+        );
       }
       [part='group'] {
         display: grid;
@@ -401,11 +408,23 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     const appearing = from.o === 0 && to.o === 1;
     if (appearing) this.#motion.snap({ ...to, o: 0 });
     const lead = this.#leadingEdge(from, to);
+    const speed = NOMINAL_MS / this.#duration();
     this.#motion.go(
       to,
-      (key): Tune => (key === 'o' ? FADE : key === lead ? LEAD : TRAIL),
+      (key): Tune => {
+        const tune = key === 'o' ? FADE : key === lead ? LEAD : TRAIL;
+        return { ...tune, w: tune.w * speed };
+      },
       () => this.#rest(),
     );
+  }
+
+  /** Ms the slide takes: `--prism-segmented-duration`, or the token's 325. */
+  #duration(): number {
+    const raw = getComputedStyle(this).getPropertyValue('--_duration').trim();
+    const n = parseFloat(raw);
+    if (!raw || Number.isNaN(n) || n <= 0) return NOMINAL_MS;
+    return raw.endsWith('ms') ? n : n * 1000;
   }
 
   /** The edge that goes first: the right one moving right, the left one moving left. */
