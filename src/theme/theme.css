@@ -538,15 +538,10 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]:state(floated):focus-within::part(label) {
+  )[data-floating]:state(floated):not(:state(invalid)):focus-within::part(
+    label
+  ) {
   color: var(--prism-color-accent-text);
-}
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-text-field
-  )[data-floating]:state(invalid)::part(label) {
-  color: var(--prism-color-error-text);
 }
 :is(
     prism-text-input,
@@ -585,6 +580,20 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-field
   )[readonly]:not(:state(disabled))::part(input) {
   background: var(--prism-color-surface);
+}
+
+/* An invalid field's label is the error text colour, resting, floated and
+ * focused. The value text keeps the normal colour. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(invalid)::part(label),
+prism-select:state(invalid)::part(label) {
+  color: var(--prism-color-error-text);
 }
 
 /* ---------- Option (NAME PENDING) ---------- */
