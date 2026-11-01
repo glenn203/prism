@@ -1530,19 +1530,18 @@ prism-switch:state(disabled)::part(label) {
  * surface. Hover, selected and pressed come from the shared state layer (the
  * overlay is drawn by the box, above the fill). The 24px hit area carries the
  * focus ring. */
-:is(prism-checkbox, prism-radio) {
+:is(prism-checkbox, prism-radio-group) {
   color: var(--prism-color-text);
 }
-prism-checkbox::part(control) {
+prism-checkbox::part(control),
+prism-radio-group::part(control) {
   --_bg: transparent;
   --_on: var(--prism-color-text);
 }
 prism-checkbox:state(selected)::part(control) {
   --_on: var(--prism-color-on-accent);
 }
-:is(prism-checkbox, prism-radio)::part(base) {
-  --_bg: transparent;
-  --_on: var(--prism-color-text);
+:is(prism-checkbox, prism-radio-group)::part(base) {
   /* Focus ring rests at zero spread so it can grow in. */
   outline: 2px solid transparent; /* forced-colors fallback */
   outline-offset: var(--prism-focus-ring-offset);
@@ -1552,7 +1551,7 @@ prism-checkbox:state(selected)::part(control) {
     0 0 0 0 var(--prism-color-focus-ring),
     0 0 0 0 var(--prism-focus-halo);
 }
-:is(prism-checkbox, prism-radio)::part(base):focus-visible {
+:is(prism-checkbox, prism-radio-group)::part(base):focus-visible {
   box-shadow:
     0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
     0 0 var(--prism-focus-ring-blur)
@@ -1565,19 +1564,19 @@ prism-checkbox:state(selected)::part(control) {
       )
       var(--prism-focus-halo);
 }
-:is(prism-checkbox, prism-radio)::part(box) {
+:is(prism-checkbox, prism-radio-group)::part(box) {
   background: var(--prism-color-surface);
 }
-:is(prism-checkbox, prism-radio)::part(edge) {
+:is(prism-checkbox, prism-radio-group)::part(edge) {
   border-color: var(--prism-color-border-strong);
 }
 prism-checkbox::part(box),
 prism-checkbox::part(edge) {
   border-radius: var(--prism-radius-3);
 }
-prism-radio::part(box),
-prism-radio::part(edge),
-prism-radio::part(ring) {
+prism-radio-group::part(box),
+prism-radio-group::part(edge),
+prism-radio-group::part(ring) {
   border-radius: 50%;
 }
 prism-checkbox::part(fill) {
@@ -1586,26 +1585,27 @@ prism-checkbox::part(fill) {
 prism-checkbox::part(mark) {
   color: var(--prism-color-on-accent);
 }
-prism-radio::part(ring) {
+prism-radio-group::part(ring) {
   border-color: var(--prism-color-accent);
 }
-prism-radio::part(dot) {
+prism-radio-group::part(dot) {
   background: var(--prism-color-accent);
 }
-:is(prism-checkbox, prism-radio):state(invalid)::part(edge),
-prism-radio-group:state(invalid) prism-radio::part(edge) {
+:is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
   border-color: var(--prism-color-error);
 }
-:is(prism-checkbox, prism-radio, prism-radio-group)::part(error) {
+:is(prism-checkbox, prism-radio-group)::part(error) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-error-text);
 }
-:is(prism-checkbox, prism-radio, prism-radio-group)::part(description) {
+:is(prism-checkbox, prism-radio-group)::part(description),
+prism-radio-group::part(option-description) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-text-muted);
 }
 /* Disabled: shared inert look. The mark and dot still say on or off. */
-:is(prism-checkbox, prism-radio):state(disabled)::part(edge) {
+prism-checkbox:state(disabled)::part(edge),
+prism-radio-group::part(edge disabled) {
   border-color: var(--prism-color-border);
 }
 prism-checkbox:state(disabled)::part(fill) {
@@ -1614,57 +1614,59 @@ prism-checkbox:state(disabled)::part(fill) {
 prism-checkbox:state(disabled)::part(mark) {
   color: var(--prism-color-bg);
 }
-prism-radio:state(disabled)::part(ring) {
+prism-radio-group::part(ring disabled) {
   border-color: var(--prism-color-border-strong);
 }
-prism-radio:state(disabled)::part(dot) {
+prism-radio-group::part(dot disabled) {
   background: var(--prism-color-border-strong);
 }
-:is(prism-checkbox, prism-radio):state(disabled)::part(label),
-:is(prism-checkbox, prism-radio):state(disabled)::part(description) {
+prism-checkbox:state(disabled)::part(label),
+prism-checkbox:state(disabled)::part(description),
+prism-radio-group::part(option-label disabled),
+prism-radio-group::part(option-description disabled) {
   color: var(--prism-color-text-muted);
 }
 @media (prefers-reduced-motion: reduce) {
-  :is(prism-checkbox, prism-radio)::part(base) {
+  :is(prism-checkbox, prism-radio-group)::part(base) {
     transition: none;
   }
 }
 @media (forced-colors: active) {
   /* The resting transparent outline would be forced visible; only show it
    * while focused. */
-  :is(prism-checkbox, prism-radio)::part(base) {
+  :is(prism-checkbox, prism-radio-group)::part(base) {
     outline-style: none;
   }
-  :is(prism-checkbox, prism-radio)::part(base):focus-visible {
+  :is(prism-checkbox, prism-radio-group)::part(base):focus-visible {
     outline: 2px solid Highlight;
   }
-  :is(prism-checkbox, prism-radio)::part(box) {
+  :is(prism-checkbox, prism-radio-group)::part(box) {
     background: Canvas;
   }
-  :is(prism-checkbox, prism-radio)::part(edge) {
+  :is(prism-checkbox, prism-radio-group)::part(edge) {
     border-color: ButtonText;
   }
   prism-checkbox::part(fill),
-  prism-radio::part(dot) {
+  prism-radio-group::part(dot) {
     background: Highlight;
   }
-  prism-radio::part(ring) {
+  prism-radio-group::part(ring) {
     border-color: Highlight;
   }
   prism-checkbox::part(mark) {
     color: HighlightText;
   }
-  :is(prism-checkbox, prism-radio):state(invalid)::part(edge),
-  prism-radio-group:state(invalid) prism-radio::part(edge) {
+  :is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
     border-color: ButtonText;
     border-style: double;
   }
-  :is(prism-checkbox, prism-radio):state(disabled)::part(edge),
-  prism-radio:state(disabled)::part(ring) {
+  prism-checkbox:state(disabled)::part(edge),
+  prism-radio-group::part(edge disabled),
+  prism-radio-group::part(ring disabled) {
     border-color: GrayText;
   }
   prism-checkbox:state(disabled)::part(fill),
-  prism-radio:state(disabled)::part(dot) {
+  prism-radio-group::part(dot disabled) {
     background: GrayText;
   }
   prism-checkbox:state(disabled)::part(mark) {

@@ -53,23 +53,29 @@ type Story = StoryObj<Args>;
  */
 export const Default: Story = {};
 
-/** Nothing picked yet. The first radio is the tab stop until one is picked. */
+/** Nothing picked yet. Tab lands on the first radio, and an arrow key picks. */
 export const NoneSelected: Story = { args: { value: '' } };
 
-/** Help text goes in the `description` slot, on the group or on a radio. */
+/** Help text goes in the `description` slot on the group, and the `description` attribute on a radio. */
 export const WithDescriptions: Story = {
   render: () =>
     html`<prism-radio-group label="Delivery speed" value="weekly">
       <span slot="description">You can change this any time.</span>
-      <prism-radio value="daily" label="Daily">
-        <span slot="description">A short note every morning.</span>
-      </prism-radio>
-      <prism-radio value="weekly" label="Weekly">
-        <span slot="description">One note on Monday.</span>
-      </prism-radio>
-      <prism-radio value="monthly" label="Monthly">
-        <span slot="description">One long note on the first.</span>
-      </prism-radio>
+      <prism-radio
+        value="daily"
+        label="Daily"
+        description="A short note every morning."
+      ></prism-radio>
+      <prism-radio
+        value="weekly"
+        label="Weekly"
+        description="One note on Monday."
+      ></prism-radio>
+      <prism-radio
+        value="monthly"
+        label="Monthly"
+        description="One long note on the first."
+      ></prism-radio>
     </prism-radio-group>`,
 };
 
@@ -91,14 +97,23 @@ export const Disabled: Story = {
     </div>`,
 };
 
-/** Sizes: sm (16px circle), md (20px) and lg (24px). All keep a 24px minimum target. */
+/** Sizes, set on the group: sm (16px circle), md (20px) and lg (24px). All keep a 24px minimum target. */
 export const Sizes: Story = {
   render: () =>
-    html`<prism-radio-group label="Size" value="md" orientation="horizontal">
-      <prism-radio value="sm" label="Small" size="sm"></prism-radio>
-      <prism-radio value="md" label="Medium"></prism-radio>
-      <prism-radio value="lg" label="Large" size="lg"></prism-radio>
-    </prism-radio-group>`,
+    html`<div style="display:grid;gap:24px">
+      ${(['sm', 'md', 'lg'] as const).map(
+        (size) =>
+          html`<prism-radio-group
+            label=${`Size ${size}`}
+            value="a"
+            size=${size}
+            orientation="horizontal"
+          >
+            <prism-radio value="a" label="First"></prism-radio>
+            <prism-radio value="b" label="Second"></prism-radio>
+          </prism-radio-group>`,
+      )}
+    </div>`,
 };
 
 /**

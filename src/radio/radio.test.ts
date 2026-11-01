@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { anims, drawn, wait } from '../../test/choice.js';
+import { anims, drawn, optionOf, wait } from '../../test/choice.js';
 import { axe } from '../../test/axe.js';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
 
@@ -28,20 +28,40 @@ const value = (page: Page) =>
   host(page, '#g').evaluate((el) => (el as never as { value: string }).value);
 
 test.describe('prism-radio-group: semantics', () => {
-  test('a named radiogroup of radios; the value picks the checked one', async ({
+  test('a fieldset with a legend holds native radio inputs sharing one name; the value picks the checked one', async ({
     page,
   }) => {
     const errors = await setup(page, GROUP);
     expect(errors).toEqual([]);
     await expect(
-      page.getByRole('radiogroup', { name: 'Delivery speed' }),
+      page.getByRole('group', { name: 'Delivery speed' }),
     ).toBeVisible();
-    await expect(radio(page, 'Daily')).toHaveAttribute('aria-checked', 'false');
-    await expect(radio(page, 'Weekly')).toHaveAttribute('aria-checked', 'true');
-    await expect(radio(page, 'Monthly')).toHaveAttribute(
-      'aria-checked',
-      'false',
-    );
+    await expect(radio(page, 'Daily')).not.toBeChecked();
+    await expect(radio(page, 'Weekly')).toBeChecked();
+    await expect(radio(page, 'Monthly')).not.toBeChecked();
+    const root = await host(page, '#g').evaluate((el) => {
+      const sr = el.shadowRoot!;
+      const inputs = [...sr.querySelectorAll('input')];
+      return {
+        fieldset: sr.querySelector('fieldset > legend')?.textContent,
+        types: inputs.map((i) => i.type),
+        names: new Set(inputs.map((i) => i.name)).size,
+        loose: inputs.map(
+          (i) =>
+            i.hasAttribute('role') ||
+            i.hasAttribute('aria-checked') ||
+            i.hasAttribute('aria-labelledby'),
+        ),
+        labelled: inputs.map((i) => i.labels?.length),
+      };
+    });
+    expect(root).toEqual({
+      fieldset: 'Delivery speed',
+      types: ['radio', 'radio', 'radio'],
+      names: 1,
+      loose: [false, false, false],
+      labelled: [1, 1, 1],
+    });
   });
 
   test('a radio marked checked in the markup sets the starting value', async ({
@@ -55,7 +75,7 @@ test.describe('prism-radio-group: semantics', () => {
       </prism-radio-group>`,
     );
     expect(await value(page)).toBe('y');
-    await expect(radio(page, 'Y')).toHaveAttribute('aria-checked', 'true');
+    await expect(radio(page, 'Y')).toBeChecked();
   });
 
   test('click and label click pick; picking fires input and change once; code does not', async ({
@@ -80,29 +100,28 @@ test.describe('prism-radio-group: semantics', () => {
     expect(
       await page.evaluate(() => (window as never as { log: string[] }).log),
     ).toEqual(['input', 'change', 'input', 'change']);
-    await expect(radio(page, 'Weekly')).toHaveAttribute('aria-checked', 'true');
-    await expect(radio(page, 'Monthly')).toHaveAttribute(
-      'aria-checked',
-      'false',
-    );
+    await expect(radio(page, 'Weekly')).toBeChecked();
+    await expect(radio(page, 'Monthly')).not.toBeChecked();
   });
 
-  test('exactly one tab stop: the checked radio, or the first when none is', async ({
+  test('with none picked, Tab enters on the first radio and arrows then pick', async ({
     page,
   }) => {
-    await setup(page, GROUP);
-    const stops = () =>
-      page.evaluate(() =>
-        [...document.querySelectorAll('prism-radio')].map(
-          (r) => r.shadowRoot!.querySelector('button')!.tabIndex,
-        ),
-      );
-    expect(await stops()).toEqual([-1, 0, -1]);
-    await host(page, '#g').evaluate(
-      (el) => ((el as never as { value: string }).value = ''),
+    await setup(
+      page,
+      `<button id="before">before</button>
+       <prism-radio-group id="g" label="G">
+         <prism-radio value="a" label="A"></prism-radio>
+         <prism-radio value="b" label="B"></prism-radio>
+       </prism-radio-group>`,
     );
-    await wait(page, 50);
-    expect(await stops()).toEqual([0, -1, -1]);
+    await page.locator('#before').focus();
+    await page.keyboard.press('Tab');
+    await expect(radio(page, 'A')).toBeFocused();
+    expect(await value(page)).toBe('');
+    await page.keyboard.press('ArrowDown');
+    await expect(radio(page, 'B')).toBeFocused();
+    expect(await value(page)).toBe('b');
   });
 
   test('Tab enters on the checked radio and leaves the group in one more press', async ({
@@ -166,11 +185,18 @@ test.describe('prism-radio-group: semantics', () => {
   test('descriptions and a missing label are reported', async ({ page }) => {
     const errors = await setup(
       page,
-      `<prism-radio-group label="G" value="x"><prism-radio value="x" label="X"><span slot="description">Help</span></prism-radio></prism-radio-group>
+      `<prism-radio-group label="G" value="x"><prism-radio value="x" label="X" description="Help"></prism-radio></prism-radio-group>
        <prism-radio-group><prism-radio value="y"></prism-radio></prism-radio-group>`,
     );
     await expect(radio(page, 'X')).toHaveAccessibleDescription('Help');
     expect(errors.join()).toContain('`label` is required');
+  });
+
+  test('a radio with no description has no aria-describedby', async ({
+    page,
+  }) => {
+    await setup(page, GROUP);
+    await expect(radio(page, 'Daily')).not.toHaveAttribute('aria-describedby');
   });
 });
 
@@ -195,8 +221,13 @@ test.describe('prism-radio-group: disabled', () => {
       await page
         .locator('prism-radio')
         .nth(2)
-        .evaluate((el) => el.matches(':state(disabled)')),
-    ).toBe(true);
+        .evaluate((el) =>
+          el
+            .closest('prism-radio-group')!
+            .shadowRoot!.querySelector('[part~="edge"]')!
+            .getAttribute('part'),
+        ),
+    ).toBe('edge disabled');
   });
 });
 
@@ -244,7 +275,7 @@ test.describe('prism-radio-group: forms', () => {
       (el as never as HTMLInputElement).reportValidity(),
     );
     await expect(err).toBeVisible();
-    await expect(page.getByRole('radiogroup')).toHaveAttribute(
+    await expect(page.getByRole('group')).toHaveAttribute(
       'aria-invalid',
       'true',
     );
@@ -262,7 +293,7 @@ test.describe('prism-radio-group: forms', () => {
     await radio(page, 'Monthly').click();
     await page.evaluate(() => document.querySelector('form')!.reset());
     expect(await value(page)).toBe('b');
-    await expect(radio(page, 'Weekly')).toHaveAttribute('aria-checked', 'true');
+    await expect(radio(page, 'Weekly')).toBeChecked();
   });
 });
 
@@ -272,32 +303,39 @@ test.describe('prism-radio: shape', () => {
   }) => {
     await setup(
       page,
-      `<prism-radio-group label="G" value="b">
-        <prism-radio id="sm" value="a" label="a" size="sm"></prism-radio>
-        <prism-radio id="md" value="b" label="b"></prism-radio>
-        <prism-radio id="lg" value="c" label="c" size="lg"></prism-radio>
+      `<prism-radio-group id="g" label="G" value="b">
+        <prism-radio id="a" value="a" label="a"></prism-radio>
+        <prism-radio id="b" value="b" label="b"></prism-radio>
       </prism-radio-group>`,
     );
-    for (const [id, px] of [
-      ['#sm', 16],
-      ['#md', 20],
-      ['#lg', 24],
+    for (const [size, px] of [
+      ['sm', 16],
+      ['md', 20],
+      ['lg', 24],
     ] as const) {
-      const [w, hit, radius] = await host(page, id).evaluate((el) => {
-        const q = (p: string) => el.shadowRoot!.querySelector(`[part="${p}"]`)!;
+      await host(page, '#g').evaluate(
+        (el, size) => el.setAttribute('size', size),
+        size,
+      );
+      const [w, hit, height, radius] = await (
+        await optionOf(host(page, '#a'))
+      ).evaluate((el) => {
+        const q = (p: string) => el.querySelector(`[part~="${p}"]`)!;
         return [
           q('box').getBoundingClientRect().width,
           q('base').getBoundingClientRect().width,
+          q('base').getBoundingClientRect().height,
           getComputedStyle(q('box')).borderTopLeftRadius,
         ];
       });
       expect(w).toBe(px);
       expect(hit).toBeGreaterThanOrEqual(24);
+      expect(height).toBeGreaterThanOrEqual(24);
       expect(radius).toBe('50%');
     }
-    const off = await drawn(host(page, '#sm'));
+    const off = await drawn(host(page, '#a'));
     expect([off.ring, off.dot!.o]).toEqual([0, 0]);
-    const on = await drawn(host(page, '#md'));
+    const on = await drawn(host(page, '#b'));
     expect([on.ring, on.dot!.s, on.dot!.o]).toEqual([1, 1, 1]);
   });
 });
@@ -314,6 +352,8 @@ test.describe('prism-radio: motion', () => {
   }) => {
     await setup(page, GROUP);
     await radio(page, 'Monthly').click();
+    // Both have a start time once the frame after the click has run.
+    await wait(page, 50);
     const mine = await anims(host(page, '#c'));
     const prev = await anims(host(page, '#b'));
     expect(mine.length).toBe(3);
@@ -448,11 +488,10 @@ test.describe('prism-radio: motion', () => {
     await radio(page, 'Monthly').click();
     const dur = (await anims(host(page, '#c')))[0]!.duration;
     const last = await drawn(host(page, '#c'), dur - 0.01);
-    await host(page, '#c').evaluate((el) =>
-      el
-        .shadowRoot!.querySelector('[part="container"]')!
-        .getAnimations({ subtree: true })
-        .forEach((a) => a.finish()),
+    await (
+      await optionOf(host(page, '#c'))
+    ).evaluate((el) =>
+      el.getAnimations({ subtree: true }).forEach((a) => a.finish()),
     );
     await wait(page, 100);
     const rest = await drawn(host(page, '#c'));
@@ -486,8 +525,10 @@ test.describe('prism-radio: motion', () => {
     await radio(page, 'Monthly').click();
     for (const id of ['#a', '#b', '#c'])
       expect(await anims(host(page, id))).toEqual([]);
-    const r = await host(page, '#c').evaluate((el) => {
-      const dot = el.shadowRoot!.querySelector('[part="dot"]')!;
+    const r = await (
+      await optionOf(host(page, '#c'))
+    ).evaluate((el) => {
+      const dot = el.querySelector('[part~="dot"]')!;
       return [
         getComputedStyle(dot).transitionProperty,
         parseFloat(getComputedStyle(dot).transitionDuration) * 1000,
@@ -503,14 +544,16 @@ test.describe('prism-radio: motion', () => {
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     await setup(page, GROUP);
-    const r = await host(page, '#b').evaluate((el) => {
+    const r = await (
+      await optionOf(host(page, '#b'))
+    ).evaluate((el) => {
       const probe = document.createElement('i');
       probe.style.color = 'Highlight';
       document.body.append(probe);
       const hl = getComputedStyle(probe).color;
       probe.remove();
       const q = (p: string) =>
-        getComputedStyle(el.shadowRoot!.querySelector(`[part="${p}"]`)!);
+        getComputedStyle(el.querySelector(`[part~="${p}"]`)!);
       return [q('dot').backgroundColor === hl, q('ring').borderTopColor === hl];
     });
     expect(r).toEqual([true, true]);
@@ -519,9 +562,9 @@ test.describe('prism-radio: motion', () => {
 
 // ---- state layer ----
 
-const overlayAlpha = (loc: Locator) =>
-  loc.evaluate((el) => {
-    const box = el.shadowRoot!.querySelector('[part="box"]')!;
+const overlayAlpha = async (loc: Locator) =>
+  (await optionOf(loc)).evaluate((el) => {
+    const box = el.querySelector('[part~="box"]')!;
     const ctx = document
       .createElement('canvas')
       .getContext('2d', { willReadFrequently: true })!;
@@ -585,7 +628,9 @@ for (const theme of ['light', 'dark'] as const) {
           await target.hover();
           if (state === 'pressed') await page.mouse.down();
         }
-        const r = await host(page, '#b').evaluate((el) => {
+        const r = await (
+          await optionOf(host(page, '#b'))
+        ).evaluate((el) => {
           const ctx = document
             .createElement('canvas')
             .getContext('2d', { willReadFrequently: true })!;
@@ -598,12 +643,9 @@ for (const theme of ['light', 'dark'] as const) {
             return [...ctx.getImageData(0, 0, 1, 1).data.slice(0, 3)];
           };
           const q = (p: string, pe?: string) =>
-            getComputedStyle(
-              el.shadowRoot!.querySelector(`[part="${p}"]`)!,
-              pe,
-            );
+            getComputedStyle(el.querySelector(`[part~="${p}"]`)!, pe);
           const bg = getComputedStyle(
-            el.parentElement!.parentElement!,
+            (el.getRootNode() as ShadowRoot).host.parentElement!,
           ).backgroundColor;
           const face = q('box').backgroundColor;
           const overlay = q('box', '::after').backgroundColor;
@@ -611,7 +653,7 @@ for (const theme of ['light', 'dark'] as const) {
             bg: px([bg]),
             ring: px([bg, q('ring').borderTopColor]),
             dot: px([bg, face, overlay, q('dot').backgroundColor]),
-            label: px([q('label').color]),
+            label: px([q('option-label').color]),
           };
         });
         if (state === 'pressed') await page.mouse.up();
@@ -626,7 +668,9 @@ for (const theme of ['light', 'dark'] as const) {
         page,
         `<div data-prism-theme="${theme}" style="background:var(--prism-color-bg);padding:24px">${GROUP}</div>`,
       );
-      const r = await host(page, '#a').evaluate((el) => {
+      const r = await (
+        await optionOf(host(page, '#a'))
+      ).evaluate((el) => {
         const ctx = document
           .createElement('canvas')
           .getContext('2d', { willReadFrequently: true })!;
@@ -638,10 +682,12 @@ for (const theme of ['light', 'dark'] as const) {
         };
         return {
           bg: px(
-            getComputedStyle(el.parentElement!.parentElement!).backgroundColor,
+            getComputedStyle(
+              (el.getRootNode() as ShadowRoot).host.parentElement!,
+            ).backgroundColor,
           ),
           edge: px(
-            getComputedStyle(el.shadowRoot!.querySelector('[part="edge"]')!)
+            getComputedStyle(el.querySelector('[part~="edge"]')!)
               .borderTopColor,
           ),
         };
@@ -654,10 +700,10 @@ for (const theme of ['light', 'dark'] as const) {
 test('focus ring shows on keyboard focus', async ({ page }) => {
   await setup(page, GROUP);
   await page.keyboard.press('Tab');
-  const sh = await host(page, '#b').evaluate(
-    (el) =>
-      getComputedStyle(el.shadowRoot!.querySelector('[part="base"]')!)
-        .boxShadow,
+  const sh = await (
+    await optionOf(host(page, '#b'))
+  ).evaluate(
+    (el) => getComputedStyle(el.querySelector('[part~="base"]')!).boxShadow,
   );
   expect(sh).not.toMatch(/^(0px 0px 0px 0px [^,]+(, )?)+$/);
 });
@@ -668,13 +714,13 @@ const ALL = `
   <prism-radio-group id="g1" label="Delivery speed" value="b">
     <span slot="description">Pick one.</span>
     <prism-radio value="a" label="Daily"></prism-radio>
-    <prism-radio value="b" label="Weekly"><span slot="description">Every Monday.</span></prism-radio>
+    <prism-radio value="b" label="Weekly" description="Every Monday."></prism-radio>
     <prism-radio value="c" label="Monthly" disabled></prism-radio>
   </prism-radio-group>
-  <prism-radio-group id="g2" label="Sizes" orientation="horizontal" value="m">
-    <prism-radio value="s" label="Small" size="sm"></prism-radio>
+  <prism-radio-group id="g2" label="Sizes" orientation="horizontal" value="m" size="lg">
+    <prism-radio value="s" label="Small"></prism-radio>
     <prism-radio value="m" label="Medium"></prism-radio>
-    <prism-radio value="l" label="Large" size="lg"></prism-radio>
+    <prism-radio value="l" label="Large"></prism-radio>
   </prism-radio-group>
   <prism-radio-group id="g3" label="Required" required>
     <span slot="error">Pick one.</span>

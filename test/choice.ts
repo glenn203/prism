@@ -13,19 +13,32 @@ export interface Drawn {
   dot?: { s: number; o: number };
 }
 
+/**
+ * Where a control draws itself: its `container` part, or for a radio the
+ * `option` its group draws for it (the inputs live in the group's shadow root).
+ */
+const scopeOf = (el: Element): Element =>
+  el.localName === 'prism-radio'
+    ? el
+        .closest('prism-radio-group')!
+        .shadowRoot!.getElementById(el.slot)!
+        .closest('[part~="option"]')!
+    : el.shadowRoot!.querySelector('[part="container"]')!;
+
+/** The element holding everything a control (or one radio) draws, to read parts from. */
+export const optionOf = (host: Locator) => host.evaluateHandle(scopeOf);
+
 /** The pose drawn right now (or, with `ms`, with every animation paused there). */
-export function drawn(host: Locator, ms?: number): Promise<Drawn> {
-  return host.evaluate((el, ms) => {
-    const root = el.shadowRoot!;
+export async function drawn(host: Locator, ms?: number): Promise<Drawn> {
+  const scope = await host.evaluateHandle(scopeOf);
+  return scope.evaluate((root, ms) => {
     if (ms !== undefined)
-      for (const a of root
-        .querySelector('[part="container"]')!
-        .getAnimations({ subtree: true })) {
+      for (const a of root.getAnimations({ subtree: true })) {
         a.pause();
         a.currentTime = ms;
       }
     const part = (p: string) =>
-      root.querySelector<HTMLElement>(`[part="${p}"]`);
+      root.querySelector<HTMLElement>(`[part~="${p}"]`);
     const cs = (n: Element) => getComputedStyle(n);
     const box = new DOMMatrix(cs(part('box')!).transform);
     const out: Record<string, unknown> = { sx: box.a, sy: box.d };
@@ -60,10 +73,9 @@ export function drawn(host: Locator, ms?: number): Promise<Drawn> {
 }
 
 /** Every running animation (not transition) inside the control, with what it animates. */
-export function anims(host: Locator) {
-  return host.evaluate((el) =>
-    el
-      .shadowRoot!.querySelector('[part="container"]')!
+export async function anims(host: Locator) {
+  return (await optionOf(host)).evaluate((root) =>
+    root
       .getAnimations({ subtree: true })
       .filter((a) => !(a instanceof CSSTransition))
       .map((a) => {

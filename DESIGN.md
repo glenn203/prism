@@ -460,11 +460,11 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 ### Checkbox, Radio and Radio group (names provisional)
 
-| Element             | Role and props                                                                                                                                                                                                                                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. A native `input type="checkbox"` in shadow DOM, named by a real `label` (`.indeterminate` shows as mixed). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots. |
-| `prism-radio-group` | Exactly one of several choices. `role="radiogroup"` named by `label` (required). `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal); `description` and `error` slots. Owns the form value, the tab stop and the arrow keys.                                                                                            |
-| `prism-radio`       | One choice. Native `button role="radio"`. `value`, `label` (required), `disabled`, `size`; `description` slot. `checked` is set by the group from its `value`.                                                                                                                                                                                    |
+| Element             | Role and props                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. A native `input type="checkbox"` in shadow DOM, named by a real `label` (`.indeterminate` shows as mixed). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots.                                                                             |
+| `prism-radio-group` | Exactly one of several choices. A native `fieldset` with a `legend` from `label` (required). Draws a native `input type="radio"` and `label` for each child radio, all in its own shadow root so they share one name. `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal), `size` (sm, md, lg); `description` and `error` slots. Owns the form value; the browser owns the tab stop and arrow keys. |
+| `prism-radio`       | One choice, a direct child of the group that holds its text. `value`, `label` (required), `description`, `disabled`; default slot for extra label content. `checked` is set by the group from its `value`.                                                                                                                                                                                                                    |
 
 **Shared.**
 
@@ -522,9 +522,17 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 **Radio group.**
 
-- One tab stop: the picked radio, else the first enabled one. Arrow keys move focus and
-  pick together, wrap, skip disabled radios; Left and Right swap in right-to-left text.
-  Space picks the focused radio; Enter does not.
+- Native radios in one shadow root, so the browser gives one tab stop (the picked radio,
+  else the first), arrow keys that move and pick together, wrap and skip disabled radios,
+  and Space to pick; there is no key handling in the component. `prism-radio` children
+  are slotted into each input's `label`, which is why they must be direct children and
+  why `description` is an attribute (an id reference cannot cross into a child's
+  shadow root).
+- The native `input` event is composed and reaches the group as it is; its `change` is
+  not, so the group sends one. The inputs are in shadow DOM, so the group mirrors the
+  value and validity through ElementInternals.
+- Each option's parts carry `checked` and `disabled` tokens while they apply, so a theme
+  targets `::part(edge disabled)`.
 - `value` is the picked radio's value; a radio marked `checked` in the markup sets the
   starting value. Submits the value under `name`; `required` fails while none is picked.
   Disabling the group disables every radio.
