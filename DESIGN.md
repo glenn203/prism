@@ -460,11 +460,11 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 ### Checkbox, Radio and Radio group (names provisional)
 
-| Element             | Role and props                                                                                                                                                                                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. Native `button role="checkbox"` with `aria-checked` (`mixed` while indeterminate). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots. |
-| `prism-radio-group` | Exactly one of several choices. `role="radiogroup"` named by `label` (required). `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal); `description` and `error` slots. Owns the form value, the tab stop and the arrow keys.                                                                    |
-| `prism-radio`       | One choice. Native `button role="radio"`. `value`, `label` (required), `disabled`, `size`; `description` slot. `checked` is set by the group from its `value`.                                                                                                                                                            |
+| Element             | Role and props                                                                                                                                                                                                                                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prism-checkbox`    | Yes or no choice saved with a form, or a pick from a list. A native `input type="checkbox"` in shadow DOM, named by a real `label` (`.indeterminate` shows as mixed). `label` (required), `checked`, `indeterminate`, `required`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`; `description` and `error` slots. |
+| `prism-radio-group` | Exactly one of several choices. `role="radiogroup"` named by `label` (required). `value`, `name`, `required`, `disabled`, `orientation` (vertical, horizontal); `description` and `error` slots. Owns the form value, the tab stop and the arrow keys.                                                                                            |
+| `prism-radio`       | One choice. Native `button role="radio"`. `value`, `label` (required), `disabled`, `size`; `description` slot. `checked` is set by the group from its `value`.                                                                                                                                                                                    |
 
 **Shared.**
 
@@ -496,12 +496,17 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 
 **Checkbox.**
 
-- Space toggles. Enter does not, as on a native checkbox. Fires `input` and `change` after
-  a user toggle, not after a property change. Submits `value` under `name` while
+- The browser handles Space, label clicks, focus order and disabled. Enter does not
+  toggle. Fires `input` and `change` after a user toggle, not after a property change.
+  The native input's own `input` event is composed and reaches the host as it is; its
+  `change` is not, so the host sends one. The input lives in shadow DOM, so the host
+  mirrors its value and validity through ElementInternals. Submits `value` under `name` while
   checked. `required` fails validation while unchecked; the error shows after the box
   is touched or the form is submitted. A reset returns it to how it started.
-- Indeterminate: a click clears it and checks the box, as a native checkbox does. It
+- Indeterminate: a click clears it and toggles `checked`, as a native checkbox does. It
   submits like a native one (by `checked`).
+- Layers: `control` (24px hit area, carries the state layer) holds the invisible input
+  (`base`, which carries the focus ring) and the drawn `box`.
 - Four springs. `q` squish, `f` fill, `c` check, `m` dash. The fill is a circle growing
   from the centre (spring 30 and 0.8, about 100ms to full). The check is one stroke,
   the short arm then the long, drawn with `stroke-dashoffset` once the fill is about a

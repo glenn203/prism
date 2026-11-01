@@ -1542,6 +1542,13 @@ prism-switch:state(disabled)::part(label) {
 :is(prism-checkbox, prism-radio) {
   color: var(--prism-color-text);
 }
+prism-checkbox::part(control) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+}
+prism-checkbox:state(selected)::part(control) {
+  --_on: var(--prism-color-on-accent);
+}
 :is(prism-checkbox, prism-radio)::part(base) {
   --_bg: transparent;
   --_on: var(--prism-color-text);
@@ -1587,9 +1594,6 @@ prism-checkbox::part(fill) {
 }
 prism-checkbox::part(mark) {
   color: var(--prism-color-on-accent);
-}
-prism-checkbox:state(selected)::part(base) {
-  --_on: var(--prism-color-on-accent);
 }
 prism-radio::part(ring) {
   border-color: var(--prism-color-accent);
