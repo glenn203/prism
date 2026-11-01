@@ -57,15 +57,17 @@ export const renderError = (id: string): TemplateResult =>
 /**
  * Sets aria-invalid / aria-describedby on the control and shows the error
  * only while invalid. The error is referenced only while it is shown.
+ * A group (fieldset) takes `ariaInvalid: false`: the attribute is not
+ * supported on its role, and its native inputs report their own validity.
  */
 export function syncFieldA11y(
   root: ParentNode,
   control: Element,
   id: string,
   invalid: boolean,
-  { hideDescriptionWhenInvalid = false } = {},
+  { hideDescriptionWhenInvalid = false, ariaInvalid = true } = {},
 ): void {
-  control.setAttribute('aria-invalid', String(invalid));
+  if (ariaInvalid) control.setAttribute('aria-invalid', String(invalid));
   const describedBy =
     invalid && hideDescriptionWhenInvalid
       ? `${id}-error`

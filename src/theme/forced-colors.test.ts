@@ -82,7 +82,7 @@ const CASES: { name: string; markup: string; path: string[] }[] = [
     name: 'radio',
     markup:
       '<prism-radio-group label="G" value="a"><prism-radio value="a" label="A"></prism-radio></prism-radio-group>',
-    path: ['prism-radio', 'base'],
+    path: ['prism-radio-group', 'base'],
   },
   {
     name: 'dismissible tag',
