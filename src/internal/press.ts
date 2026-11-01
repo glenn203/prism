@@ -43,12 +43,6 @@ export class Press {
     this.#set(true);
   };
 
-  /** Key presses: Space squishes; Enter does nothing, as on a native checkbox or radio. */
-  keyDown = (e: KeyboardEvent): void => {
-    if (e.key === 'Enter') e.preventDefault();
-    else this.down(e);
-  };
-
   up = (): void => {
     const wait = this.#byKey
       ? (this.options.keyHold ?? 0) - (performance.now() - this.#since)
