@@ -33,6 +33,12 @@ export const indicatorLook = (
   };
 };
 
+/**
+ * Ms a move takes with the tunes below as they are. A longer or shorter
+ * duration scales their frequencies by this over the duration.
+ */
+export const NOMINAL_MS = 350;
+
 /** The edge the indicator moves toward: springy. */
 export const LEAD: Tune = { w: 44, z: 0.74 };
 /** The edge it leaves behind: softer, a little slower, so the shape stretches. */

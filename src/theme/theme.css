@@ -740,6 +740,7 @@ prism-otp-input:state(disabled)::part(cell) {
     --prism-duration-default: 0.01ms;
     --prism-duration-slow: 0.01ms;
     --prism-motion-switch: 0.01ms;
+    --prism-motion-segmented: 0.01ms;
     --prism-ease-spring: linear;
     --prism-ease-spring-bouncy: linear;
   }

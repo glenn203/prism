@@ -664,7 +664,9 @@ need its own timing and placement per component.
 - Indicator: one element sized by two edge springs (`LEAD` 44/0.74 for the edge in the
   direction of travel, `TRAIL` 34/0.9 for the other), drawn with `translateX` and
   `scaleX` of a fixed 100px box, so only transform and opacity animate. The shape stretches
-  in transit and settles on the segment in about 300ms. It is clamped to the track, so
+  in transit and settles on the segment in about 325ms (`--prism-motion-segmented`, or
+  `--prism-segmented-duration` on one control; the springs' frequencies scale to it, and
+  reduced motion still jumps). It is clamped to the track, so
   overshoot never leaves it. Reversing mid-move takes over from the current edges. Resizes
   and slot changes snap. The first pick from nothing fades in place.
 - Contrast: the picked segment is on-accent text over the accent indicator. Focus is an

@@ -445,7 +445,7 @@ test.describe('prism-segmented-control: motion', () => {
     expect(await animsOn(s(page), 'indicator')).toEqual([]);
   });
 
-  test('it morphs: the width stretches between the two segment widths on the way, in about 300ms', async ({
+  test('it morphs: the width stretches between the two segment widths on the way, in about 325ms', async ({
     page,
   }) => {
     await setup(page, SEVEN.replace('full-width', ''));
@@ -483,8 +483,42 @@ test.describe('prism-segmented-control: motion', () => {
         : -1,
     );
     const ms = (Math.max(...settleAt) - moveStart) * 16.7;
-    expect(ms).toBeGreaterThan(150);
-    expect(ms).toBeLessThan(550);
+    // Until it is within half a pixel: the tail of the spring is less than 1px
+    // (the full 325ms is asserted from the animation, below).
+    expect(ms).toBeGreaterThan(100);
+    expect(ms).toBeLessThan(325);
+  });
+
+  test('the slide takes the motion token, 325ms, and --prism-segmented-duration changes it', async ({
+    page,
+  }) => {
+    await setup(page, RANGE());
+    const token = await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--prism-motion-segmented')
+        .trim(),
+    );
+    expect(token).toBe('325ms');
+    const slide = async (to: string) => {
+      await radio(page, to).click();
+      await wait(page, 30);
+      const [anim] = await animsOn(s(page), 'indicator');
+      await wait(page, 1000);
+      return anim!.ms;
+    };
+    // The settle time of a springs move runs a frame or two over the token.
+    const normal = await slide('Month');
+    expect(normal).toBeGreaterThan(300);
+    expect(normal).toBeLessThan(360);
+    await s(page).evaluate((e) =>
+      (e as HTMLElement).style.setProperty(
+        '--prism-segmented-duration',
+        '650ms',
+      ),
+    );
+    const slow = await slide('Week');
+    expect(slow / normal).toBeGreaterThan(1.8);
+    expect(slow / normal).toBeLessThan(2.2);
   });
 
   test('every frame is continuous and the bounce never leaves the track', async ({
@@ -620,6 +654,21 @@ test.describe('prism-segmented-control: motion', () => {
     await wait(page, 30);
     const r = await rects(page, 'month');
     expect(Math.abs(r.il - r.sl)).toBeLessThan(0.6);
+  });
+
+  test('reduced motion: the slide token collapses and the indicator still just jumps', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await setup(page, RANGE());
+    const token = await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--prism-motion-segmented')
+        .trim(),
+    );
+    expect(token).toBe('0.01ms');
+    await radio(page, 'Month').click();
+    expect(await animsOn(s(page), 'indicator')).toEqual([]);
   });
 
   test('pressing a segment squishes it evenly by about 3% and it springs back; reduced motion keeps only the colour', async ({
