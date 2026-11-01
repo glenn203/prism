@@ -1,0 +1,35 @@
+---
+'@glenn203/prism': minor
+---
+
+`prism-select` now renders a native `<select>` named by a real `<label for>`, with a native `<option>` for each `prism-option` child, instead of a `role="combobox"` button with a hand-built listbox. The browser provides the keys (arrows, Home, End, Enter, Space, Escape, type-ahead, Tab), the top-layer popup, light dismiss, focus return and the mobile picker, so the component's key handling, `aria-expanded`, `aria-activedescendant` and outside-click code are gone. Where `appearance: base-select` is supported the trigger, popup and options keep the Prism look (the popup grows out of the trigger and the chevron turns over; reduced motion only fades, in under a frame) through `::picker(select)`, `::picker-icon` and `::checkmark`; elsewhere the browser's own select shows with the same label, error and form behaviour. Breaking: the `open` property, the `toggle` event and `hidePicker()` are removed (`showPicker()` stays), multiple selection is not supported (a multiple select is a listbox and would be its own component), and the sliding option marker, the drawn check and the popup tucking under the trigger are gone, because the popup is in the top layer. The parts `value`, `indicator`, `listbox` and `highlight` are replaced by the native select's `trigger` (with `::picker(select)` and `::picker-icon`) and `option`; `prism-option` now holds `value`, `label`, `selected`, `disabled` and its text and draws nothing, so it has no parts or `:state(disabled)` of its own. The `open` custom state is replaced by the browser's `:open`.
+
+`showPicker()` needs a user gesture (a click or key press), as the native one does, and does nothing in WebKit, whose select has no `showPicker()`. The empty-select placeholder is no longer listed in the popup, and a `prism-option` with no `value` attribute now submits its text.
+
+Where `appearance: base-select` is missing (Firefox), the browser's select now gets the same box as the text field: 5px corners, 1px border, height, padding and type.
+
+Before and after:
+
+```html
+<!-- before: a button and a hand-built listbox -->
+<prism-select label="Fruit" placeholder="Pick one">
+  <prism-option value="apricot">Apricot</prism-option>
+</prism-select>
+<script>
+  select.open = true;
+  select.addEventListener('toggle', onToggle);
+</script>
+```
+
+```html
+<!-- after: same markup, a native <select> inside; no open, toggle or hidePicker() -->
+<prism-select label="Fruit" placeholder="Pick one">
+  <prism-option value="apricot">Apricot</prism-option>
+</prism-select>
+<script>
+  button.addEventListener('click', () => select.showPicker()); // from a gesture
+  select.addEventListener('change', onChange);
+</script>
+```
+
+Style the popup with `prism-select::part(trigger)::picker(select)` and the rows with `prism-select::part(option)`, in place of the old `listbox`, `highlight`, `indicator` and `value` parts.

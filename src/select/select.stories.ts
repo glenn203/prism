@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
+import '../button/define.js';
 import './define.js';
 
 interface Args {
@@ -101,21 +102,33 @@ export const ErrorState: Story = {
   },
 };
 
-/** The open menu overlays the helper text below the control. */
+/**
+ * The open popup overlays the helper text below the control. A popup can only
+ * open from a user gesture, so press the button (or the select itself).
+ */
 export const OpenMenuWithHelper: Story = {
   args: { description: 'We ship fruit on Mondays.' },
-  play: async ({ canvasElement }) => {
-    const el = canvasElement.querySelector('prism-select')!;
-    await el.updateComplete;
-    el.showPicker();
-  },
+  render: ({ label, description }) => html`
+    <div style="max-inline-size: 320px; min-block-size: 320px">
+      <prism-select label=${label} placeholder="Select a fruit">
+        ${options}<span slot="description">${description}</span>
+      </prism-select>
+      <prism-button
+        type="button"
+        variant="outline"
+        @click=${(e: Event) =>
+          (e.target as HTMLElement)
+            .parentElement!.querySelector('prism-select')!
+            .showPicker()}
+        >Open the list</prism-button
+      >
+    </div>
+  `,
 };
 
 /**
- * The list grows out of the trigger on a spring and the chevron turns over.
- * Arrow keys, hover and type-ahead move one marker that slides between options;
- * picking draws the new check in and the old one out. Close it to see it shrink
- * back (it can be closed and reopened mid-move).
+ * The popup grows out of the trigger and the chevron turns over. The keys,
+ * type-ahead and the checked option's mark are the browser's own.
  */
 export const Motion: Story = {
   args: { label: 'Fruit' },
@@ -128,7 +141,7 @@ export const Motion: Story = {
   `,
 };
 
-/** Many options: the marker stays on the active one while the list scrolls. */
+/** Many options: the popup scrolls and keeps the chosen option in view. */
 export const LongList: Story = {
   render: () => html`
     <div style="max-inline-size: 320px; min-block-size: 360px">

@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { mount } from '../../test/fixture.js';
+import { needsBaseSelect } from '../../test/select.js';
 import { expected, near, painted, PCT } from '../../test/paint.js';
 
 const withTheme = async (page: Page) => {
@@ -187,7 +188,7 @@ test('generic consumer (test row): selected and selected+hover, non-colour cue p
   await expectPaint(page, row, 'base', [bg, on], 'hover');
 });
 
-test('option: selected uses the stronger selected mix and keeps the check mark', async ({
+test('option: hover and keyboard focus use the hover fill, the chosen one the pressed fill, with a check mark', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -196,18 +197,33 @@ test('option: selected uses the stronger selected mix and keeps the check mark',
     `<prism-select label="Fruit" value="apricot"><prism-option value="apricot">Apricot</prism-option><prism-option value="pear">Pear</prism-option></prism-select>`,
   );
   await withTheme(page);
-  await page.getByRole('combobox').click();
+  await needsBaseSelect(page);
+  const box = page.getByRole('combobox');
+  await box.click();
+  const fill = (name: string) =>
+    page.getByRole('option', { name }).evaluate((el) => {
+      const probe = (v: string) => {
+        const p = document.createElement('div');
+        p.style.backgroundColor = `var(--prism-color-${v})`;
+        document.body.append(p);
+        const c = getComputedStyle(p).backgroundColor;
+        p.remove();
+        return c;
+      };
+      return {
+        bg: getComputedStyle(el).backgroundColor,
+        hover: probe('surface-hover'),
+        pressed: probe('surface-pressed'),
+        check: getComputedStyle(el, '::checkmark').visibility,
+      };
+    });
+  await page.getByRole('option', { name: 'Pear' }).hover();
+  const pear = await fill('Pear');
+  expect(pear.bg).toBe(pear.hover);
   await page.mouse.move(0, 0);
-  await page.getByRole('combobox').press('ArrowDown'); // active → pear
-  const apricot = page.locator('prism-option[value="apricot"]');
-  await expectPaint(
-    page,
-    apricot,
-    'base',
-    ['var(--prism-color-bg)', 'var(--prism-color-text)'],
-    'selected',
-  );
-  expect(await partStyle(apricot, 'check', 'visibility')).toBe('visible');
+  const apricot = await fill('Apricot');
+  expect(apricot.bg).toBe(apricot.pressed);
+  expect(apricot.check).toBe('visible');
 });
 
 test('hover is gated by @media (hover: hover): touch devices get no sticky hover', async ({

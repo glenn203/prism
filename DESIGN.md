@@ -580,22 +580,22 @@ a change from code moves like a user's, and reduced motion changes state at once
   while it stays invalid. The attached error box, `aria-invalid` and `aria-describedby`
   work as before; the error text is on the error surface at AA.
 - **Read-only** uses the surface fill and keeps its ring and focus; disabled is inert.
-- **Select popup.** The list grows out of the trigger on one pose number `p` (spring 38 and
-  0.72 opening, 46 and 1 closing): scale from 96% by 88% to full, a 6px rise and a fade,
-  with the chevron turning over on the same clock. Closing keeps the list on screen while
-  it shrinks (it ignores the pointer and is inert), then hides it; reopening mid-close
-  takes over. `aria-expanded` follows `open` at once.
-- **Option marker.** One translucent tint (the 6% hover tint, over the options) slides to the
-  active option for keyboard, type-ahead and pointer alike (spring 42 and 0.82). It appears
-  in place when the list opens. The option's own hover tint is off in a select (pressed and
-  selected stay); in forced colours the marker is a 2px Highlight box.
-- **Selected check** is a stroke drawn with `stroke-dashoffset` (paint only, no layout; the
-  one exception to transform and opacity, as in the checkbox) with a small pop on its box.
-  The new one draws in as the old one draws out. Not animated on first paint, from code
-  while the list is hidden, or with reduced motion.
-- **Keyboard** is the select-only combobox pattern: Arrow keys, Home, End, PageUp and
-  PageDown, Enter, Space, Escape, Tab, Alt+Up, type-ahead (several letters match a prefix;
-  the same letter again cycles).
+- **Select.** A native `select` in shadow DOM, named by a real `label`, with a native
+  `option` for each `prism-option` child (a data carrier: `value`, `disabled`, `selected`,
+  its text). Where `appearance: base-select` is supported the trigger, popup and options are
+  styled (`::picker(select)`, `::picker-icon`, `::checkmark`); elsewhere the browser's own
+  select shows. The browser owns the keys (Arrow keys, Home, End, Enter, Space, Escape,
+  type-ahead, Tab), the top layer, light dismiss, focus return and the mobile picker; the
+  component has no key handling. The native `input` event is composed and reaches the host as
+  it is; its `change` is not, so the host sends one. The host mirrors value and validity
+  through ElementInternals. Single choice only: a multiple select is a listbox and would be
+  its own component.
+- **Popup motion.** The popup is in the top layer, so it cannot tuck under the trigger. It
+  grows out of the trigger's lower edge on a transition (fade, a 6px rise and a scale from
+  96% by 88%) and the chevron turns over on the same clock. With reduced motion it only
+  fades, in under a frame. The sliding hover marker and the drawn check are gone: hover and
+  keyboard focus use the hover fill, the chosen option the pressed fill and the browser's
+  check mark; in forced colours the active option is the system highlight.
 - **Forced colours.** A transparent outline is painted in the text colour in this mode, so
   controls that rest with one wear a stray second border. The theme ends with one block
   that turns the resting outline off and draws a Highlight outline while focused (box
@@ -630,7 +630,7 @@ One uniform scale on both axes: nothing squishes unevenly.
   button), `prism-card-title` toggle, clickable and choice `prism-card`, `prism-segment`.
 
 **Check draw (shared).** `CheckMark` (`src/internal/check-mark.ts`) draws a tick by
-stroke offset on a spring and takes over mid-flight. Used by `prism-option`, a
+stroke offset on a spring and takes over mid-flight. Used by a
 `checkable` `prism-menu-item` and the `prism-card-select` check. It snaps on first paint,
 while hidden and under reduced motion. A "done" confirmation is not provided: it would
 need its own timing and placement per component.

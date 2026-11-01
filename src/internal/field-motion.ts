@@ -37,34 +37,6 @@ export const popLook = ({ s }: PopPose) => ({
 });
 export const POP_TUNE: Tune = { w: 38, z: 0.7 };
 
-/**
- * Popup pose: 0 closed, 1 open. It grows out of the trigger's lower edge: from
- * 96% wide and 88% tall, 6px up, faint (the opacity is clamped, so the bounce
- * past 1 only shows in the scale).
- */
-export type PopupPose = Pose<'p'>;
-export const popupLook = ({ p }: PopupPose) => ({
-  listbox: {
-    transform: `translateY(${num(-6 * (1 - p))}px) scale(${num(0.96 + 0.04 * p)}, ${num(0.88 + 0.12 * p)})`,
-    opacity: num(clamp(p * 1.6)),
-  },
-  indicator: { transform: `rotate(${num(180 * p)}deg)` },
-});
-/** Opening: quick, with a hair of overshoot. */
-export const OPEN_TUNE: Tune = { w: 38, z: 0.72 };
-/** Closing: quicker, no bounce. */
-export const CLOSE_TUNE: Tune = { w: 46, z: 1 };
-
-/** Highlight pose: `y` is its top in px inside the list; `o` is its opacity. */
-export type HighlightPose = Pose<'y' | 'o'>;
-export const highlightLook = ({ y, o }: HighlightPose) => ({
-  transform: `translateY(${num(y)}px)`,
-  opacity: num(clamp(o)),
-});
-/** Slides to the next option with a small settle. */
-export const HIGHLIGHT_TUNE: Tune = { w: 42, z: 0.82 };
-export const HIGHLIGHT_FADE_TUNE: Tune = { w: 40, z: 1 };
-
 /** Check pose: 0 not drawn, 1 drawn. The pop can overshoot 1; the stroke cannot. */
 export type CheckPose = Pose<'c'>;
 export const checkLook = ({ c }: CheckPose) => ({
