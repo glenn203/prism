@@ -1712,7 +1712,7 @@ prism-segmented-control::part(error) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-error-text);
 }
-prism-segment::part(base) {
+prism-segmented-control::part(segment) {
   --_bg: transparent;
   --_on: var(--prism-color-text);
   --_bg-hover: var(--prism-color-surface-hover);
@@ -1721,29 +1721,27 @@ prism-segment::part(base) {
   /* Leaving: quick, so the old label is dark again as the indicator moves off. */
   transition: color 80ms var(--prism-ease-standard);
   /* The focus ring sits inside the segment, on the indicator when picked. */
-  outline: 2px solid transparent; /* forced-colors fallback */
-  outline-offset: -3px;
   --_ring: var(--prism-color-focus-ring);
 }
-prism-segment:state(checked)::part(base) {
+prism-segmented-control::part(segment checked) {
   /* Arriving: waits for the indicator's leading edge before turning light. */
   transition-duration: var(--prism-duration-fast);
   transition-delay: 60ms;
   --_on: var(--prism-color-on-accent);
   --_ring: var(--prism-color-on-accent);
 }
-prism-segment:state(disabled)::part(base) {
+prism-segmented-control::part(segment disabled) {
   --_on: var(--prism-color-text-muted);
 }
-prism-segment:state(checked):state(disabled)::part(base) {
+prism-segmented-control::part(segment checked disabled) {
   --_on: var(--prism-color-bg);
 }
-prism-segment::part(base):focus-visible {
+prism-segmented-control::part(base):focus-visible {
   outline-color: var(--_ring);
 }
 @media (prefers-reduced-motion: reduce) {
-  prism-segment::part(base),
-  prism-segment:state(checked)::part(base) {
+  prism-segmented-control::part(segment),
+  prism-segmented-control::part(segment checked) {
     transition: none;
   }
 }
@@ -1755,17 +1753,17 @@ prism-segment::part(base):focus-visible {
     background: Highlight;
     forced-color-adjust: none;
   }
-  prism-segment::part(base) {
+  prism-segmented-control::part(segment) {
     color: ButtonText;
     forced-color-adjust: none;
   }
-  prism-segment:state(checked)::part(base) {
+  prism-segmented-control::part(segment checked) {
     color: HighlightText;
   }
-  prism-segment:state(disabled)::part(base) {
+  prism-segmented-control::part(segment disabled) {
     color: GrayText;
   }
-  prism-segment:state(checked):state(disabled)::part(base) {
+  prism-segmented-control::part(segment checked disabled) {
     color: Canvas;
   }
   prism-segmented-control:state(disabled)::part(indicator) {
@@ -1801,7 +1799,7 @@ prism-segment::part(base):focus-visible {
   prism-tag::part(base),
   prism-tag::part(remove),
   prism-switch::part(base),
-  prism-segment::part(base) {
+  prism-segmented-control::part(base) {
     outline-style: none;
   }
   prism-button::part(base):focus-visible,
@@ -1824,11 +1822,11 @@ prism-segment::part(base):focus-visible {
     outline-offset: var(--prism-focus-ring-offset);
   }
   /* Inside the segment: on the Highlight indicator when picked, so it is HighlightText. */
-  prism-segment::part(base):focus-visible {
+  prism-segmented-control::part(base):focus-visible {
     outline: 2px solid Highlight;
     outline-offset: -3px;
   }
-  prism-segment:state(checked)::part(base):focus-visible {
+  prism-segmented-control::part(base checked):focus-visible {
     outline-color: HighlightText;
   }
   prism-select:state(disabled)::part(trigger) {

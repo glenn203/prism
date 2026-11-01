@@ -14,7 +14,7 @@ const CASES: { name: string; markup: string; path: string[] }[] = [
     name: 'segmented control segment',
     markup:
       '<prism-segmented-control label="Range" value="a"><prism-segment value="a">Day</prism-segment><prism-segment value="b">Week</prism-segment></prism-segmented-control>',
-    path: ['prism-segment', 'base'],
+    path: ['prism-segmented-control', 'base'],
   },
   {
     name: 'button',
@@ -123,7 +123,7 @@ const outline = (page: Page, path: string[]) =>
   page.evaluate((path) => {
     let node: Element | null = document.querySelector(path[0]!);
     for (const part of path.slice(1))
-      node = node?.shadowRoot?.querySelector(`[part="${part}"]`) ?? null;
+      node = node?.shadowRoot?.querySelector(`[part~="${part}"]`) ?? null;
     if (!node) return null;
     const cs = getComputedStyle(node);
     return {

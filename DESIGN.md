@@ -644,14 +644,23 @@ need its own timing and placement per component.
 
 **Segmented control.**
 
-| Element                   | Role and props                                                                                                                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-segmented-control` | One choice from a few. `role="radiogroup"` named by `label` (required, or `hide-label`). `value`, `name`, `required`, `disabled`, `size` (sm, md, lg), `full-width`; `description` and `error` slots. Form associated; owns value and keys. |
-| `prism-segment`           | One option. Native `button role="radio"` with `aria-checked`. `value`, `disabled`, `label` (needed when icon only); `icon` slot and default slot.                                                                                           |
+| Element                   | Role and props                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prism-segmented-control` | One choice from a few. A native `fieldset` with a `legend` from `label` (required, or `hide-label`). Draws a native `input type="radio"` in a real `label` for each child segment, all in its own shadow root so they share one name. `value`, `name`, `required`, `disabled`, `size` (sm, md, lg), `full-width`; `description` and `error` slots. Form associated; owns the value, the indicator and the press. |
+| `prism-segment`           | One option, a direct child of the control that holds its text and icon; the control draws it. `value`, `disabled`, `label` (names the input; needed when icon only); `icon` slot and default slot.                                                                                                                                                                                                               |
 
-- Keys: roving tab stop (the picked segment, else the first enabled), arrows move and pick
-  (Left and Right swap in right-to-left), Home and End, disabled segments are skipped.
+- Keys are the browser's: one tab stop (the picked segment, else the first), all four
+  arrows move and pick and skip disabled segments, Space picks; there is no key handling
+  in the component. Chrome and Firefox also wrap at the ends and swap Left and Right in
+  right-to-left; WebKit does neither, as for any native radios. Home and End do
+  nothing, as on native radios. `prism-segment` children are slotted into each input's
+  `label`, which is why they must be direct children. The native `input` event is composed
+  and reaches the control as it is; its `change` is not, so the control sends one. The inputs
+  are in shadow DOM, so the control mirrors the value and validity through ElementInternals.
   `input` and `change` fire on user picks only. Reset returns to the starting segment.
+- Each segment's `label` (part `segment`) holds the invisible input (part `base`, laid over
+  it, with the inset focus ring) and carries `checked` and `disabled` part tokens while they
+  apply, so a theme targets `::part(segment checked)`. The press scales the label by about 3%.
 - Indicator: one element sized by two edge springs (`LEAD` 44/0.74 for the edge in the
   direction of travel, `TRAIL` 34/0.9 for the other), drawn with `translateX` and
   `scaleX` of a fixed 100px box, so only transform and opacity animate. The shape stretches
