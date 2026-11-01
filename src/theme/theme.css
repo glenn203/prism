@@ -522,7 +522,7 @@ prism-select:state(disabled)::part(trigger) {
   cursor: not-allowed;
 }
 
-/* ---------- Floating label, glow, affixes and read-only (text inputs) ----------
+/* ---------- Floating label, affixes and read-only (text inputs) ----------
  * The label rests inside the field like a placeholder (muted) and floats onto
  * the top edge on focus or with a value. The patch behind it is the field's
  * own fill, so the edge reads as notched. The motion is the component's
@@ -594,66 +594,6 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-field
   )[readonly]:not(:state(disabled))::part(input) {
   background: var(--prism-color-surface);
-}
-
-/* Focus glow: a soft bloom of the focus colour around the field, fading in on
- * the same spring as the ring. Opacity only. */
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-search-input,
-    prism-text-field
-  )::part(control)::before,
-prism-select::part(anchor)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: var(--prism-radius-5);
-  --_glow: var(--prism-color-focus-ring);
-  box-shadow:
-    0 0 14px 1px color-mix(in srgb, var(--_glow) 34%, transparent),
-    0 0 32px 6px color-mix(in srgb, var(--_glow) 14%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--prism-duration-default) var(--prism-ease-spring);
-}
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-search-input,
-    prism-text-field
-  ):focus-within::part(control)::before,
-prism-select:focus-within::part(anchor)::before {
-  opacity: 1;
-}
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-search-input,
-    prism-text-field
-  ):state(invalid)::part(control)::before,
-prism-select:state(invalid)::part(anchor)::before {
-  --_glow: var(--prism-color-error);
-}
-:is(
-    prism-text-input,
-    prism-password-input,
-    prism-search-input,
-    prism-text-field
-  ):state(disabled)::part(control)::before {
-  display: none;
-}
-@media (forced-colors: active) {
-  :is(
-      prism-text-input,
-      prism-password-input,
-      prism-search-input,
-      prism-text-field
-    )::part(control)::before,
-  prism-select::part(anchor)::before {
-    display: none;
-  }
 }
 
 /* ---------- Option (NAME PENDING) ---------- */

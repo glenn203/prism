@@ -133,16 +133,13 @@ test('off without the attribute, and not drawn on disabled or invalid fields', a
   expect(await shown('#r')).toBe('none');
 });
 
-test('forced colors: no ring and no glow', async ({ page }) => {
+test('forced colors: no light-following ring', async ({ page }) => {
   await page.emulateMedia({ forcedColors: 'active' });
   await setup(page, FIELDS);
   await page.locator('#t').hover();
   const d = await page.locator('#t').evaluate((el) => {
     const c = el.shadowRoot!.querySelector('[part="control"]')!;
-    return [
-      getComputedStyle(c, '::after').display,
-      getComputedStyle(c, '::before').display,
-    ];
+    return getComputedStyle(c, '::after').display;
   });
-  expect(d).toEqual(['none', 'none']);
+  expect(d).toBe('none');
 });
