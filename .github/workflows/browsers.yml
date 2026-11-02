@@ -1,10 +1,10 @@
 name: Browsers
 
-# Firefox and WebKit, nightly and after each push to main. They do not gate
+# Firefox and WebKit, every third night and after each push to main. They do not gate
 # pull requests (ci.yml runs Chromium for that).
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 8 */3 * *'
   push:
     branches: [main]
   workflow_dispatch:
