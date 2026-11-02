@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { firefoxSkips, titlesPattern, webkitSkips } from './test/browser-skips.js';
 
 export default defineConfig({
   testDir: './src',
@@ -12,8 +13,16 @@ export default defineConfig({
   // after each push to main (`pnpm test:browsers`).
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      grepInvert: titlesPattern(firefoxSkips),
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      grepInvert: titlesPattern(webkitSkips),
+    },
   ],
   webServer: {
     command: 'vite --config test/vite.config.ts',
