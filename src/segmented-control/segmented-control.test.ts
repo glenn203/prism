@@ -445,7 +445,7 @@ test.describe('prism-segmented-control: motion', () => {
     expect(await animsOn(s(page), 'indicator')).toEqual([]);
   });
 
-  test('it morphs: the width stretches between the two segment widths on the way, in about 425ms', async ({
+  test('it morphs: the width stretches between the two segment widths on the way, in about 525ms', async ({
     page,
   }) => {
     await setup(page, SEVEN.replace('full-width', ''));
@@ -484,12 +484,12 @@ test.describe('prism-segmented-control: motion', () => {
     );
     const ms = (Math.max(...settleAt) - moveStart) * 16.7;
     // Until it is within half a pixel: the tail of the spring is less than 1px
-    // (the full 425ms is asserted from the animation, below).
+    // (the full 525ms is asserted from the animation, below).
     expect(ms).toBeGreaterThan(100);
-    expect(ms).toBeLessThan(425);
+    expect(ms).toBeLessThan(525);
   });
 
-  test('the slide takes the motion token, 425ms, and --prism-segmented-duration changes it', async ({
+  test('the slide takes the motion token, 525ms, and --prism-segmented-duration changes it', async ({
     page,
   }) => {
     await setup(page, RANGE());
@@ -498,7 +498,7 @@ test.describe('prism-segmented-control: motion', () => {
         .getPropertyValue('--prism-motion-segmented')
         .trim(),
     );
-    expect(token).toBe('425ms');
+    expect(token).toBe('525ms');
     const slide = async (to: string) => {
       await radio(page, to).click();
       await wait(page, 30);
