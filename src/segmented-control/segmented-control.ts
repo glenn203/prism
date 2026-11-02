@@ -56,7 +56,7 @@ import type { PrismSegment } from './segment.js';
  * - Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`
  *   shares the row equally.
  * - Motion: the indicator slides to the picked segment on two springs (one per
- *   edge) so it stretches on the way, about 325ms (`--prism-motion-segmented`), with a small overshoot that
+ *   edge) so it stretches on the way, about 525ms (`--prism-motion-segmented`), with a small overshoot that
  *   never leaves the track. A new pick during the move turns it round from where
  *   it is. Transform and opacity only. Nothing moves on first paint, on a
  *   resize, or when the width of a segment changes: the indicator just follows.
@@ -67,7 +67,7 @@ import type { PrismSegment } from './segment.js';
  * @slot - The `prism-segment` choices.
  * @slot description - Help text under the label.
  * @slot error - Message shown while the control is invalid.
- * @cssprop [--prism-segmented-duration=325ms] - Time the indicator takes to settle on a segment. Defaults to `--prism-motion-segmented`.
+ * @cssprop [--prism-segmented-duration=525ms] - Time the indicator takes to settle on a segment. Defaults to `--prism-motion-segmented`.
  * @csspart group - The fieldset.
  * @csspart label - The control's legend.
  * @csspart description - The help text.
@@ -92,7 +92,7 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
         /* Time the indicator takes to settle on a segment. */
         --_duration: var(
           --prism-segmented-duration,
-          var(--prism-motion-segmented, 325ms)
+          var(--prism-motion-segmented, 525ms)
         );
       }
       [part='group'] {
@@ -419,7 +419,7 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     );
   }
 
-  /** Ms the slide takes: `--prism-segmented-duration`, or the token's 325. */
+  /** Ms the slide takes: `--prism-segmented-duration`, or the token's 525. */
   #duration(): number {
     const raw = getComputedStyle(this).getPropertyValue('--_duration').trim();
     const n = parseFloat(raw);
