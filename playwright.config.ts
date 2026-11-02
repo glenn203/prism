@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { firefoxSkips, titlesPattern, webkitSkips } from './test/browser-skips';
+import { firefoxSkips, titlesPattern, webkitSkips } from './test/browser-skips.js';
 
 export default defineConfig({
   testDir: './src',
