@@ -247,6 +247,72 @@ test('radius ramp is odd px (plus none and full)', () => {
   }
 });
 
+test('the default primitives are a twelve-step hued neutral band', () => {
+  const steps = [
+    '0',
+    '50',
+    '100',
+    '200',
+    '300',
+    '400',
+    '500',
+    '600',
+    '700',
+    '800',
+    '900',
+    '950',
+  ];
+  const d = resolved.modes.default;
+  const hues = new Set();
+  let lastL = 2;
+  for (const s of steps) {
+    const t = d[`neutral.${s}`];
+    assert.ok(t, `neutral.${s}`);
+    assert.equal(t.cssVar, `--prism-neutral-${s}`);
+    assert.equal(t.type, 'color');
+    const parts = /^oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)$/.exec(t.value);
+    assert.ok(parts, `${s} is oklch`);
+    const lightness = Number(parts[1]);
+    const chroma = Number(parts[2]);
+    const hue = Number(parts[3]);
+    assert.equal(hue, 255, `${s} hue`);
+    assert.ok(
+      lightness < lastL,
+      `${s} should be darker than the previous step`,
+    );
+    assert.ok(
+      chroma <= 0.02,
+      `${s} chroma ${chroma} should stay a slight hint`,
+    );
+    lastL = lightness;
+    hues.add(hue);
+    assert.equal(
+      d[`color.slate.${s}`].value,
+      t.value,
+      `slate-${s} aliases the band`,
+    );
+  }
+  assert.equal(hues.size, 1);
+  // Near-white to near-black, not pure 1 / 0.
+  assert.ok(Number(/^oklch\(([\d.]+)/.exec(d['neutral.0'].value)[1]) >= 0.99);
+  assert.ok(Number(/^oklch\(([\d.]+)/.exec(d['neutral.0'].value)[1]) < 1);
+  assert.ok(Number(/^oklch\(([\d.]+)/.exec(d['neutral.950'].value)[1]) <= 0.2);
+  assert.ok(Number(/^oklch\(([\d.]+)/.exec(d['neutral.950'].value)[1]) > 0);
+  // Default roles read from the band.
+  assert.equal(d['color.bg'].value, d['neutral.0'].value);
+  assert.equal(d['color.surface'].value, d['neutral.50'].value);
+  assert.equal(d['color.text'].value, d['neutral.900'].value);
+  assert.equal(d['color.text-muted'].value, d['neutral.600'].value);
+  assert.equal(d['color.border'].value, d['neutral.300'].value);
+  assert.equal(d['color.border-strong'].value, d['neutral.500'].value);
+  assert.equal(d['color.accent'].value, d['neutral.900'].value);
+  assert.equal(resolved.themes.dark['color.bg'].value, d['neutral.950'].value);
+  assert.equal(
+    resolved.themes.dark['color.accent'].value,
+    d['neutral.50'].value,
+  );
+});
+
 test('the ramps are the neutral, the spectrum and red', () => {
   const ramps = new Set(
     Object.keys(resolved.modes.default)
@@ -278,11 +344,13 @@ test('focus ring: 1px gap + 2px ring + 1px halo; reach fits the space-1 label ga
   assert.ok(d['space.2'].value > extent);
 });
 
-test('field focus colours are the focus border (the accent) and the error colour at 50% and 12%', () => {
+test('field focus colours are the focus border and the error colour at 50% and 12%', () => {
   for (const theme of THEMES) {
     const withAlpha = (colour, alpha) => `${colour.slice(0, -1)} / ${alpha})`;
     const border = colorIn(theme, 'focus-border');
-    assert.equal(border, colorIn(theme, 'accent'));
+    // Focus is a meaning colour, not the accent fill.
+    assert.notEqual(border, colorIn(theme, 'accent'));
+    assert.equal(colorIn(theme, 'focus-ring'), border);
     const error = colorIn(theme, 'error');
     assert.equal(tokIn(theme, 'focus.ring-color'), withAlpha(border, 0.5));
     assert.equal(tokIn(theme, 'focus.halo-color'), withAlpha(border, 0.12));
@@ -294,7 +362,7 @@ test('field focus colours are the focus border (the accent) and the error colour
   }
 });
 
-test('elevation: three shared levels, slate-based, urgent tinted from error red', () => {
+test('elevation: three shared levels, from the neutral band, urgent tinted from error red', () => {
   const t = resolved.modes.default;
   for (const level of ['default', 'hover', 'urgent']) {
     const e = t[`elevation.${level}`];
@@ -303,8 +371,8 @@ test('elevation: three shared levels, slate-based, urgent tinted from error red'
     assert.equal(e.cssVar, `--prism-elevation-${level}`);
     assert.match(e.value, /oklch\(/);
   }
-  assert.match(t['elevation.default'].value, / 260 \//); // slate hue
-  assert.match(t['elevation.hover'].value, / 260 \//);
+  assert.match(t['elevation.default'].value, / 255 \//); // neutral hue
+  assert.match(t['elevation.hover'].value, / 255 \//);
   assert.match(t['elevation.urgent'].value, / 12 \//); // error rose hue
   const css = readFileSync(
     new URL('../src/tokens/tokens.css', import.meta.url),
@@ -616,7 +684,8 @@ test('on-error-surface pairs with error-surface; error-status-text is its alias'
 });
 
 test('elevation and focus halo are built from roles with exact former values', () => {
-  assert.equal(tok('color.shadow'), tok('color.slate.950'));
+  assert.equal(tok('color.shadow'), tok('neutral.950'));
+  assert.equal(tok('color.slate.950'), tok('neutral.950'));
   assert.equal(tok('color.shadow-urgent'), tok('color.red.600'));
   assert.equal(
     tok('focus.halo'),
@@ -625,7 +694,7 @@ test('elevation and focus halo are built from roles with exact former values', (
   );
   assert.equal(
     tok('elevation.default'),
-    '0 1px 2px oklch(0.129 0.03 260 / 0.06), 0 4px 12px -2px oklch(0.129 0.03 260 / 0.12)',
+    '0 1px 2px oklch(0.155 0.01 255 / 0.06), 0 4px 12px -2px oklch(0.155 0.01 255 / 0.12)',
   );
   const css = rf(new URL('../src/tokens/tokens.css', import.meta.url), 'utf8');
   assert.match(
@@ -664,7 +733,7 @@ test('theme + component styles: no raw palette refs, no colour literals', () => 
     );
     assert.doesNotMatch(
       src,
-      /--prism-color-(slate|red)-\d/,
+      /--prism-(?:neutral-\d|color-(?:slate|red)-\d)/,
       `${f}: raw palette ref`,
     );
     assert.doesNotMatch(
@@ -1034,20 +1103,20 @@ test('resting focus ring has no blur (no sub-pixel fringe)', () => {
       'warning',
     ]);
   });
-  // Tags and status badges are the low emphasis: a richer tint (L 0.915, more
-  // chroma) with vivid text. Pin the richness so it is not quietly flattened.
+  // Status badges are the low emphasis: a richer tint (L 0.915, more chroma)
+  // with vivid text. Accent defaults to the neutral band; its spectral look
+  // lives in the opt-in accent layer. Pin the remaining tones so they are
+  // not quietly flattened.
   test('tone tints are rich and the tone text is vivid, all inside P3', () => {
     const chroma = (c) => parseFloat(c.split(/\s+/)[1]);
     const light = (c) => parseFloat(c.replace('oklch(', ''));
     const MIN_TINT = {
-      accent: 0.043,
       info: 0.043,
       success: 0.07,
       warning: 0.07,
       danger: 0.047,
     };
     const MIN_TEXT = {
-      accent: 0.22,
       info: 0.11,
       success: 0.12,
       warning: 0.1,

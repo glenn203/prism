@@ -352,49 +352,90 @@
       }
     }
   },
+  "neutral": {
+    "$type": "color",
+    "$description": "Hued neutral band in OKLCH, near-white to near-black with a slight hint of blue (hue 255, low chroma) so surfaces read as almost black and white. Twelve steps (0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950). Default surface, text, border and control roles map to this band. Emitted as --prism-neutral-*. --prism-color-slate-* is an alias of the same steps.",
+    "0": {
+      "$value": "oklch(0.995 0.002 255)",
+      "$description": "Near-white. A little chroma and a locked hue so color-mix() in oklch never swings through red."
+    },
+    "50": {
+      "$value": "oklch(0.985 0.004 255)"
+    },
+    "100": {
+      "$value": "oklch(0.97 0.006 255)"
+    },
+    "200": {
+      "$value": "oklch(0.932 0.008 255)"
+    },
+    "300": {
+      "$value": "oklch(0.87 0.01 255)"
+    },
+    "400": {
+      "$value": "oklch(0.72 0.012 255)"
+    },
+    "500": {
+      "$value": "oklch(0.55 0.014 255)"
+    },
+    "600": {
+      "$value": "oklch(0.43 0.014 255)"
+    },
+    "700": {
+      "$value": "oklch(0.355 0.013 255)"
+    },
+    "800": {
+      "$value": "oklch(0.26 0.012 255)"
+    },
+    "900": {
+      "$value": "oklch(0.2 0.011 255)"
+    },
+    "950": {
+      "$value": "oklch(0.155 0.01 255)"
+    }
+  },
   "color": {
     "$type": "color",
-    "$description": "Prism palette in OKLCH. One cool slate neutral ramp, a refraction spectrum (violet, blue, cyan, green, amber, red, magenta) and roles on top. Vivid steps sit in Display P3; each has an sRGB fallback (tokens.css, resolved JSON). Use the role names (color-bg, color-text, color-accent …), not the ramps.",
+    "$description": "Prism palette in OKLCH. One hued neutral band (--prism-neutral-*, hue 255, low chroma) and a refraction spectrum (violet, blue, cyan, green, amber, red, magenta) with roles on top. Defaults use the band for surfaces, text, borders and controls; colour is reserved for meaning (error and focus). The spectral accent lives in the opt-in accent.css layer. Vivid steps sit in Display P3; each has an sRGB fallback (tokens.css, resolved JSON). Use the role names (color-bg, color-text, color-accent …), not the ramps. --prism-color-slate-* aliases the neutral band.",
     "slate": {
+      "$description": "Alias of the neutral band, kept so existing --prism-color-slate-* names still resolve. Prefer --prism-neutral-* or a role.",
       "0": {
-        "$value": "oklch(1 0 260)",
-        "$description": " Hue 260 (not 0) so color-mix() in oklch never swings through red; chroma 0 = pure white."
+        "$value": "{neutral.0}"
       },
       "50": {
-        "$value": "oklch(0.984 0.003 260)"
+        "$value": "{neutral.50}"
       },
       "100": {
-        "$value": "oklch(0.968 0.007 260)"
+        "$value": "{neutral.100}"
       },
       "200": {
-        "$value": "oklch(0.929 0.013 260)"
+        "$value": "{neutral.200}"
       },
       "300": {
-        "$value": "oklch(0.869 0.02 260)"
+        "$value": "{neutral.300}"
       },
       "400": {
-        "$value": "oklch(0.704 0.03 260)"
+        "$value": "{neutral.400}"
       },
       "500": {
-        "$value": "oklch(0.554 0.035 260)"
+        "$value": "{neutral.500}"
       },
       "600": {
-        "$value": "oklch(0.446 0.035 260)"
+        "$value": "{neutral.600}"
       },
       "700": {
-        "$value": "oklch(0.372 0.035 260)"
+        "$value": "{neutral.700}"
       },
       "800": {
-        "$value": "oklch(0.279 0.033 260)"
+        "$value": "{neutral.800}"
       },
       "900": {
-        "$value": "oklch(0.208 0.03 260)"
+        "$value": "{neutral.900}"
       },
       "950": {
-        "$value": "oklch(0.129 0.03 260)"
-      },
-      "$description": "Dark slate ramp (hue 260, low chroma). The only non-error ramp. 0 = white, 950 = near-black with a blue tint."
+        "$value": "{neutral.950}"
+      }
     },
+
     "red": {
       "50": {
         "$value": "oklch(0.975 0.015 12)"
@@ -568,130 +609,130 @@
       "$description": "Magenta (hue 338). Spectrum only; no role uses it yet."
     },
     "bg": {
-      "$value": "{color.slate.0}",
+      "$value": "{neutral.0}",
       "$description": "Page background.",
       "$extensions": {
-        "prism.dark": "{color.slate.950}"
+        "prism.dark": "{neutral.950}"
       }
     },
     "surface": {
-      "$value": "{color.slate.50}",
+      "$value": "{neutral.50}",
       "$description": "Raised or inset surface (cards, wells).",
       "$extensions": {
-        "prism.dark": "{color.slate.900}"
+        "prism.dark": "{neutral.900}"
       }
     },
     "text": {
-      "$value": "{color.slate.900}",
+      "$value": "{neutral.900}",
       "$description": "Primary text.",
       "$extensions": {
-        "prism.dark": "{color.slate.50}"
+        "prism.dark": "{neutral.50}"
       }
     },
     "text-muted": {
-      "$value": "{color.slate.600}",
+      "$value": "{neutral.600}",
       "$description": "Secondary text: descriptions, placeholders. AA on bg and surface.",
       "$extensions": {
-        "prism.dark": "{color.slate.300}"
+        "prism.dark": "{neutral.300}"
       }
     },
     "border": {
-      "$value": "{color.slate.300}",
+      "$value": "{neutral.300}",
       "$description": "Default control/divider border (decorative).",
       "$extensions": {
-        "prism.dark": "{color.slate.700}"
+        "prism.dark": "{neutral.700}"
       }
     },
     "border-strong": {
-      "$value": "{color.slate.500}",
+      "$value": "{neutral.500}",
       "$description": "Border that must be visible (hover, inputs needing 3:1).",
       "$extensions": {
-        "prism.dark": "{color.slate.400}"
+        "prism.dark": "{neutral.400}"
       }
     },
     "border-popup": {
-      "$value": "{color.slate.400}",
+      "$value": "{neutral.400}",
       "$description": "Popup/listbox outline: a step darker than border (decorative, the elevation carries the edge).",
       "$extensions": {
-        "prism.dark": "{color.slate.600}"
+        "prism.dark": "{neutral.600}"
       }
     },
     "accent": {
-      "$value": "{color.violet.600}",
-      "$description": "Primary action fill: vivid violet. White text in light, ink text in dark.",
+      "$value": "{neutral.900}",
+      "$description": "Primary action fill. Defaults to the neutral band (near-black in light, near-white in dark) so controls read as almost black and white. Load prism/accent.css to use the spectral accent.",
       "$extensions": {
-        "prism.dark": "{color.violet.500}"
+        "prism.dark": "{neutral.50}"
       }
     },
     "accent-hover": {
-      "$value": "{color.violet.700}",
+      "$value": "{neutral.950}",
       "$description": "DEPRECATED for direct use: fallback for browsers without color-mix(); states now come from the shared state layer.",
       "$extensions": {
-        "prism.dark": "{color.violet.300}"
+        "prism.dark": "{neutral.0}"
       }
     },
     "accent-active": {
-      "$value": "{color.violet.900}",
+      "$value": "{neutral.950}",
       "$description": "DEPRECATED for direct use: fallback for browsers without color-mix() (pressed).",
       "$extensions": {
-        "prism.dark": "{color.violet.300}"
+        "prism.dark": "{neutral.0}"
       }
     },
     "on-accent": {
-      "$value": "{color.slate.0}",
+      "$value": "{neutral.0}",
       "$description": "Text/icons on accent fills.",
       "$extensions": {
-        "prism.dark": "{color.slate.950}"
+        "prism.dark": "{neutral.950}"
       }
     },
     "accent-text": {
-      "$value": "oklch(0.42 0.224 300)",
-      "$description": "Accent-coloured text and icons on the page. AA on bg, surface and accent-surface. Vivid: chroma near the Display P3 edge at this lightness, still 4.5:1 or more on its tint.",
+      "$value": "{neutral.800}",
+      "$description": "Accent-coloured text and icons on the page. AA on bg, surface and accent-surface. Defaults to the neutral band; prism/accent.css restores the spectral accent text.",
       "$extensions": {
-        "prism.dark": "oklch(0.83 0.1 300)"
+        "prism.dark": "{neutral.100}"
       }
     },
     "accent-surface": {
-      "$value": "oklch(0.915 0.043 300)",
-      "$description": "Airy accent tint fill. Text on it: accent-text. Richer tint: L 0.915 with more chroma, inside Display P3.",
+      "$value": "{neutral.100}",
+      "$description": "Accent tint fill. Text on it: accent-text. Defaults to a light step of the neutral band; prism/accent.css restores the spectral tint.",
       "$extensions": {
-        "prism.dark": "oklch(0.3 0.137 300)"
+        "prism.dark": "{neutral.800}"
       }
     },
     "surface-hover": {
-      "$value": "{color.slate.100}",
+      "$value": "{neutral.100}",
       "$description": "Fallback only (no color-mix): hovered item on bg. Prefer the state layer.",
       "$extensions": {
-        "prism.dark": "{color.slate.800}"
+        "prism.dark": "{neutral.800}"
       }
     },
     "surface-pressed": {
-      "$value": "{color.slate.200}",
+      "$value": "{neutral.200}",
       "$description": "Fallback only (no color-mix): pressed item on bg. Also tracks and avatar fills. Prefer the state layer.",
       "$extensions": {
-        "prism.dark": "{color.slate.800}"
+        "prism.dark": "{neutral.800}"
       }
     },
     "focus-ring": {
-      "$value": "{color.violet.600}",
-      "$description": "Focus ring. At least 3:1 on bg and surface.",
-      "$extensions": {
-        "prism.dark": "{color.violet.300}"
-      }
+      "$value": "{color.focus-border}",
+      "$description": "Focus ring. Aliases the focus border so both stay one meaning colour. At least 3:1 on bg and surface."
     },
     "focus-halo": {
       "$value": "color-mix(in oklch, {color.focus-ring} 12%, transparent)",
       "$description": "Focus halo band: the focus ring at 12%."
     },
     "focus-border": {
-      "$value": "{color.accent}",
-      "$description": "Border of a focused field (text-style inputs and select). The single source for the field focus colours: swap the accent and the border, the ring and the halo follow. Same 3:1 on bg as accent."
+      "$value": "oklch(0.5 0.12 255)",
+      "$description": "Border of a focused field (text-style inputs and select). The single source for the field focus colours: swap this and the ring and the halo follow. A meaning colour (same hue as the neutral band, enough chroma to read as focus), at least 3:1 on bg and surface. Independent of the accent fill.",
+      "$extensions": {
+        "prism.dark": "oklch(0.75 0.08 255)"
+      }
     },
     "shadow": {
-      "$value": "{color.slate.950}",
+      "$value": "{neutral.950}",
       "$description": "Base colour of elevation shadows.",
       "$extensions": {
-        "prism.dark": "oklch(0 0 260)"
+        "prism.dark": "oklch(0 0 255)"
       }
     },
     "track-shadow": {
@@ -702,7 +743,7 @@
       }
     },
     "lift": {
-      "$value": "{color.slate.0}",
+      "$value": "{neutral.0}",
       "$description": "White. Mixed into the start of a progress fill so the fill gets lighter toward its left end, in both themes."
     },
     "shadow-urgent": {
@@ -710,24 +751,24 @@
       "$description": "Base colour of the urgent (error) elevation."
     },
     "on-solid": {
-      "$value": "{color.slate.0}",
+      "$value": "{neutral.0}",
       "$description": "Text on solid tone fills (neutral, info, success, warning, danger). White in light, ink in dark.",
       "$extensions": {
-        "prism.dark": "{color.slate.950}"
+        "prism.dark": "{neutral.950}"
       }
     },
     "neutral": {
-      "$value": "{color.slate.700}",
+      "$value": "{neutral.700}",
       "$description": "Neutral tone solid fill.",
       "$extensions": {
-        "prism.dark": "{color.slate.300}"
+        "prism.dark": "{neutral.300}"
       }
     },
     "neutral-surface": {
-      "$value": "oklch(0.945 0.014 260)",
+      "$value": "{neutral.100}",
       "$description": "Neutral tone tint fill. Text on it: color-text.",
       "$extensions": {
-        "prism.dark": "oklch(0.3 0.04 260)"
+        "prism.dark": "{neutral.800}"
       }
     },
     "info": {

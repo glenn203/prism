@@ -28,7 +28,7 @@ Without `theme.css` the components are unstyled apart from structural sizing. St
 - **Many shallow components.** Small public elements, never one god component.
 - **4px grid.** `--prism-unit` is the only primitive. `space-N` = N × 4px.
 - **Density.** Set `data-prism-density="compact | default | comfortable"` on any element.
-- **Color made of light.** One airy slate neutral and a seven-hue refraction spectrum, in OKLCH with Display P3 and sRGB fallbacks, behind semantic names like `--prism-color-text`. Light and dark themes, both checked for AA contrast.
+- **Color made of light.** One hued neutral band (near black and white, with a slight hint of blue) and a seven-hue refraction spectrum, in OKLCH with Display P3 and sRGB fallbacks, behind semantic names like `--prism-color-text`. Defaults use the band; colour is for meaning (error and focus). Light and dark themes, both checked for AA contrast.
 - **Agent-readable.** Token names carry their values, and `prism/tokens.json` resolves every token to px / oklch / hex.
 
 ## Fonts

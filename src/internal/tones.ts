@@ -22,16 +22,16 @@ export function tonePalette(attr: string): CSSResult {
   return css`
     /* TONES-START */
     :host {
-      --_tone-low-bg: var(--prism-color-neutral-surface, #e7edf7);
-      --_tone-low-fg: var(--prism-color-text, #101826);
-      --_tone-high-bg: var(--prism-color-neutral, #354153);
-      --_tone-high-fg: var(--prism-color-on-solid, #ffffff);
+      --_tone-low-bg: var(--prism-color-neutral-surface, #f2f5f9);
+      --_tone-low-fg: var(--prism-color-text, #13161b);
+      --_tone-high-bg: var(--prism-color-neutral, #373c43);
+      --_tone-high-fg: var(--prism-color-on-solid, #fcfdff);
     }
     :host([${a}='accent']) {
-      --_tone-low-bg: var(--prism-color-accent-surface, #e7ddfc);
-      --_tone-low-fg: var(--prism-color-accent-text, #6400b1);
-      --_tone-high-bg: var(--prism-color-accent, #7d24d3);
-      --_tone-high-fg: var(--prism-color-on-accent, #ffffff);
+      --_tone-low-bg: var(--prism-color-accent-surface, #f2f5f9);
+      --_tone-low-fg: var(--prism-color-accent-text, #20242a);
+      --_tone-high-bg: var(--prism-color-accent, #13161b);
+      --_tone-high-fg: var(--prism-color-on-accent, #fcfdff);
     }
     :host([${a}='danger']) {
       --_tone-low-bg: var(--prism-color-danger-surface, #ffd8db);

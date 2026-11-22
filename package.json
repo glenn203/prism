@@ -33,6 +33,7 @@
     "./dist/*/define.js",
     "./dist/tokens/tokens.css",
     "./dist/theme/theme.css",
+    "./dist/theme/theme-accent.css",
     "./dist/theme/polish.css",
     "./src/define.ts",
     "./src/*/define.ts",
@@ -121,6 +122,7 @@
     },
     "./tokens.css": "./dist/tokens/tokens.css",
     "./theme.css": "./dist/theme/theme.css",
+    "./accent.css": "./dist/theme/theme-accent.css",
     "./polish.css": "./dist/theme/polish.css",
     "./polish": {
       "types": "./dist/polish/polish.d.ts",
@@ -205,7 +207,7 @@
   },
   "customElements": "./custom-elements.json",
   "scripts": {
-    "build": "pnpm tokens && node scripts/build-theme.mjs && rimraf dist && tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/tokens/tokens.css','dist/tokens/tokens.css');require('fs').cpSync('src/theme/theme.css','dist/theme/theme.css');require('fs').cpSync('src/theme/polish.css','dist/theme/polish.css')\"",
+    "build": "pnpm tokens && node scripts/build-theme.mjs && rimraf dist && tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/tokens/tokens.css','dist/tokens/tokens.css');require('fs').cpSync('src/theme/theme.css','dist/theme/theme.css');require('fs').cpSync('src/theme/theme-accent.css','dist/theme/theme-accent.css');require('fs').cpSync('src/theme/polish.css','dist/theme/polish.css')\"",
     "analyze": "cem analyze --config custom-elements-manifest.config.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . && stylelint 'src/**/*.css' && node scripts/check-prefixes.mjs && node scripts/build-theme.mjs check && tsc --noEmit",

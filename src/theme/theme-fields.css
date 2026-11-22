@@ -197,7 +197,7 @@ prism-select:state(invalid)::part(trigger) {
   border-color: var(--prism-color-error);
 }
 /* ---------- Field focus (text-style inputs and select) ----------
- * The border turns the full focus colour (the accent) and gains an inset line
+ * The border turns the full focus colour and gains an inset line
  * so it reads 2px without moving the content. The ring keeps its 1px gap, 2px
  * band and 1px halo (4px reach) in that colour at 50% and 12%. The border
  * carries the contrast, so the ring can be translucent. Invalid fields do the

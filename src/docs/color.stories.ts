@@ -35,8 +35,8 @@ const ratio = (a: string, b: string) => {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
   return (x + 0.05) / (y + 0.05);
 };
-const WHITE = LIGHT['color.slate.0']!.hex;
-const INK = LIGHT['color.slate.950']!.hex;
+const WHITE = LIGHT['neutral.0']!.hex;
+const INK = LIGHT['neutral.950']!.hex;
 
 const styles = html`<style>
   .c-page {
@@ -227,27 +227,33 @@ const SLATE = [
   '950',
 ];
 
-const swatch = (ramp: string, step: string) => {
-  const e = LIGHT[`color.${ramp}.${step}`];
+const chip = (cssVar: string, label: string, e: Entry | undefined) => {
   if (!e) return html``;
   // Label the chip with whichever of white or ink reads better on it.
   const [w, k] = [ratio(WHITE, e.hex), ratio(INK, e.hex)];
   const [fg, r] = w >= k ? [WHITE, w] : [INK, k];
   return html`<div class="c-sw">
-    <div
-      class="c-chip"
-      style="background: var(--prism-color-${ramp}-${step}); color: ${fg}"
-    >
+    <div class="c-chip" style="background: var(${cssVar}); color: ${fg}">
       <span>Aa</span><span>${r.toFixed(1)}:1</span>
     </div>
     <div class="c-meta">
-      <b>${ramp}-${step}</b>
+      <b>${label}</b>
       <span>${e.value}</span>
       <span>${e.hex}</span>
       ${e.gamut === 'p3' ? html`<span class="c-p3">Display P3</span>` : ''}
     </div>
   </div>`;
 };
+
+const swatch = (ramp: string, step: string) =>
+  chip(
+    `--prism-color-${ramp}-${step}`,
+    `${ramp}-${step}`,
+    LIGHT[`color.${ramp}.${step}`],
+  );
+
+const bandSwatch = (step: string) =>
+  chip(`--prism-neutral-${step}`, `neutral-${step}`, LIGHT[`neutral.${step}`]);
 
 /** Every ramp: the neutral and the refraction spectrum. */
 export const Palette: StoryObj = {
@@ -257,11 +263,13 @@ export const Palette: StoryObj = {
         <section>
           <h2>Prism color</h2>
           <p>
-            White light enters, the spectrum leaves. Prism is one cool, airy
-            neutral and seven spectral hues. Each hue has seven steps, and the
-            vivid ones are written for Display P3 in OKLCH. Screens that cannot
-            show P3 get the same color pulled back into sRGB at the same
-            lightness and hue, and engines without oklch() get the hex.
+            White light enters, the spectrum leaves. Prism is one hued neutral
+            band (near black and white, with a slight hint of blue) and seven
+            spectral hues. Defaults use the band; colour is for meaning (error
+            and focus). Each spectral hue has seven steps, and the vivid ones
+            are written for Display P3 in OKLCH. Screens that cannot show P3 get
+            the same color pulled back into sRGB at the same lightness and hue,
+            and engines without oklch() get the hex.
           </p>
           <div class="c-bars">
             <div
@@ -307,12 +315,13 @@ export const Palette: StoryObj = {
             </section>`,
         )}
         <section>
-          <h3>slate</h3>
+          <h3>neutral</h3>
           <p class="c-muted">
-            The neutral. A cool hue (260) with very low chroma, so surfaces feel
-            like clear glass rather than gray.
+            The default band. Hue 255, low chroma, near-white to near-black, so
+            surfaces read as almost black and white with a slight hint of blue.
+            <code>--prism-color-slate-*</code> is an alias of the same steps.
           </p>
-          <div class="c-ramp">${SLATE.map((s) => swatch('slate', s))}</div>
+          <div class="c-ramp">${SLATE.map((s) => bandSwatch(s))}</div>
         </section>
       </div>`,
 };
@@ -329,6 +338,7 @@ const ROLE_SAMPLES = [
   'accent-text',
   'accent-surface',
   'focus-ring',
+  'focus-border',
   'info',
   'success',
   'warning',
@@ -530,7 +540,7 @@ export const Refraction: StoryObj = {
               points="400,50 310,205 490,205"
               fill="none"
               stroke-width="1.5"
-              style="stroke: var(--prism-color-slate-300)"
+              style="stroke: var(--prism-color-border)"
               stroke-linejoin="round"
             />
             <polygon

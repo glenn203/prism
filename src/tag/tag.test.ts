@@ -114,8 +114,23 @@ test.describe('prism-tag', () => {
       expect(ghost.color).toBe(low.color);
       fills.add(low.bg);
     }
-    // six tones, six different tints
-    expect(fills.size).toBe(6);
+    // Status tones each have their own tint. Accent defaults to the same
+    // band as neutral; the opt-in accent layer is what separates them.
+    expect(fills.size).toBe(5);
+    expect((await paint(page, '#accent-low')).bg).toBe(
+      (await paint(page, '#neutral-low')).bg,
+    );
+  });
+
+  test('the opt-in accent layer gives the accent tone its own tint', async ({
+    page,
+  }) => {
+    await setup(
+      page,
+      '<prism-tag id="n" tone="neutral">Band</prism-tag><prism-tag id="a" tone="accent">Accent</prism-tag>',
+    );
+    await page.addStyleTag({ path: 'src/theme/theme-accent.css' });
+    expect((await paint(page, '#a')).bg).not.toBe((await paint(page, '#n')).bg);
   });
 
   test('high emphasis text is white on the fill', async ({ page }) => {
@@ -124,7 +139,7 @@ test.describe('prism-tag', () => {
       '<prism-tag id="h" tone="danger" emphasis="high">Urgent</prism-tag>',
     );
     expect((await paint(page, '#h')).color).toMatch(
-      /^(rgb\(255, 255, 255\)|oklch\(1 0 )/,
+      /^(rgb\(255, 255, 255\)|oklch\(1 0 |oklch\(0\.995 )/,
     );
   });
 

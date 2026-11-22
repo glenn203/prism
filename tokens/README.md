@@ -38,7 +38,7 @@ Density only changes unit counts (leading 4/5/6, block padding 1/2/3, inline pad
 
 ## Color
 
-The palette is small and built around light: one cool **slate** neutral (`color-slate-0…950`, hue 260, almost no chroma) and a refraction **spectrum** of seven hues, each with seven steps (`50 100 300 500 600 700 900`): `violet` (300, a pinker purple), `blue` (235), `cyan` (192, teal), `green` (160, mint), `amber` (78 warming to 60), `red` (12, rose; plus 800) and `magenta` (345). All values are OKLCH.
+The palette is small and built around light: one hued **neutral** band (`--prism-neutral-0…950`, hue 255, low chroma, near-white to near-black with a slight hint of blue) and a refraction **spectrum** of seven hues, each with seven steps (`50 100 300 500 600 700 900`): `violet` (300, a pinker purple), `blue` (235), `cyan` (192, teal), `green` (160, mint), `amber` (78 warming to 60), `red` (12, rose; plus 800) and `magenta` (345). Default surface, text, border and control roles map to the band, so the everyday look is near black and white. Colour is reserved for meaning (error and focus). The spectral accent is an opt-in layer: load `prism/accent.css` after the tokens (and the theme, if you use it). `--prism-color-slate-*` is an alias of the same band. All values are OKLCH.
 
 | Step | Use                                                   |
 | ---- | ----------------------------------------------------- |
@@ -52,7 +52,7 @@ The palette is small and built around light: one cool **slate** neutral (`color-
 
 **Display P3.** The 500, 600 and 700 steps are written beyond sRGB. `tokens.css` declares the gamut-mapped sRGB value (same lightness and hue, less chroma), then the full value in `@media (color-gamut: p3)`, then hex for engines without `oklch()`. The resolved JSON marks these colours `"gamut": "p3"` and always carries the sRGB `hex`.
 
-**Roles.** Use these, not the ramps: `color-bg`, `-surface`, `-text`, `-text-muted`, `-border`, `-border-strong`, `-border-popup`, `-accent` (vivid pink-violet), `-on-accent`, `-accent-text`, `-accent-surface`, `-focus-ring`, `-focus-border` (the focused field's border, the accent), and the tone families `-info`, `-success`, `-warning`, `-danger` (each with `-text` and `-surface`), `-neutral` and `-neutral-surface`, `-on-solid` (text on solid tone fills), `-lift` (white, mixed into a progress fill's left end), `-track-shadow` (the progress track's inset edge), plus the error roles (`-error`, `-error-text`, `-error-surface`, `-on-error-surface`).
+**Roles.** Use these, not the ramps: `color-bg`, `-surface`, `-text`, `-text-muted`, `-border`, `-border-strong`, `-border-popup`, `-accent` (near-black / near-white by default; spectral when `accent.css` is loaded), `-on-accent`, `-accent-text`, `-accent-surface`, `-focus-ring`, `-focus-border` (the focused field's border, a meaning colour; the 50% ring and 12% halo follow it), and the tone families `-info`, `-success`, `-warning`, `-danger` (each with `-text` and `-surface`), `-neutral` and `-neutral-surface`, `-on-solid` (text on solid tone fills), `-lift` (near-white, mixed into a progress fill's left end), `-track-shadow` (the progress track's inset edge), plus the error roles (`-error`, `-error-text`, `-error-surface`, `-on-error-surface`).
 
 **Gradients.** `--prism-gradient-spectrum` (violet to magenta), `--prism-gradient-refract` (violet through blue into cyan) and `--prism-gradient-mist` (pale tints, safe behind `color-text`). They interpolate in OKLCH where supported and fall back to a plain gradient.
 
@@ -66,7 +66,7 @@ Odd-pixel ramp, value in the name: `radius-1, -3, -5, -7, -9, -11`, plus `radius
 
 ## Focus and motion
 
-`focus-ring-offset` (1px), `focus-ring-width` (2px), `focus-ring-blur` (0.5px), `focus-halo-width` (1px) and `focus-halo` (slate at 12%); total reach is 4px, so fields use `space-1` (4px) label→control and `space-2` (8px) control→description, and the attached error text starts 6px below the control; `motion-duration-fast` (160ms), `motion-ease-out`. The theme grows a 2px box-shadow ring in on `:focus-visible` (inputs on `:focus`) and keeps a transparent outline for forced-colors mode. With `prefers-reduced-motion: reduce` the ring appears instantly.
+`focus-ring-offset` (1px), `focus-ring-width` (2px), `focus-ring-blur` (0.5px), `focus-halo-width` (1px) and `focus-halo` (the focus colour at 12%); total reach is 4px, so fields use `space-1` (4px) label→control and `space-2` (8px) control→description, and the attached error text starts 6px below the control; `motion-duration-fast` (160ms), `motion-ease-out`. The theme grows a 2px box-shadow ring in on `:focus-visible` (inputs on `:focus`) and keeps a transparent outline for forced-colors mode. With `prefers-reduced-motion: reduce` the ring appears instantly.
 
 ## Elevation (shared foundation)
 
@@ -77,11 +77,11 @@ hard-code shadows; the theme applies these tokens through `::part()`.
 Names: NAME PENDING (semantic `default/hover/urgent` chosen
 over numeric `1/2/3`).
 
-| Token                       | Use                                                          | Built from                            |
-| --------------------------- | ------------------------------------------------------------ | ------------------------------------- |
-| `--prism-elevation-default` | Resting raised surface (open menu, popover)                  | slate-950, hue 260, 6% + 12%          |
-| `--prism-elevation-hover`   | RESERVED, unused (option hover is a flat slate-100/200 tint) | slate-950, hue 260, 8% + 16%, tighter |
-| `--prism-elevation-urgent`  | Error-urgent (attached error box)                            | red-600, hue 27, 12% + 24%            |
+| Token                       | Use                                                            | Built from                              |
+| --------------------------- | -------------------------------------------------------------- | --------------------------------------- |
+| `--prism-elevation-default` | Resting raised surface (open menu, popover)                    | neutral-950, hue 255, 6% + 12%          |
+| `--prism-elevation-hover`   | RESERVED, unused (option hover is a flat neutral-100/200 tint) | neutral-950, hue 255, 8% + 16%, tighter |
+| `--prism-elevation-urgent`  | Error-urgent (attached error box)                              | red-600, hue 27, 12% + 24%              |
 
 Related: `--prism-color-error-surface` (error red at 10% alpha, ≈ #fce8eb on white; text contrast 9.62:1) is the flat fill for
 the attached error box (text field and select, no shadow); `--prism-motion-duration-medium` (200ms) drives the menu

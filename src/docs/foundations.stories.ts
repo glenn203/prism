@@ -70,29 +70,30 @@ const styles = html`<style>
   }
 </style>`;
 
-const swatch = (name: string) => {
-  const v = `--prism-color-${name}`;
+const swatchVar = (cssVar: string, name: string) => {
   return html`<div class="f-sw">
-    <div class="f-chip" style="background: var(${v})"></div>
-    <div class="f-meta"><b>${name}</b>${read(v)}</div>
+    <div class="f-chip" style="background: var(${cssVar})"></div>
+    <div class="f-meta"><b>${name}</b>${read(cssVar)}</div>
   </div>`;
 };
+const swatch = (name: string) => swatchVar(`--prism-color-${name}`, name);
+
+const NEUTRAL_STEPS = [
+  '0',
+  '50',
+  '100',
+  '200',
+  '300',
+  '400',
+  '500',
+  '600',
+  '700',
+  '800',
+  '900',
+  '950',
+];
 
 const ramps = {
-  slate: [
-    '0',
-    '50',
-    '100',
-    '200',
-    '300',
-    '400',
-    '500',
-    '600',
-    '700',
-    '800',
-    '900',
-    '950',
-  ],
   red: ['50', '100', '300', '500', '600', '700', '800', '900'],
   ...Object.fromEntries(
     ['violet', 'blue', 'cyan', 'green', 'amber', 'magenta'].map((h) => [
@@ -153,6 +154,10 @@ export const Color: StoryObj = {
         </p>
         <h3 class="f-h">Semantic</h3>
         <div class="f-ramp">${semantic.map(swatch)}</div>
+        <h3 class="f-h">neutral</h3>
+        <div class="f-ramp">
+          ${NEUTRAL_STEPS.map((s) => swatchVar(`--prism-neutral-${s}`, `neutral-${s}`))}
+        </div>
         ${Object.entries(ramps).map(
           ([ramp, steps]) =>
             html`<h3 class="f-h">${ramp}</h3>
