@@ -1,18 +1,21 @@
 /*
- * Prism default theme. Opt-in: import 'prism/tokens.css' and 'prism/theme.css'.
- * Components stay headless; everything here goes through ::part() and :state().
- * Fonts: uses Inter / JetBrains Mono via --prism-font-family-* if installed or
- * loaded by the app. No font files are bundled.
+ * Default look: maps token variables onto each element's ::part() hooks.
+ * This is the everyday theme, not the whole library: you can skip it and
+ * bring your own look, or swap it for a different one. Load this after
+ * tokens.css (already included if you imported from 'prism/theme.css').
+ * Complement with polish.css if you want the occasional flourish
+ * (progress comet and the like).
+ *
+ * Assembled from theme-fields.css (field chrome) and theme-components.css
+ * (per-component look). Run `node scripts/build-theme.mjs` after editing
+ * a part; do not edit the assembled file by hand.
  */
 
-/* ---------- Shared state layer ----------
- * Implemented once in src/internal/state-layer.ts (inside each component's
- * shadow root). The theme only names each surface's colours:
- *   --_bg / --_on                 resting fill and its text/icon colour
- *   --_bg-hover/-pressed/-selected  fixed fills used only without color-mix()
- * States paint an alpha overlay of --_on (6/12/11/15%: hover, pressed, selected, selected+hover) over --_bg.
- * Hover/pressed/selected/disabled behaviour comes from the utility, so new
- * surfaces (tabs, tree rows, cards…) only set these variables.
+/* ---------- Shared state layers (hover, press, selected) ----------
+ * The mechanics live in src/internal/state-layer.ts (imported by each
+ * component). Values come from --prism-state-hover / pressed / selected
+ * in tokens.css. Opt out with data-prism-no-state-layer, or override
+ * --_prism-state-overlay in a :host rule.
  */
 
 /* ---------- Button ---------- */
@@ -412,7 +415,7 @@ prism-select::part(error) {
   border-radius: 0 0 8px 8px; /* element radius; not on Prism's odd ramp */
   background: var(--prism-color-error-surface);
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-font-size-12);
+  font-size: var(--prism-text-caption-font-size);
   font-weight: var(--prism-font-weight-regular);
   line-height: var(--prism-font-line-height-16);
   letter-spacing: normal;
@@ -654,7 +657,7 @@ prism-otp-input::part(error) {
       var(--prism-focus-halo-width) + 1px
   );
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-font-size-12);
+  font-size: var(--prism-text-caption-font-size);
   font-weight: var(--prism-font-weight-regular);
   line-height: var(--prism-font-line-height-16);
   letter-spacing: normal;
@@ -747,7 +750,6 @@ prism-otp-input:state(disabled)::part(cell) {
   prism-select::part(trigger)::picker(select) {
     transform: none; /* opacity only, no translate/scale */
   }
-  prism-button::part(base),
   :is(
     prism-text-input,
     prism-password-input,
@@ -774,6 +776,12 @@ prism-otp-input:state(disabled)::part(cell) {
     /* stylelint-disable-next-line declaration-no-important --
        reduced motion must cancel the error-box reveal on the part. */
     animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  prism-button::part(base) {
+    transition: none; /* ring appears instantly */
   }
 }
 
@@ -1166,7 +1174,7 @@ prism-card[data-prism-dragging] {
   border-radius: var(--prism-radius-7);
   box-shadow: var(--prism-elevation-default);
   font-family: var(--prism-font-family-sans);
-  font-size: var(--prism-font-size-12);
+  font-size: var(--prism-text-caption-font-size);
   line-height: var(--prism-font-line-height-20);
   overflow: hidden;
 }
@@ -1176,7 +1184,7 @@ prism-card[data-prism-dragging] {
   text-overflow: ellipsis;
 }
 [data-prism-drag-copy] [data-prism-drag-copy-line='title'] {
-  font-size: var(--prism-font-size-14);
+  font-size: var(--prism-text-body-font-size);
   font-weight: var(--prism-font-weight-semibold);
 }
 [data-prism-drag-copy] [data-prism-drag-copy-line='text'] {
@@ -1763,16 +1771,15 @@ prism-segmented-control::part(base):focus-visible {
   }
 }
 
-/* ---------- Forced colours: focus outline only while focused ----------
+/* ---------- Forced colours: field focus outline only while focused ----------
  * Most controls rest with a transparent 2px outline so a focus ring can grow
  * in. Forced colours paints a transparent outline in the text colour, so every
  * control would wear a stray second border. Here the outline is off at rest and
  * drawn in Highlight while focused (box shadows are dropped in this mode, so
- * the outline is the focus indicator). Keep this block last. */
+ * the outline is the focus indicator). The assembler keeps forced-colours
+ * blocks last in theme.css.
+ */
 @media (forced-colors: active) {
-  prism-button::part(base),
-  prism-icon-button::part(base),
-  prism-menu::part(trigger-base),
   :is(
     prism-text-input,
     prism-password-input,
@@ -1780,7 +1787,46 @@ prism-segmented-control::part(base):focus-visible {
     prism-text-area,
     prism-text-field
   )::part(input),
-  prism-select::part(trigger),
+  prism-select::part(trigger) {
+    outline-style: none;
+  }
+  :is(
+      prism-text-input,
+      prism-password-input,
+      prism-search-input,
+      prism-text-area,
+      prism-text-field
+    )::part(input):focus,
+  prism-select::part(trigger):focus {
+    outline: 2px solid Highlight;
+    outline-offset: var(--prism-focus-ring-offset);
+  }
+  prism-select:state(disabled)::part(trigger) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  /* Tints are dropped, so the active option is the system highlight. The
+   * browser would put a Canvas plate behind its text and check mark (white
+   * boxes on the highlight), so these colours are set by hand. */
+  prism-select::part(option):is(:hover, :focus-visible) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* ---------- Forced colours: focus outline only while focused ----------
+ * Most controls rest with a transparent 2px outline so a focus ring can grow
+ * in. Forced colours paints a transparent outline in the text colour, so every
+ * control would wear a stray second border. Here the outline is off at rest and
+ * drawn in Highlight while focused (box shadows are dropped in this mode, so
+ * the outline is the focus indicator). The assembler keeps forced-colours
+ * blocks last in theme.css.
+ */
+@media (forced-colors: active) {
+  prism-button::part(base),
+  prism-icon-button::part(base),
+  prism-menu::part(trigger-base),
   prism-card-title::part(toggle),
   prism-card-handle::part(base),
   prism-tag::part(base),
@@ -1792,14 +1838,6 @@ prism-segmented-control::part(base):focus-visible {
   prism-button::part(base):focus-visible,
   prism-icon-button::part(base):focus-visible,
   prism-menu::part(trigger-base):focus-visible,
-  :is(
-      prism-text-input,
-      prism-password-input,
-      prism-search-input,
-      prism-text-area,
-      prism-text-field
-    )::part(input):focus,
-  prism-select::part(trigger):focus,
   prism-card-title::part(toggle):focus-visible,
   prism-card-handle::part(base):focus-visible,
   prism-tag::part(base):focus-visible,
@@ -1815,17 +1853,5 @@ prism-segmented-control::part(base):focus-visible {
   }
   prism-segmented-control::part(base checked):focus-visible {
     outline-color: HighlightText;
-  }
-  prism-select:state(disabled)::part(trigger) {
-    border-color: GrayText;
-    color: GrayText;
-  }
-  /* Tints are dropped, so the active option is the system highlight. The
-   * browser would put a Canvas plate behind its text and check mark (white
-   * boxes on the highlight), so these colours are set by hand. */
-  prism-select::part(option):is(:hover, :focus-visible) {
-    forced-color-adjust: none;
-    background: Highlight;
-    color: HighlightText;
   }
 }

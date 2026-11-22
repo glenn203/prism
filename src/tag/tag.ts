@@ -59,7 +59,7 @@ export class PrismTag extends LitElement {
     css`
       :host {
         /* PROPOSED tag text: 12/16, weight 500, built from existing primitives. */
-        --_tag-font-size: var(--prism-font-size-12, 0.75rem);
+        --_tag-font-size: var(--prism-text-caption-font-size, 0.75rem);
         --_tag-line-height: var(--prism-font-line-height-16, 1rem);
         --_tag-font-weight: var(--prism-font-weight-medium, 500);
         --_tag-height: 1.5rem;

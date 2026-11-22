@@ -42,7 +42,7 @@ export class PrismBadge extends LitElement {
     css`
       :host {
         /* PROPOSED badge text: 12/16, weight 600, tabular figures. */
-        --_badge-font-size: var(--prism-font-size-12, 0.75rem);
+        --_badge-font-size: var(--prism-text-caption-font-size, 0.75rem);
         --_badge-line-height: var(--prism-font-line-height-16, 1rem);
         --_badge-font-weight: var(--prism-font-weight-semibold, 600);
         display: inline-flex;

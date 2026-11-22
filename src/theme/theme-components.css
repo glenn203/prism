@@ -1,0 +1,1158 @@
+/*
+ * Per-component look for the default theme: button, icon button, menu,
+ * card, tag, badge, avatar, progress, description list, switch, checkbox,
+ * radio, and segmented control. Assembled into theme.css by
+ * scripts/build-theme.mjs, after field chrome. Button rules are marked
+ * so the assembler can keep them ahead of field chrome, matching the
+ * historical cascade.
+ */
+
+/* prism-theme-section: button */
+/* ---------- Button ---------- */
+prism-button::part(base) {
+  --_bg: var(--prism-color-accent);
+  --_on: var(--prism-color-on-accent);
+  --_bg-hover: var(--prism-color-accent-hover);
+  --_bg-pressed: var(--prism-color-accent-active);
+  --_bg-selected: var(--prism-color-accent-active);
+  justify-content: center;
+  gap: var(--prism-space-2);
+  /* Solid: the border follows the fill. */
+  border-color: var(--_border, transparent); /* overlay paints beneath */
+  color: var(--_on);
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color var(--prism-duration-fast) var(--prism-ease-standard),
+    border-color var(--prism-duration-fast) var(--prism-ease-standard),
+    box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  /* Focus ring rests at zero spread so it can grow in. */
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+/* A pressed toggle: the selected overlay is a light 11% tint, so it also gets
+ * a non-colour cue (WCAG 1.4.1): an underlined label. */
+prism-button:state(pressed)::part(base) {
+  text-decoration: underline 2px;
+  text-underline-offset: 3px;
+}
+/* Variants (NAMES PROVISIONAL). Each only names its
+ * colours; hover/pressed/selected/disabled come from the shared state layer. */
+/* Secondary: opaque 8% accent tint over the page bg, accent text (the
+ * accent-text role, which is AA on the tint in both themes). */
+prism-button[variant='secondary']::part(base) {
+  --_bg: color-mix(
+    in oklch,
+    var(--prism-color-bg),
+    var(--prism-color-accent) 8%
+  );
+  --_on: var(--prism-color-accent-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+}
+@supports not (color: color-mix(in oklch, red, blue)) {
+  prism-button[variant='secondary']::part(base) {
+    --_bg: var(--prism-color-surface-hover);
+  }
+  prism-button[variant='destructive']::part(base) {
+    --_bg: var(--prism-color-error-surface);
+  }
+}
+/* Ghost: transparent, no visible border, on-colour veil on hover. */
+prism-button[variant='ghost']::part(base) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  --_border: transparent;
+}
+/* Destructive: the error box's soft tint, made opaque. An srgb mix of the
+ * error-surface base over color-bg is exactly what the 8% translucent
+ * error-surface composites to, so the button matches the error box. */
+prism-button[variant='destructive']::part(base) {
+  --_bg: color-mix(
+    in srgb,
+    var(--prism-color-bg),
+    var(--prism-color-error-surface-base) 8%
+  );
+  --_on: var(--prism-color-on-error-surface);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+}
+/* Outline: transparent fill, a >= 3:1 border that never changes with state,
+ * on-colour veil on hover. */
+prism-button[variant='outline']::part(base) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  --_border: var(--prism-color-border-strong);
+}
+prism-button::part(base):focus-visible {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+/* Disabled: shared inert look, no state-layer change. Ghost stays
+ * transparent and borderless. */
+prism-button:state(disabled)::part(base) {
+  --_bg: var(--prism-color-surface);
+  --_on: var(--prism-color-text-muted);
+  --_border: var(--prism-color-border);
+}
+prism-button[variant='ghost']:state(disabled)::part(base) {
+  --_bg: transparent;
+  --_border: transparent;
+}
+
+/* prism-theme-section: button-reduce */
+@media (prefers-reduced-motion: reduce) {
+  prism-button::part(base) {
+    transition: none; /* ring appears instantly */
+  }
+}
+
+/* prism-theme-section: components */
+/* ---------- Icon button (NAME PROVISIONAL) ----------
+ * Always ghost: transparent fill, on-colour overlay on hover and press. The
+ * icon rests muted and takes the full text colour on hover. */
+prism-icon-button::part(base),
+prism-menu::part(trigger-base) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  color: var(--prism-color-text-muted);
+  user-select: none;
+  transition:
+    background-color var(--prism-duration-fast) var(--prism-ease-standard),
+    color var(--prism-duration-fast) var(--prism-ease-standard),
+    box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  /* Focus ring rests at zero spread so no sub-pixel fringe is drawn. */
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+@media (hover: hover) {
+  prism-icon-button:not(:state(disabled))::part(base):hover,
+  prism-menu::part(trigger-base):hover {
+    color: var(--_on);
+  }
+}
+prism-icon-button::part(base):focus-visible,
+prism-menu::part(trigger-base):focus-visible {
+  color: var(--_on);
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+prism-icon-button:state(disabled)::part(base) {
+  color: var(--prism-color-text-muted);
+}
+
+/* ---------- Menu (NAME PROVISIONAL) ----------
+ * Popup uses the shared elevation level, like the select popup. */
+prism-menu::part(popup) {
+  background: var(--prism-color-bg);
+  color: var(--prism-color-text);
+  border: var(--prism-border-width) solid var(--prism-color-border-popup);
+  border-radius: var(--prism-radius-7);
+  box-shadow: var(--prism-elevation-default);
+}
+prism-menu-item::part(base) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  border-radius: var(--prism-radius-5);
+  min-block-size: 24px;
+}
+/* In a menu with checkbox items every row lines up: plain items keep the
+   check's room, so labels share one edge. */
+prism-menu:has(> prism-menu-item[checkable])
+  > prism-menu-item:not([checkable])::part(base) {
+  padding-inline-start: calc(
+    var(--prism-space-3, 0.75rem) + 1em + var(--prism-space-2, 0.5rem)
+  );
+}
+prism-menu-item[checkable]::part(check) {
+  color: var(--prism-color-text);
+}
+prism-menu-item:state(disabled)::part(base) {
+  color: var(--prism-color-text-muted);
+}
+prism-menu-item:state(active)::part(base) {
+  outline: var(--prism-focus-ring-width) solid var(--prism-color-focus-ring);
+  outline-offset: -2px;
+}
+
+/* ---------- Card (names provisional except Card, CardTitle, CardDescription) ----------
+ * Colours, border, radius and elevation only; padding and layout live in the
+ * component. Elevation uses the predefined levels (hover = raised at rest,
+ * default = the dragged copy in a later milestone, urgent is never used).
+ * A card is either bordered or raised, never both; borderless has neither. */
+prism-card::part(base) {
+  /* Fill and text come through the shared state layer: a clickable or choice
+     card tints on hover and press, every selected card shows 11% / 15%. */
+  --_bg: var(--prism-color-bg);
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  /* PROPOSED (not a token): selection ring width, same 2px as the focus ring. */
+  --_ring: var(--prism-focus-ring-width);
+  /* Selected ring: drawn inside the edge, so nothing shifts. */
+  --_sh-sel: inset 0 0 0 var(--_ring) var(--prism-color-accent);
+  /* Focus ring around the whole card (same layers as Button). */
+  --_sh-focus:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+  color: var(--prism-color-text);
+  border: var(--prism-border-width) solid var(--prism-color-border);
+  border-radius: var(--prism-radius-7);
+  box-shadow: var(--_elev, none);
+}
+/* Interactive cards are never flat and take the strong edge (>= 3:1, 1.4.11). */
+prism-card:is([type='clickable'], [type='selectable'])::part(base) {
+  border-color: var(--prism-color-border-strong);
+}
+prism-card[raised]::part(base) {
+  /* Elevation uses the predefined level. A transparent border keeps an edge in
+     forced-colors mode. */
+  --_elev: var(--prism-elevation-hover);
+  border-color: transparent;
+}
+prism-card[type='borderless']::part(base) {
+  --_bg: var(--prism-color-surface);
+  border: 0;
+  box-shadow: none;
+}
+/* Selected: the state layer (11%, 15% on hover) + a 2px ring + the control's
+   check or dot. A raised card keeps its shadow under the ring. */
+prism-card:state(selected)::part(base) {
+  box-shadow: var(--_sh-sel), var(--_elev, 0 0 0 0 transparent);
+}
+prism-card:state(focus-ring)::part(base) {
+  box-shadow: var(--_sh-focus), var(--_elev, 0 0 0 0 transparent);
+}
+prism-card:state(selected):state(focus-ring)::part(base) {
+  box-shadow:
+    var(--_sh-focus), var(--_sh-sel), var(--_elev, 0 0 0 0 transparent);
+}
+/* Disabled: inert, no state layer (the util skips it). The reason is text in
+   the description. */
+prism-card:state(disabled)::part(base) {
+  --_on: var(--prism-color-text-muted);
+}
+prism-card-description,
+prism-card-meta {
+  color: var(--prism-color-text-muted);
+}
+@media (forced-colors: active) {
+  prism-card:not([type='borderless'])::part(base) {
+    border-color: CanvasText;
+  }
+  /* Box shadows are dropped, so selection and focus use outlines. */
+  prism-card:state(selected)::part(base) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  prism-card:state(focus-ring) {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Widget, collapsible, metric, skeleton, card list (Milestone 3) ----------
+ * Names provisional. Colours, borders and radii only; layout is in the
+ * components. Skeleton lines are decorative (aria-hidden, the state is text). */
+/* Widget: the range line under the description. "Overridden" is text, so the
+   override never relies on colour alone. */
+prism-card::part(range) {
+  color: var(--prism-color-text-muted);
+}
+prism-card-metric::part(value) {
+  color: var(--prism-color-text);
+}
+prism-card-metric::part(label) {
+  color: var(--prism-color-text-muted);
+}
+/* In-card states (loading, error, empty) and list states. */
+[data-prism-card-state],
+[data-prism-list-state] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--prism-space-2);
+  color: var(--prism-color-text);
+}
+[data-prism-card-state] p,
+[data-prism-list-state] p {
+  margin: 0;
+}
+[data-prism-list-state] {
+  align-items: center;
+  text-align: center;
+  padding-block: var(--prism-space-8);
+}
+/* Collapsible: the title row is the toggle. A tint on hover and press, and the
+   same focus ring as the buttons. */
+prism-card-title::part(toggle) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  border-radius: var(--prism-radius-3);
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+}
+prism-card-title::part(chevron) {
+  color: var(--prism-color-text-muted);
+}
+prism-card-title::part(toggle):focus-visible {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+/* Skeleton */
+prism-card-skeleton::part(line) {
+  background: var(--prism-color-surface-pressed);
+  border-radius: var(--prism-radius-3);
+  animation: prism-card-pulse 1.6s var(--prism-ease-standard) infinite;
+}
+prism-card-skeleton[variant='card']::part(base) {
+  border: var(--prism-border-width) solid var(--prism-color-border);
+  border-radius: var(--prism-radius-7);
+}
+@keyframes prism-card-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+/* Card list */
+[data-prism-selection-bar] {
+  display: flex;
+  align-items: center;
+  gap: var(--prism-space-3);
+  color: var(--prism-color-text);
+}
+[data-prism-count] {
+  font-weight: var(--prism-font-weight-semibold);
+  border-radius: var(--prism-radius-3);
+}
+[data-prism-count]:focus-visible {
+  outline: 2px solid var(--prism-color-focus-ring);
+  outline-offset: var(--prism-focus-ring-offset);
+}
+[data-prism-pager] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--prism-space-3);
+  color: var(--prism-color-text);
+}
+[data-prism-page-size] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--prism-space-2);
+  color: var(--prism-color-text-muted);
+}
+[data-prism-page-size] select,
+[data-prism-select] {
+  box-sizing: border-box;
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+  padding-block: var(--prism-space-1);
+  padding-inline: var(--prism-space-2);
+  color: var(--prism-color-text);
+  background: var(--prism-color-bg);
+  border: var(--prism-border-width) solid var(--prism-color-border-strong);
+  border-radius: var(--prism-radius-5);
+  font-family: var(--prism-font-family-sans);
+  font-size: var(--prism-text-label-font-size);
+  font-weight: var(--prism-text-label-font-weight);
+  line-height: 1;
+}
+[data-prism-page-size] select:focus-visible,
+[data-prism-select]:focus-visible {
+  outline: 2px solid var(--prism-color-focus-ring);
+  outline-offset: var(--prism-focus-ring-offset);
+}
+prism-card-list::part(busy) {
+  background: var(--prism-color-accent);
+  animation: prism-card-pulse 1.2s var(--prism-ease-standard) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  prism-card-skeleton::part(line),
+  prism-card-list::part(busy) {
+    animation: none;
+  }
+}
+@media (forced-colors: active) {
+  prism-card-skeleton::part(line) {
+    background: GrayText;
+  }
+  prism-card-skeleton[variant='card']::part(base) {
+    border-color: CanvasText;
+  }
+  prism-card-list::part(busy) {
+    background: Highlight;
+  }
+  prism-card-title::part(toggle):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* ---------- Reorder: handle, dragging, drop line, copy (Milestone 4) ----------
+ * Names provisional. The handle is a ghost icon button with a grab cursor and a
+ * tint on hover. The original dims to 40% while its copy follows the pointer at
+ * the predefined default elevation (the copy is never rotated). The drop line
+ * is 2px in the accent colour with an 8px dot at the start. A moved card
+ * flashes once; reduced motion removes the flash. */
+prism-card-handle::part(base) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  color: var(--prism-color-text-muted);
+  cursor: grab;
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+prism-card-handle::part(base):active,
+prism-card-handle prism-menu::part(trigger-base):active {
+  cursor: grabbing;
+}
+prism-card-handle prism-menu::part(trigger-base) {
+  cursor: grab;
+}
+@media (hover: hover) {
+  prism-card-handle::part(base):hover {
+    color: var(--_on);
+  }
+}
+prism-card-handle::part(base):focus-visible {
+  color: var(--_on);
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+/* A card with no other controls drags from anywhere, so its text is not selectable. */
+prism-card[data-prism-grabbable] {
+  cursor: grab;
+  user-select: none;
+}
+/* The original stays in place, dimmed to 40%. */
+prism-card[data-prism-dragging] {
+  opacity: 0.4;
+}
+[data-prism-drag-copy] {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--prism-space-1);
+  padding: var(--prism-space-4);
+  color: var(--prism-color-text);
+  background: var(--prism-color-bg);
+  border: var(--prism-border-width) solid var(--prism-color-border-strong);
+  border-radius: var(--prism-radius-7);
+  box-shadow: var(--prism-elevation-default);
+  font-family: var(--prism-font-family-sans);
+  font-size: var(--prism-text-caption-font-size);
+  line-height: var(--prism-font-line-height-20);
+  overflow: hidden;
+}
+[data-prism-drag-copy] > * {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+[data-prism-drag-copy] [data-prism-drag-copy-line='title'] {
+  font-size: var(--prism-text-body-font-size);
+  font-weight: var(--prism-font-weight-semibold);
+}
+[data-prism-drag-copy] [data-prism-drag-copy-line='text'] {
+  color: var(--prism-color-text-muted);
+}
+prism-card-list::part(drop-line) {
+  background: var(--prism-color-accent);
+}
+prism-card-list::part(drop-dot) {
+  background: var(--prism-color-accent);
+}
+prism-card[data-prism-flash]::part(base) {
+  animation: prism-card-flash 900ms var(--prism-ease-standard) 1;
+}
+@keyframes prism-card-flash {
+  from {
+    background-color: var(--prism-color-surface-pressed);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  prism-card[data-prism-flash]::part(base) {
+    animation: none;
+  }
+}
+@media (forced-colors: active) {
+  prism-card-list::part(drop-line),
+  prism-card-list::part(drop-dot) {
+    background: Highlight;
+  }
+  [data-prism-drag-copy] {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+  prism-card-handle::part(base):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* Stretched link (rule 3 and the layers): controls deeper than a direct child
+   still sit above the title's stretched click area. */
+prism-card[type='clickable']
+  :is(
+    a[href],
+    button,
+    input,
+    select,
+    textarea,
+    prism-button,
+    prism-icon-button,
+    prism-menu
+  ) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tag, Badge and Progress read --_tone-low-bg, --_tone-low-fg, --_tone-high-bg
+ * and --_tone-high-fg from their host. src/internal/tones.ts sets them from the
+ * tone colour roles in the tokens, so they follow the theme. */
+/* ---------- Tag (job, emphasis, tone) ---------- */
+prism-tag::part(base) {
+  --_bg: var(--_tone-low-bg);
+  --_on: var(--_tone-low-fg);
+  background-color: var(--_bg);
+  color: var(--_on);
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+}
+prism-tag[emphasis='high']::part(base) {
+  --_bg: var(--_tone-high-bg);
+  --_on: var(--_tone-high-fg);
+}
+prism-tag[emphasis='ghost']::part(base) {
+  --_bg: transparent;
+  --_on: var(--_tone-low-fg);
+}
+/* Selected: a solid border in the text colour as well as the fill, so it is
+   never colour alone. */
+prism-tag:state(selected)::part(base) {
+  border-color: currentColor;
+}
+prism-tag::part(remove) {
+  --_bg: transparent;
+  --_on: currentColor;
+  color: inherit;
+  outline: 2px solid transparent;
+}
+prism-tag::part(base):focus-visible,
+prism-tag::part(remove):focus-visible {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+prism-tag:state(disabled)::part(base) {
+  opacity: 0.6;
+}
+
+/* ---------- Badge (count, status) ---------- */
+prism-badge::part(base) {
+  background-color: var(--_tone-high-bg);
+  color: var(--_tone-high-fg);
+}
+/* Process status is the quieter tint; a count is the solid pill. */
+prism-badge[job='status']::part(base) {
+  background-color: var(--_tone-low-bg);
+  color: var(--_tone-low-fg);
+}
+
+/* ---------- Avatar ---------- */
+prism-avatar::part(base) {
+  background-color: var(--prism-color-surface-pressed);
+  color: var(--prism-color-text);
+  border: var(--prism-border-width) solid var(--prism-color-border);
+}
+
+/* ---------- Progress ---------- */
+prism-progress::part(row) {
+  color: var(--prism-color-text);
+}
+prism-progress::part(track) {
+  background-color: var(--prism-color-surface-pressed);
+}
+/* A faint inset edge all round. It sits on an overlay so it also shows over
+   the fill (the track's own inset shadow would hide under it). */
+prism-progress::part(track)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--prism-elevation-track);
+  pointer-events: none;
+}
+prism-progress::part(fill) {
+  background-color: var(--_tone-high-bg);
+}
+/* The fill is a comet. Three background layers, top to bottom:
+   1. head: a small bright ellipse on the leading (right) edge;
+   2. tail: the tone colour, strongest at the edge, fading toward the left;
+   3. base: linear, lifted toward white at the left, the full tone at the right.
+   A soft glow follows the leading edge. Plain tone colour where color-mix() is
+   missing. Light mixes little white in the head so the last 14px hold 3:1 on
+   the track; dark mixes a lot (see the progress tokens). */
+@supports (color: color-mix(in oklch, red, blue)) {
+  prism-progress::part(fill) {
+    --_tail-layer: radial-gradient(
+      ellipse 100% 55% at 100% 50%,
+      var(--_tone-high-bg) 0%,
+      color-mix(
+          in oklch,
+          var(--_tone-high-bg) var(--prism-progress-tail-alpha, 70%),
+          transparent
+        )
+        60%,
+      transparent 100%
+    );
+    --_tail-w: min(100%, var(--prism-progress-tail-max, 280px));
+    background-image:
+      radial-gradient(
+        ellipse var(--prism-progress-head-size, 14px) 120% at 100% 50%,
+        color-mix(
+            in oklch,
+            var(--prism-color-lift) var(--prism-progress-head-mix, 16%),
+            var(--_tone-high-bg)
+          )
+          0%,
+        color-mix(
+            in oklch,
+            var(--prism-color-lift) var(--prism-progress-head-alpha, 12%),
+            transparent
+          )
+          45%,
+        transparent 100%
+      ),
+      var(--_tail-layer),
+      linear-gradient(
+        90deg,
+        color-mix(
+          in oklch,
+          var(--prism-color-lift) var(--prism-progress-fill-lift, 30%),
+          var(--_tone-high-bg)
+        ),
+        var(--_tone-high-bg)
+      );
+    /* Head and base fill the box; the tail is as long as the fill, up to 280px,
+       pinned to the leading edge. */
+    background-repeat: no-repeat;
+    background-size:
+      100% 100%,
+      var(--_tail-w) 100%,
+      100% 100%;
+    background-position:
+      0 0,
+      100% 0,
+      0 0;
+    box-shadow: 4px 0 10px -2px
+      color-mix(
+        in oklch,
+        var(--_tone-high-bg) var(--prism-progress-glow-alpha, 45%),
+        transparent
+      );
+  }
+  /* A fill under 24px hides the tail; a full bar has nowhere to glow. */
+  prism-progress:state(tiny)::part(fill) {
+    --_tail-layer: linear-gradient(transparent, transparent);
+  }
+  prism-progress:state(full)::part(fill) {
+    box-shadow: none;
+  }
+}
+
+/* ---------- Description list ---------- */
+prism-description-list-item::part(label) {
+  color: var(--prism-color-text-muted);
+}
+prism-description-list-item::part(value) {
+  color: var(--prism-color-text);
+}
+
+@media (forced-colors: active) {
+  prism-tag::part(base),
+  prism-badge::part(base),
+  prism-avatar::part(base) {
+    border-color: CanvasText;
+  }
+  prism-progress::part(track) {
+    border: var(--prism-border-width, 1px) solid CanvasText;
+  }
+  prism-progress::part(track)::after {
+    box-shadow: none;
+  }
+  prism-progress::part(fill) {
+    background-color: Highlight;
+    background-image: none;
+    box-shadow: none;
+  }
+  prism-tag::part(base):focus-visible,
+  prism-tag::part(remove):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* ---------- Switch ----------
+ * Flat track, pill thumb, no shadow. Off: surface fill, a >= 3:1 border and a
+ * muted thumb. On: the accent spreads over the track from the thumb and the
+ * thumb turns to the on-accent colour. Hover, selected and pressed come from
+ * the shared state layer (on-colour overlay on the track). */
+prism-switch {
+  color: var(--prism-color-text);
+}
+prism-switch::part(base) {
+  --_bg: var(--prism-color-surface);
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  border-color: var(--prism-color-border-strong);
+  /* The border colour is moved by the switch itself, on the thumb's clock. */
+  transition: box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  /* Focus ring rests at zero spread so it can grow in. */
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+prism-switch::part(thumb) {
+  background: var(--prism-color-text-muted);
+}
+prism-switch::part(wash) {
+  background: var(--prism-color-accent);
+}
+prism-switch:state(checked)::part(base) {
+  --_on: var(--prism-color-on-accent);
+  --_bg-hover: var(--prism-color-accent-hover);
+  --_bg-pressed: var(--prism-color-accent-active);
+  --_bg-selected: var(--prism-color-accent-active);
+  border-color: var(--prism-color-accent);
+}
+prism-switch:state(checked)::part(thumb) {
+  background: var(--prism-color-on-accent);
+}
+prism-switch::part(base):focus-visible {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+/* Disabled: shared inert look. The thumb position still says on or off. */
+prism-switch:state(disabled)::part(base) {
+  --_bg: var(--prism-color-surface);
+  --_on: var(--prism-color-text-muted);
+  border-color: var(--prism-color-border);
+}
+prism-switch:state(disabled)::part(thumb) {
+  background: var(--prism-color-border-strong);
+}
+prism-switch:state(disabled):state(checked)::part(wash) {
+  background: var(--prism-color-border);
+}
+prism-switch:state(disabled)::part(label) {
+  color: var(--prism-color-text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  prism-switch::part(base) {
+    transition: border-color 120ms linear;
+  }
+}
+@media (forced-colors: active) {
+  prism-switch::part(base) {
+    border-color: ButtonText;
+  }
+  prism-switch::part(thumb) {
+    background: ButtonText;
+  }
+  prism-switch::part(wash) {
+    background: Highlight;
+  }
+  prism-switch:state(checked)::part(thumb) {
+    background: HighlightText;
+  }
+  prism-switch:state(disabled)::part(base) {
+    border-color: GrayText;
+  }
+  prism-switch:state(disabled)::part(thumb) {
+    background: GrayText;
+  }
+}
+
+/* ---------- Checkbox and Radio ----------
+ * A 20px box with a >= 3:1 edge. Checked: the accent grows out of the centre
+ * and an on-accent mark is drawn on it. Radio: an accent ring and dot on the
+ * surface. Hover, selected and pressed come from the shared state layer (the
+ * overlay is drawn by the box, above the fill). The 24px hit area carries the
+ * focus ring. */
+:is(prism-checkbox, prism-radio-group) {
+  color: var(--prism-color-text);
+}
+prism-checkbox::part(control),
+prism-radio-group::part(control) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+}
+prism-checkbox:state(selected)::part(control) {
+  --_on: var(--prism-color-on-accent);
+}
+:is(prism-checkbox, prism-radio-group)::part(base) {
+  /* Focus ring rests at zero spread so it can grow in. */
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  transition: box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+:is(prism-checkbox, prism-radio-group)::part(base):focus-visible {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+:is(prism-checkbox, prism-radio-group)::part(box) {
+  background: var(--prism-color-surface);
+}
+:is(prism-checkbox, prism-radio-group)::part(edge) {
+  border-color: var(--prism-color-border-strong);
+}
+prism-checkbox::part(box),
+prism-checkbox::part(edge) {
+  border-radius: var(--prism-radius-3);
+}
+prism-radio-group::part(box),
+prism-radio-group::part(edge),
+prism-radio-group::part(ring) {
+  border-radius: 50%;
+}
+prism-checkbox::part(fill) {
+  background: var(--prism-color-accent);
+}
+prism-checkbox::part(mark) {
+  color: var(--prism-color-on-accent);
+}
+prism-radio-group::part(ring) {
+  border-color: var(--prism-color-accent);
+}
+prism-radio-group::part(dot) {
+  background: var(--prism-color-accent);
+}
+:is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
+  border-color: var(--prism-color-error);
+}
+:is(prism-checkbox, prism-radio-group)::part(error) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-error-text);
+}
+:is(prism-checkbox, prism-radio-group)::part(description),
+prism-radio-group::part(option-description) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-text-muted);
+}
+/* Disabled: shared inert look. The mark and dot still say on or off. */
+prism-checkbox:state(disabled)::part(edge),
+prism-radio-group::part(edge disabled) {
+  border-color: var(--prism-color-border);
+}
+prism-checkbox:state(disabled)::part(fill) {
+  background: var(--prism-color-border-strong);
+}
+prism-checkbox:state(disabled)::part(mark) {
+  color: var(--prism-color-bg);
+}
+prism-radio-group::part(ring disabled) {
+  border-color: var(--prism-color-border-strong);
+}
+prism-radio-group::part(dot disabled) {
+  background: var(--prism-color-border-strong);
+}
+prism-checkbox:state(disabled)::part(label),
+prism-checkbox:state(disabled)::part(description),
+prism-radio-group::part(option-label disabled),
+prism-radio-group::part(option-description disabled) {
+  color: var(--prism-color-text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(prism-checkbox, prism-radio-group)::part(base) {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  /* The resting transparent outline would be forced visible; only show it
+   * while focused. */
+  :is(prism-checkbox, prism-radio-group)::part(base) {
+    outline-style: none;
+  }
+  :is(prism-checkbox, prism-radio-group)::part(base):focus-visible {
+    outline: 2px solid Highlight;
+  }
+  :is(prism-checkbox, prism-radio-group)::part(box) {
+    background: Canvas;
+  }
+  :is(prism-checkbox, prism-radio-group)::part(edge) {
+    border-color: ButtonText;
+  }
+  prism-checkbox::part(fill),
+  prism-radio-group::part(dot) {
+    background: Highlight;
+  }
+  prism-radio-group::part(ring) {
+    border-color: Highlight;
+  }
+  prism-checkbox::part(mark) {
+    color: HighlightText;
+  }
+  :is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
+    border-color: ButtonText;
+    border-style: double;
+  }
+  prism-checkbox:state(disabled)::part(edge),
+  prism-radio-group::part(edge disabled),
+  prism-radio-group::part(ring disabled) {
+    border-color: GrayText;
+  }
+  prism-checkbox:state(disabled)::part(fill),
+  prism-radio-group::part(dot disabled) {
+    background: GrayText;
+  }
+  prism-checkbox:state(disabled)::part(mark) {
+    color: Canvas;
+  }
+}
+
+/* ---------- Segmented control ----------
+ * A surface track with a >= 3:1 edge; one accent indicator slides under the
+ * picked segment, whose label turns to the on-accent colour. The indicator's
+ * motion is the component's (two edge springs, with fade); this only
+ * names colours. Hover and press come from the shared state layer. */
+prism-segmented-control {
+  color: var(--prism-color-text);
+}
+prism-segmented-control::part(track) {
+  background: var(--prism-color-surface);
+  border-color: var(--prism-color-border-strong);
+}
+prism-segmented-control::part(indicator) {
+  background: var(--prism-color-accent);
+}
+prism-segmented-control:state(disabled)::part(indicator) {
+  background: var(--prism-color-text-muted);
+}
+prism-segmented-control:state(invalid)::part(track) {
+  border-color: var(--prism-color-error);
+}
+prism-segmented-control::part(description) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-text-muted);
+}
+prism-segmented-control::part(error) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-error-text);
+}
+prism-segmented-control::part(segment) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  color: var(--_on);
+  /* Leaving: quick, so the old label is dark again as the indicator moves off. */
+  transition: color 80ms var(--prism-ease-standard);
+  /* The focus ring sits inside the segment, on the indicator when picked. */
+  --_ring: var(--prism-color-focus-ring);
+}
+prism-segmented-control::part(segment checked) {
+  /* Arriving: waits for the indicator's leading edge before turning light. */
+  transition-duration: var(--prism-duration-fast);
+  transition-delay: 60ms;
+  --_on: var(--prism-color-on-accent);
+  --_ring: var(--prism-color-on-accent);
+}
+prism-segmented-control::part(segment disabled) {
+  --_on: var(--prism-color-text-muted);
+}
+prism-segmented-control::part(segment checked disabled) {
+  --_on: var(--prism-color-bg);
+}
+prism-segmented-control::part(base):focus-visible {
+  outline-color: var(--_ring);
+}
+@media (prefers-reduced-motion: reduce) {
+  prism-segmented-control::part(segment),
+  prism-segmented-control::part(segment checked) {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  prism-segmented-control::part(track) {
+    border-color: ButtonText;
+  }
+  prism-segmented-control::part(indicator) {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+  prism-segmented-control::part(segment) {
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+  prism-segmented-control::part(segment checked) {
+    color: HighlightText;
+  }
+  prism-segmented-control::part(segment disabled) {
+    color: GrayText;
+  }
+  prism-segmented-control::part(segment checked disabled) {
+    color: Canvas;
+  }
+  prism-segmented-control:state(disabled)::part(indicator) {
+    background: GrayText;
+  }
+  prism-segmented-control:state(invalid)::part(track) {
+    border-color: ButtonText;
+    border-style: double;
+    border-width: 3px;
+  }
+}
+
+/* prism-theme-section: components-forced */
+/* ---------- Forced colours: focus outline only while focused ----------
+ * Most controls rest with a transparent 2px outline so a focus ring can grow
+ * in. Forced colours paints a transparent outline in the text colour, so every
+ * control would wear a stray second border. Here the outline is off at rest and
+ * drawn in Highlight while focused (box shadows are dropped in this mode, so
+ * the outline is the focus indicator). The assembler keeps forced-colours
+ * blocks last in theme.css.
+ */
+@media (forced-colors: active) {
+  prism-button::part(base),
+  prism-icon-button::part(base),
+  prism-menu::part(trigger-base),
+  prism-card-title::part(toggle),
+  prism-card-handle::part(base),
+  prism-tag::part(base),
+  prism-tag::part(remove),
+  prism-switch::part(base),
+  prism-segmented-control::part(base) {
+    outline-style: none;
+  }
+  prism-button::part(base):focus-visible,
+  prism-icon-button::part(base):focus-visible,
+  prism-menu::part(trigger-base):focus-visible,
+  prism-card-title::part(toggle):focus-visible,
+  prism-card-handle::part(base):focus-visible,
+  prism-tag::part(base):focus-visible,
+  prism-tag::part(remove):focus-visible,
+  prism-switch::part(base):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: var(--prism-focus-ring-offset);
+  }
+  /* Inside the segment: on the Highlight indicator when picked, so it is HighlightText. */
+  prism-segmented-control::part(base):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+  prism-segmented-control::part(base checked):focus-visible {
+    outline-color: HighlightText;
+  }
+}

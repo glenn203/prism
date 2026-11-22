@@ -42,7 +42,7 @@ export class PrismProgress extends LitElement {
     css`
       :host {
         /* PROPOSED progress text: 12/20, weight 400 (the supporting style). */
-        --_progress-font-size: var(--prism-font-size-12, 0.75rem);
+        --_progress-font-size: var(--prism-text-caption-font-size, 0.75rem);
         --_progress-line-height: var(--prism-font-line-height-20, 1.25rem);
         display: block;
         min-inline-size: 0;

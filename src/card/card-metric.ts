@@ -30,11 +30,11 @@ export class PrismCardMetric extends LitElement {
         system-ui,
         sans-serif
       );
-      --_metric-font-size: var(--prism-font-size-28, 1.75rem);
+      --_metric-font-size: var(--prism-text-heading-1-font-size, 1.75rem);
       --_metric-line-height: var(--prism-font-line-height-36, 2.25rem);
       --_metric-font-weight: var(--prism-font-weight-semibold, 600);
       /* Supporting style (decided 12/20) (12/20/400), as the card meta. */
-      --_supporting-font-size: var(--prism-font-size-12, 0.75rem);
+      --_supporting-font-size: var(--prism-text-caption-font-size, 0.75rem);
       --_supporting-line-height: var(--prism-font-line-height-20, 1.25rem);
       --_supporting-font-weight: var(--prism-font-weight-regular, 400);
       display: block;

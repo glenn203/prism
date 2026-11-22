@@ -20,7 +20,7 @@ export class PrismCardDescription extends LitElement {
         system-ui,
         sans-serif
       );
-      --_supporting-font-size: var(--prism-font-size-12, 0.75rem);
+      --_supporting-font-size: var(--prism-text-caption-font-size, 0.75rem);
       --_supporting-line-height: var(--prism-font-line-height-20, 1.25rem);
       --_supporting-font-weight: var(--prism-font-weight-regular, 400);
       display: block;
