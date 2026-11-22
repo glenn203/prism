@@ -37,14 +37,16 @@ export default meta;
 type Story = StoryObj<Args>;
 
 /**
- * An on/off control that takes effect right away. Click it, or press Space or
- * Enter when it has focus. Press and hold widens the thumb; drag it past the
- * middle (or flick it) to turn the switch. The thumb's leading edge runs ahead
- * and the trailing edge follows, so it stretches about 28% mid-travel and
- * settles with a slight overshoot, in about 400ms either way. The accent
+ * An on/off control that takes effect right away. A native checkbox with the
+ * `switch` attribute, labelled only by its `<label for>`. Click it, or press
+ * Space when it has focus. The default is still: a flat track and pill thumb,
+ * no shadow and no gradient. Stretch, glint, press-grow, springs and drag
+ * play when polish motion is on: press and hold widens the thumb; drag it past
+ * the middle (or flick it) to turn the switch. The thumb's leading edge runs
+ * ahead and the trailing edge follows, so it stretches about 28% mid-travel
+ * and settles with a slight overshoot, in about 400ms either way. The accent
  * spreads from the thumb and the colours follow it on the same clock, and a
- * second tap mid-move turns it round from where it is. It is flat: no shadow,
- * no gradient.
+ * second tap mid-move turns it round from where it is.
  */
 export const Default: Story = {};
 

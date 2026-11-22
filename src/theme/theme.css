@@ -1474,7 +1474,7 @@ prism-switch:state(checked)::part(base) {
 prism-switch:state(checked)::part(thumb) {
   background: var(--prism-color-on-accent);
 }
-prism-switch::part(base):focus-visible {
+prism-switch::part(base):has(:focus-visible) {
   box-shadow:
     0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
     0 0 var(--prism-focus-ring-blur)
@@ -1842,7 +1842,7 @@ prism-segmented-control::part(base):focus-visible {
   prism-card-handle::part(base):focus-visible,
   prism-tag::part(base):focus-visible,
   prism-tag::part(remove):focus-visible,
-  prism-switch::part(base):focus-visible {
+  prism-switch::part(base):has(:focus-visible) {
     outline: 2px solid Highlight;
     outline-offset: var(--prism-focus-ring-offset);
   }

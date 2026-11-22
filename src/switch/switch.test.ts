@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
-async function setup(page: Page, markup: string) {
+async function setup(page: Page, markup: string, motion = false) {
   const errors: string[] = [];
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(m.text());
@@ -10,6 +11,7 @@ async function setup(page: Page, markup: string) {
   await mount(page, markup);
   await page.addStyleTag({ path: 'src/tokens/tokens.css' });
   await page.addStyleTag({ path: 'src/theme/theme.css' });
+  if (motion) await polishMotion(page);
   await page.evaluate(
     () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 60))),
   );
@@ -20,12 +22,14 @@ async function setup(page: Page, markup: string) {
 }
 
 const sw = (page: Page, name: string) =>
-  page.getByRole('switch', { name, exact: true });
+  page
+    .getByRole('switch', { name, exact: true })
+    .or(page.getByRole('checkbox', { name, exact: true }));
 const settle = (page: Page, ms = 600) =>
   page.evaluate((ms) => new Promise((r) => setTimeout(r, ms)), ms);
 
 test.describe('prism-switch: semantics', () => {
-  test('role switch, named by its label, aria-checked follows state', async ({
+  test('native checkbox switch, named only by its label, checked follows state', async ({
     page,
   }) => {
     const errors = await setup(
@@ -33,37 +37,36 @@ test.describe('prism-switch: semantics', () => {
       '<prism-switch label="Auto-refresh"></prism-switch><prism-switch label="Dark preview" checked></prism-switch>',
     );
     expect(errors).toEqual([]);
-    await expect(sw(page, 'Auto-refresh')).toHaveAttribute(
-      'aria-checked',
-      'false',
-    );
-    await expect(sw(page, 'Dark preview')).toHaveAttribute(
-      'aria-checked',
-      'true',
-    );
-    await expect(sw(page, 'Auto-refresh')).toHaveAccessibleName('Auto-refresh');
+    const off = sw(page, 'Auto-refresh');
+    const on = sw(page, 'Dark preview');
+    await expect(off).toHaveJSProperty('type', 'checkbox');
+    expect(await off.evaluate((el) => el.hasAttribute('switch'))).toBe(true);
+    await expect(off).not.toBeChecked();
+    await expect(on).toBeChecked();
+    await expect(off).toHaveAccessibleName('Auto-refresh');
     expect(
-      await sw(page, 'Auto-refresh').evaluate((el) =>
-        el.hasAttribute('aria-labelledby'),
+      await off.evaluate(
+        (el) =>
+          el.hasAttribute('aria-labelledby') || el.hasAttribute('aria-label'),
       ),
     ).toBe(false);
   });
 
-  test('click, Space and Enter toggle; the label click toggles too', async ({
+  test('click, Space and the label toggle; Enter does not', async ({
     page,
   }) => {
     await setup(page, '<prism-switch label="Auto-refresh"></prism-switch>');
     const s = sw(page, 'Auto-refresh');
     await s.click();
-    await expect(s).toHaveAttribute('aria-checked', 'true');
+    await expect(s).toBeChecked();
     await page.getByText('Auto-refresh').click();
-    await expect(s).toHaveAttribute('aria-checked', 'false');
+    await expect(s).not.toBeChecked();
     await s.focus();
     await expect(s).toBeFocused();
     await page.keyboard.press('Space');
-    await expect(s).toHaveAttribute('aria-checked', 'true');
+    await expect(s).toBeChecked();
     await page.keyboard.press('Enter');
-    await expect(s).toHaveAttribute('aria-checked', 'false');
+    await expect(s).toBeChecked();
   });
 
   test('fires input and change once per user toggle, not for property changes', async ({
@@ -167,7 +170,7 @@ test.describe('prism-switch: disabled', () => {
     const s = sw(page, 'Sync');
     await expect(s).toBeDisabled();
     await page.locator('#s').click({ force: true });
-    await expect(s).toHaveAttribute('aria-checked', 'false');
+    await expect(s).not.toBeChecked();
     await page.keyboard.press('Tab');
     await expect(s).not.toBeFocused();
     expect(
@@ -212,10 +215,10 @@ test.describe('prism-switch: forms', () => {
     );
     await sw(page, 'A').click();
     await sw(page, 'B').click();
-    await expect(sw(page, 'A')).toHaveAttribute('aria-checked', 'false');
+    await expect(sw(page, 'A')).not.toBeChecked();
     await page.locator('form').evaluate((f: HTMLFormElement) => f.reset());
-    await expect(sw(page, 'A')).toHaveAttribute('aria-checked', 'true');
-    await expect(sw(page, 'B')).toHaveAttribute('aria-checked', 'false');
+    await expect(sw(page, 'A')).toBeChecked();
+    await expect(sw(page, 'B')).not.toBeChecked();
   });
 });
 
@@ -303,6 +306,24 @@ test.describe('prism-switch: shape', () => {
   });
 });
 
+test('without polish motion, the thumb jumps and nothing animates', async ({
+  page,
+}) => {
+  await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+  await sw(page, 'S').click();
+  const running = await page.locator('#s').evaluate(
+    (el) =>
+      el
+        .shadowRoot!.querySelector('[part="container"]')!
+        .getAnimations({ subtree: true })
+        .filter((a) => a.playState === 'running').length,
+  );
+  expect(running).toBe(0);
+  const g = await geometry(page, '#s');
+  expect(g.thumb.x + g.thumb.w).toBeGreaterThan(g.track.x + g.track.w * 0.6);
+  await expect(sw(page, 'S')).toBeChecked();
+});
+
 test.describe('prism-switch: motion', () => {
   /** Everything animating inside the switch, with what each one animates. */
   const anims = (page: Page) =>
@@ -376,7 +397,7 @@ test.describe('prism-switch: motion', () => {
   test('turning on and off take the same time, about 400ms, and every part shares one clock', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await sw(page, 'S').click();
     const on = await anims(page);
     await settle(page);
@@ -395,7 +416,7 @@ test.describe('prism-switch: motion', () => {
   test('only transform, opacity and colour move: no width, left, margin or clip-path', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await sw(page, 'S').click();
     const a = await anims(page);
     const props = new Set(a.flatMap((x) => x.props));
@@ -420,6 +441,7 @@ test.describe('prism-switch: motion', () => {
     await setup(
       page,
       '<prism-switch id="s" label="S" checked></prism-switch><prism-switch id="t" label="T"></prism-switch>',
+      true,
     );
     const n = await page.evaluate(() =>
       [...document.querySelectorAll('prism-switch')].map(
@@ -435,7 +457,7 @@ test.describe('prism-switch: motion', () => {
   });
 
   test('a change from code moves the same way as a click', async ({ page }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await page.locator('#s').evaluate((el) => {
       (el as HTMLElement & { checked: boolean }).checked = true;
     });
@@ -446,7 +468,7 @@ test.describe('prism-switch: motion', () => {
   test('the thumb stretches mid-travel (about 25-40% wider) and ends back in shape', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     const { tw, inner } = await geo(page);
     await sw(page, 'S').click();
     const dur = (await anims(page))[0]!.duration;
@@ -473,7 +495,7 @@ test.describe('prism-switch: motion', () => {
   test('every frame is continuous: speed never jumps, and the move overshoots only slightly', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     const { tw } = await geo(page);
     await sw(page, 'S').click();
     const dur = (await anims(page))[0]!.duration;
@@ -502,7 +524,7 @@ test.describe('prism-switch: motion', () => {
   test('turning round mid-move carries on from where the thumb is: no snap in place or width', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     for (const at of [60, 120, 200, 300]) {
       await sw(page, 'S').click();
       // The pose one frame on is where the new move has to start.
@@ -522,13 +544,13 @@ test.describe('prism-switch: motion', () => {
   });
 
   test('rapid taps always end at rest in the right place', async ({ page }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     for (let i = 0; i < 7; i++) {
       await page.locator('#s').evaluate((el) => (el as HTMLElement).click());
       await settle(page, 70);
     }
     await settle(page, 800);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('true');
+    await expect(sw(page, 'S')).toBeChecked();
     expect((await anims(page)).length).toBe(0);
     const g = await geometry(page, '#s');
     expect(g.track.x + g.track.w - (g.thumb.x + g.thumb.w)).toBeLessThan(6);
@@ -537,7 +559,7 @@ test.describe('prism-switch: motion', () => {
   test('the colours, the track fill and the glint follow the thumb', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await sw(page, 'S').click();
     const dur = (await anims(page))[0]!.duration;
     const wash0 = await seek(page, 0);
@@ -553,7 +575,7 @@ test.describe('prism-switch: motion', () => {
   test('the move hands back to the stylesheet at rest: no animation left, no stale pixels', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await sw(page, 'S').click();
     await settle(page, 700);
     expect((await anims(page)).length).toBe(0);
@@ -575,7 +597,7 @@ test.describe('prism-switch: motion', () => {
   test('press and hold widens the thumb from the side it sits on; letting go outside does nothing', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await page.evaluate(() => {
       const w = window as unknown as { log: string[] };
       w.log = [];
@@ -598,7 +620,7 @@ test.describe('prism-switch: motion', () => {
     await settle(page, 700);
     const after = await geometry(page, '#s');
     expect(after.thumb.w).toBeCloseTo(tw, 0);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('false');
+    await expect(sw(page, 'S')).not.toBeChecked();
     expect(
       await page.evaluate(() => (window as never as { log: string[] }).log),
     ).toEqual([]);
@@ -607,7 +629,7 @@ test.describe('prism-switch: motion', () => {
   test('a tap with the mouse toggles once (one input, one change) and stretches', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await page.evaluate(() => {
       const w = window as unknown as { log: string[] };
       w.log = [];
@@ -617,7 +639,7 @@ test.describe('prism-switch: motion', () => {
     });
     await sw(page, 'S').click();
     await settle(page, 700);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('true');
+    await expect(sw(page, 'S')).toBeChecked();
     const log = await page.evaluate(
       () => (window as never as { log: string[] }).log,
     );
@@ -628,7 +650,7 @@ test.describe('prism-switch: motion', () => {
   test('drag past the middle turns it on, once; a short drag does not', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await page.evaluate(() => {
       const w = window as unknown as { log: string[] };
       w.log = [];
@@ -645,7 +667,7 @@ test.describe('prism-switch: motion', () => {
     await settle(page, 200);
     await page.mouse.up();
     await settle(page, 700);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('false');
+    await expect(sw(page, 'S')).not.toBeChecked();
     // Long drag, turns on, and the click after the drop is not a second toggle.
     await page.mouse.move(box.x + 14, y);
     await page.mouse.down();
@@ -654,7 +676,7 @@ test.describe('prism-switch: motion', () => {
     await settle(page, 200);
     await page.mouse.up();
     await settle(page, 700);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('true');
+    await expect(sw(page, 'S')).toBeChecked();
     expect(
       await page.evaluate(() => (window as never as { log: string[] }).log),
     ).toEqual(['input', 'change']);
@@ -662,7 +684,7 @@ test.describe('prism-switch: motion', () => {
     expect(g.track.x + g.track.w - (g.thumb.x + g.thumb.w)).toBeLessThan(6);
     // And the next plain tap still works.
     await sw(page, 'S').click();
-    await expect(sw(page, 'S')).toHaveAttribute('aria-checked', 'false');
+    await expect(sw(page, 'S')).not.toBeChecked();
   });
 
   test('dragging back from on turns it off; rtl drags the other way', async ({
@@ -671,6 +693,7 @@ test.describe('prism-switch: motion', () => {
     await setup(
       page,
       '<div dir="rtl"><prism-switch id="s" label="S" checked></prism-switch></div>',
+      true,
     );
     const box = (await sw(page, 'S').boundingBox())!;
     const y = box.y + box.height / 2;
@@ -682,13 +705,14 @@ test.describe('prism-switch: motion', () => {
     await settle(page, 150);
     await page.mouse.up();
     await settle(page, 700);
-    expect(await sw(page, 'S').getAttribute('aria-checked')).toBe('false');
+    await expect(sw(page, 'S')).not.toBeChecked();
   });
 
   test('a disabled switch does not press or drag', async ({ page }) => {
     await setup(
       page,
       '<prism-switch id="s" label="S" disabled></prism-switch>',
+      true,
     );
     const box = await page.locator('#s').evaluate((el) => {
       const r = el
@@ -707,7 +731,7 @@ test.describe('prism-switch: motion', () => {
   test('the token set: motion-switch 400ms and the shared curves are still there', async ({
     page,
   }) => {
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     const v = await page.evaluate(() => {
       const cs = getComputedStyle(document.documentElement);
       return [
@@ -729,7 +753,7 @@ test.describe('prism-switch: motion', () => {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await setup(page, '<prism-switch id="s" label="S"></prism-switch>');
+    await setup(page, '<prism-switch id="s" label="S"></prism-switch>', true);
     await sw(page, 'S').click();
     const r = await page.locator('#s').evaluate((el) => {
       const q = (p: string) =>
@@ -781,6 +805,7 @@ test.describe('prism-switch: motion', () => {
     await setup(
       page,
       '<prism-switch id="s" label="S" style="--prism-switch-duration:200ms"></prism-switch>',
+      true,
     );
     await sw(page, 'S').click();
     const d = (await anims(page))[0]!.duration;
@@ -884,7 +909,7 @@ async function looks(page: Page, state: 'rest' | 'hover' | 'pressed') {
     const host = el.parentElement!;
     const bg = getComputedStyle(host).backgroundColor;
     const base = q('base');
-    const on = base.getAttribute('aria-checked') === 'true';
+    const on = el.matches(':state(checked)');
     const cs = (n: Element, pe?: string) => getComputedStyle(n, pe);
     const fill = on ? cs(q('wash')).backgroundColor : cs(base).backgroundColor;
     const overlay = cs(base, '::after').backgroundColor;

@@ -369,10 +369,10 @@ and Badge `status`; status stays as words) and **prism-icon**
 
 ### Switch and Running indicator (names provisional)
 
-| Element                   | Role and props                                                                                                                                                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prism-switch`            | On/off setting that applies at once. Native `button role="switch"` with `aria-checked`. `label` (required), `checked`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`, `label-position`. |
-| `prism-running-indicator` | Something is running now. `role="status"`. `label` (default "Running"), `show-label`, `size` (sm 16px, md 24px, lg 40px), `tone` (default accent).                                                                      |
+| Element                   | Role and props                                                                                                                                                                                                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `prism-switch`            | On/off setting that applies at once. Native `input type="checkbox" switch` (a labelled checkbox where `switch` is not supported), named only by a `<label for>`. `label` (required), `checked`, `disabled`, `name`, `value` (default "on"), `size` (sm, md, lg), `hide-label`, `label-position`. |
+| `prism-running-indicator` | Something is running now. `role="status"`. `label` (default "Running"), `show-label`, `size` (sm 16px, md 24px, lg 40px), `tone` (default accent).                                                                                                                                               |
 
 **Switch.**
 
@@ -385,7 +385,7 @@ and Badge `status`; status stays as words) and **prism-icon**
 - State layer: the track uses `stateLayer()` like every clickable surface, with the
   overlay drawn above the wash and below the thumb. Off: hover 6%, pressed 12%. On
   (selected): 11%, and 15% when hovered. Disabled: no change.
-- Motion (`--prism-motion-switch`, about 400ms, the same on and off). Two springs,
+- Motion is opt-in polish motion (`data-prism-polish` with `motion`, `all`, or an empty attribute). Without it the thumb jumps and the fill and colours change at once. With it on (`--prism-motion-switch`, about 400ms, the same on and off), two springs,
   one per thumb edge, move the thumb: the edge heading for the destination leads
   (natural frequency 25, damping 0.7, about 4% overshoot) and the other follows
   (16, 0.78), so the thumb stretches to about 28% wider around 100ms and is back in
@@ -405,7 +405,7 @@ and Badge `status`; status stays as words) and **prism-icon**
   it turns on the side it is nearest, or where a flick over 260px/s sends it, and
   carries on with the speed it had. The click that follows a drag, or a press that
   ends outside the track, does not toggle. `touch-action: pan-y` keeps vertical
-  scrolling. Pointer-driven only: Space and Enter toggle with no press stretch.
+  scrolling. Pointer-driven only: Space toggles with no press stretch.
 - Reduced motion (`prefers-reduced-motion: reduce`): no travel, stretch, press or
   drag motion and no glint. The thumb jumps and the colours change over 120ms.
   (`--prism-ease-spring` already means the critically damped focus-ring curve; the

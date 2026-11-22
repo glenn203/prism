@@ -1,5 +1,7 @@
 import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
+import { canPolishAnimate } from '../internal/choice-motion.js';
+import { hasPolishEffect } from '../internal/polish-scope.js';
 import { FormAssociated } from '../internal/form-associated.js';
 import { textRole } from '../internal/control-styles.js';
 import { stateLayer } from '../internal/state-layer.js';
@@ -90,21 +92,28 @@ const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
  * switch. Use it for a setting ("Auto-refresh"), not for a choice that is only
  * saved when a form is submitted (use a checkbox there).
  *
- * - A native `<button role="switch" aria-checked>` in shadow DOM, so Space and
- *   Enter toggle it and it takes part in the tab order.
+ * - A native `<input type="checkbox" switch>` in shadow DOM, labelled only by
+ *   a `<label for>`. Where the `switch` attribute is not supported, it stays
+ *   a labelled checkbox (the accessible fallback). Space toggles it; it takes
+ *   part in the tab order. The track keeps a 24px minimum target.
  * - Named by `label` (and any default-slot content). The label is visible by
  *   default; `hide-label` hides it from sight only.
  * - Joins the surrounding form: submits `value` (default "on") under `name`
  *   while on, and nothing while off. Resets to its starting state with the form.
  * - Fires `input` and `change` after each user toggle.
- * - Motion: one spring-driven move, about 400ms either way. The thumb's
- *   leading edge runs ahead and its trailing edge follows, so it stretches
- *   mid-travel and settles into shape with a slight overshoot; the track fill,
- *   border and thumb colour are driven by the same position, so they can never
- *   drift out of step. A second tap mid-move turns it around from where it
- *   is, with its speed. Pressing and holding widens the thumb; dragging it
- *   past the middle (or flicking it) turns the switch on release. Only
- *   transform and opacity move. Nothing animates on first paint. Under
+ * - Default look is still and readable: a flat track and pill thumb, the
+ *   thumb at the start when off and at the end when on, the accent fill
+ *   on or off at once. Stretch, glint, press-grow, springs and drag play
+ *   only inside a polish motion scope (`data-prism-polish` with `motion`,
+ *   `all`, or an empty attribute). With polish motion on, one spring-driven
+ *   move takes about 400ms either way. The thumb's leading edge runs ahead
+ *   and its trailing edge follows, so it stretches mid-travel and settles
+ *   into shape with a slight overshoot; the track fill, border and thumb
+ *   colour are driven by the same position, so they can never drift out of
+ *   step. A second tap mid-move turns it around from where it is, with its
+ *   speed. Pressing and holding widens the thumb; dragging it past the
+ *   middle (or flicking it) turns the switch on release. Only transform and
+ *   opacity move. Nothing animates on first paint. Under
  *   `prefers-reduced-motion: reduce` there is no travel, stretch, press or drag
  *   motion: the thumb jumps and the colour changes over 120ms.
  * - State is never colour alone: the thumb sits at the start when off and at
@@ -114,7 +123,7 @@ const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
  * @tag prism-switch
  * @slot - Extra label content, shown after `label`.
  * @csspart container - Wraps the control and its label.
- * @csspart base - The native button, drawn as the track.
+ * @csspart base - The track. The native checkbox fills it for hits and focus.
  * @csspart wash - The accent fill that spreads across the track when on.
  * @csspart thumb - The sliding pill.
  * @csspart label - The visible label.
@@ -186,12 +195,13 @@ export class PrismSwitch extends FormAssociated(LitElement) {
         justify-content: space-between;
       }
       [part='base'] {
-        all: unset;
         box-sizing: border-box;
         position: relative;
         flex: none;
         inline-size: var(--_w);
         block-size: var(--_h);
+        min-inline-size: 1.5rem;
+        min-block-size: 1.5rem;
         overflow: hidden;
         border-width: var(--_bd);
         border-style: solid;
@@ -203,8 +213,26 @@ export class PrismSwitch extends FormAssociated(LitElement) {
         -webkit-tap-highlight-color: transparent;
         user-select: none;
       }
-      [part='base']:disabled {
+      :host(:state(disabled)) [part='base'] {
         cursor: var(--prism-switch-cursor-disabled, default);
+      }
+      /* The native control fills the track for hits and focus; the track
+         itself is the styled base (an input cannot draw ::before or ::after). */
+      [part='base'] > input {
+        appearance: none;
+        -webkit-appearance: none;
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        inline-size: 100%;
+        block-size: 100%;
+        background: transparent;
+        color: transparent;
+        outline: none;
+        cursor: inherit;
       }
       /* The accent fill: a circle as wide as the track, centred on the thumb.
          It grows from nothing as the thumb leaves and shrinks into it on the
@@ -221,7 +249,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
         pointer-events: none;
         transform: translateX(var(--_x-off)) scale(0);
       }
-      [aria-checked='true'] > [part='wash'] {
+      :host(:state(checked)) [part='wash'] {
         transform: translateX(var(--_x-on)) scale(1);
       }
       /* The state layer's overlay, drawn above the wash and below the thumb. */
@@ -266,7 +294,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
       :host(:dir(rtl)) [part='thumb'] {
         transform-origin: right center;
       }
-      [aria-checked='true'] > [part='thumb'] {
+      :host(:state(checked)) [part='thumb'] {
         transform: translateX(calc(var(--_dir) * var(--_travel)));
       }
       [part='label'] {
@@ -290,7 +318,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
           opacity: 0;
           transition: opacity 120ms linear;
         }
-        [aria-checked='true'] > [part='wash'] {
+        :host(:state(checked)) [part='wash'] {
           transform: none;
           opacity: 1;
         }
@@ -331,7 +359,8 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   /** Size: sm, md or lg. */
   @property({ reflect: true }) size: 'sm' | 'md' | 'lg' = 'md';
 
-  @query('[part="base"]') private readonly button!: HTMLButtonElement;
+  @query('[part="base"]') private readonly base!: HTMLElement;
+  @query('[part="base"] > input') private readonly input!: HTMLInputElement;
   @query('[part="thumb"]') private readonly thumb!: HTMLElement;
   @query('[part="wash"]') private readonly wash!: HTMLElement;
 
@@ -362,12 +391,12 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   }
 
   override focus(options?: FocusOptions): void {
-    this.button?.focus(options);
+    this.input?.focus(options);
   }
 
   /** Toggles the switch as if the user had pressed it. */
   override click(): void {
-    this.button?.click();
+    this.input?.click();
   }
 
   formResetCallback(): void {
@@ -381,6 +410,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   override willUpdate(changed: Map<PropertyKey, unknown>): void {
     super.willUpdate(changed);
     this.setState('checked', this.checked);
+    this.setState('selected', this.checked);
     if (changed.has('checked') || changed.has('value')) {
       this.internals.setFormValue(
         this.checked ? this.value : null,
@@ -407,21 +437,22 @@ export class PrismSwitch extends FormAssociated(LitElement) {
     }
   }
 
-  #toggle(): void {
-    if (this.isDisabled) return;
-    this.checked = !this.checked;
-    this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  #onInput = (): void => {
+    // The native `input` event is composed, so it already reaches the host.
+    this.checked = this.input.checked;
+  };
+
+  #onChange = (): void => {
+    // A native `change` stays inside the shadow root, so say it again on the host.
     this.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+  };
 
   #onClick = (event: Event): void => {
     if (this.#suppressClick) {
       // The click that follows a drag or a release outside the track.
       this.#suppressClick = false;
       event.preventDefault();
-      return;
     }
-    this.#toggle();
   };
 
   // ---- measuring ----
@@ -431,17 +462,15 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   }
 
   #canMove(): boolean {
-    return (
-      this.#ready &&
-      this.isConnected &&
-      !!this.thumb &&
-      typeof this.thumb.animate === 'function' &&
-      !this.#reduced()
-    );
+    return this.#ready && canPolishAnimate(this, this.thumb);
+  }
+
+  #polishMotion(): boolean {
+    return hasPolishEffect(this, 'motion') && !this.#reduced();
   }
 
   #measure(): Geo | undefined {
-    const base = this.button;
+    const base = this.base;
     const thumb = this.thumb;
     if (!base || !thumb) return undefined;
     const b = getComputedStyle(base);
@@ -507,12 +536,13 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   #colors(checked: boolean): { thumb: string; border: string } {
     const read = () => ({
       thumb: getComputedStyle(this.thumb).backgroundColor,
-      border: getComputedStyle(this.button).borderTopColor,
+      border: getComputedStyle(this.base).borderTopColor,
     });
     if (checked === this.checked) return read();
     this.setState('checked', checked);
     const c = read();
     this.setState('checked', this.checked);
+    this.setState('selected', this.checked);
     return c;
   }
 
@@ -628,12 +658,12 @@ export class PrismSwitch extends FormAssociated(LitElement) {
     this.#anims = [
       master,
       this.wash.animate(wash, opts()),
-      this.button.animate(glint, { ...opts(), pseudoElement: '::before' }),
+      this.base.animate(glint, { ...opts(), pseudoElement: '::before' }),
       this.thumb.animate(
         [{ backgroundColor: off.thumb }, { backgroundColor: on.thumb }],
         opts(ease),
       ),
-      this.button.animate(
+      this.base.animate(
         [{ borderColor: off.border }, { borderColor: on.border }],
         opts(ease),
       ),
@@ -652,7 +682,12 @@ export class PrismSwitch extends FormAssociated(LitElement) {
   // ---- press, drag ----
 
   #onPointerDown = (e: PointerEvent): void => {
-    if (this.isDisabled || e.button !== 0 || !e.isPrimary || this.#reduced())
+    if (
+      this.isDisabled ||
+      e.button !== 0 ||
+      !e.isPrimary ||
+      !this.#polishMotion()
+    )
       return;
     this.#pressing = true;
     this.#drag = {
@@ -664,7 +699,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
       samples: [],
     };
     try {
-      this.button.setPointerCapture(e.pointerId);
+      this.input.setPointerCapture(e.pointerId);
     } catch {
       /* A synthetic event has no active pointer; the press still works. */
     }
@@ -719,7 +754,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
       [{ backgroundColor: off.thumb }, { backgroundColor: on.thumb }],
       o,
     );
-    d.bc = this.button.animate(
+    d.bc = this.base.animate(
       [{ borderColor: off.border }, { borderColor: on.border }],
       o,
     );
@@ -732,8 +767,8 @@ export class PrismSwitch extends FormAssociated(LitElement) {
     d.pose = { a: c - w / 2, b: c + w / 2, va: 0, vb: 0 };
     this.thumb.style.transform = f.thumb;
     this.wash.style.transform = f.wash;
-    this.button.style.setProperty('--_gx', f.glintX);
-    this.button.style.setProperty('--_go', f.glintO);
+    this.base.style.setProperty('--_gx', f.glintX);
+    this.base.style.setProperty('--_go', f.glintO);
     if (d.tc) d.tc.currentTime = f.s * 1000;
     if (d.bc) d.bc.currentTime = f.s * 1000;
   }
@@ -743,7 +778,7 @@ export class PrismSwitch extends FormAssociated(LitElement) {
     if (!d || e.pointerId !== d.id) return;
     this.#drag = undefined;
     this.#pressing = false;
-    const rect = this.button.getBoundingClientRect();
+    const rect = this.base.getBoundingClientRect();
     const inside =
       e.clientX >= rect.left &&
       e.clientX <= rect.right &&
@@ -781,8 +816,8 @@ export class PrismSwitch extends FormAssociated(LitElement) {
     for (const a of [d.tc, d.bc]) a?.cancel();
     this.thumb.style.removeProperty('transform');
     this.wash.style.removeProperty('transform');
-    this.button.style.removeProperty('--_gx');
-    this.button.style.removeProperty('--_go');
+    this.base.style.removeProperty('--_gx');
+    this.base.style.removeProperty('--_go');
     // The click that follows a drag is not a second toggle.
     this.#suppressClick = true;
     window.setTimeout(() => (this.#suppressClick = false), 0);
@@ -797,22 +832,24 @@ export class PrismSwitch extends FormAssociated(LitElement) {
 
   override render() {
     return html`<div part="container">
-      <button
-        part="base"
-        id="control"
-        type="button"
-        role="switch"
-        aria-checked=${this.checked ? 'true' : 'false'}
-        ?disabled=${this.isDisabled}
-        @click=${this.#onClick}
-        @pointerdown=${this.#onPointerDown}
-        @pointermove=${this.#onPointerMove}
-        @pointerup=${this.#endPointer}
-        @pointercancel=${this.#endPointer}
-      >
+      <span part="base">
+        <input
+          id="control"
+          type="checkbox"
+          switch
+          .checked=${this.checked}
+          ?disabled=${this.isDisabled}
+          @input=${this.#onInput}
+          @change=${this.#onChange}
+          @click=${this.#onClick}
+          @pointerdown=${this.#onPointerDown}
+          @pointermove=${this.#onPointerMove}
+          @pointerup=${this.#endPointer}
+          @pointercancel=${this.#endPointer}
+        />
         <span part="wash" aria-hidden="true"></span>
         <span part="thumb" aria-hidden="true"></span>
-      </button>
+      </span>
       <label
         part="label"
         for="control"
