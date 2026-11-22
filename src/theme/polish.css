@@ -20,10 +20,12 @@
  *   --prism-tilt-perspective  900px
  *   --prism-polish-motion     0 (default) or 1: press-scale, label springs,
  *                             invalid nudges, check-mark draw, choice squish,
- *                             and the segmented indicator springs. The
- *                             components also read the attribute directly, so
- *                             those springs work with the scope set even if
- *                             this sheet is not loaded.
+ *                             the segmented indicator springs, and the
+ *                             switch's stretch, glint, press-grow, springs
+ *                             and drag. The components also read the
+ *                             attribute directly, so those springs work with
+ *                             the scope set even if this sheet is not loaded
+ *                             (the switch glint styles here need the sheet).
  */
 
 :root {
@@ -305,12 +307,59 @@ prism-select:state(invalid)::part(trigger)::after,
 }
 
 /* ---------- 4. Motion (press, springs, nudges) ----------
- * The springs themselves live in the components. This token is 1 inside a
- * motion (or all) scope so a theme can tell the layer is on. */
+ * The springs themselves live in the components (the switch's in a private
+ * controller). This token is 1 inside a motion (or all) scope so a theme can
+ * tell the layer is on. */
 :is(
   [data-prism-polish=''],
   [data-prism-polish~='all'],
   [data-prism-polish~='motion']
 ) {
   --prism-polish-motion: 1;
+}
+
+/* Switch: a pass of light across the track while the thumb moves, and
+   sideways drag (up and down still scrolls). Off inside a scope. */
+:is(
+    [data-prism-polish=''],
+    [data-prism-polish~='all'],
+    [data-prism-polish~='motion']
+  )
+  prism-switch::part(base) {
+  /* A sideways drag turns the switch; up and down still scrolls. */
+  touch-action: pan-y;
+}
+:is(
+    [data-prism-polish=''],
+    [data-prism-polish~='all'],
+    [data-prism-polish~='motion']
+  )
+  prism-switch::part(base)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.45) 50%,
+    transparent 70%
+  );
+  opacity: var(--_go, 0);
+  transform: translateX(var(--_gx, -100%));
+  pointer-events: none;
+}
+:is([data-prism-polish='off'], [data-prism-polish='none'])
+  prism-switch::part(base) {
+  touch-action: auto;
+}
+:is([data-prism-polish='off'], [data-prism-polish='none'])
+  prism-switch::part(base)::before {
+  content: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  prism-switch::part(base)::before {
+    display: none;
+  }
 }
