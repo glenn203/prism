@@ -100,7 +100,7 @@ pnpm exec playwright install chromium
 | `pnpm build-storybook` | Static Storybook in `storybook-static/` |
 | `pnpm changeset`       | Records a change for the next release   |
 
-The Storybook toolbar has a preview-only **Font** switcher (Inter, Geist with Geist Mono, Figtree, Manrope, Plus Jakarta Sans, Onest). It sets `--prism-font-family-sans` on the preview root and loads the font from Google Fonts. Tokens and text styles do not change, and Inter stays the default.
+The Storybook toolbar can switch light and dark, turn polish on or off, and (preview-only) change the font (Inter, Geist with Geist Mono, Figtree, Manrope, Plus Jakarta Sans, Onest). The font switcher sets `--prism-font-family-sans` on the preview root and loads the font from Google Fonts. Tokens and text styles do not change, and Inter stays the default. Stories are the neutral reference; polish is off until you turn it on.
 
 Add a changeset with every change that affects the published package.
 

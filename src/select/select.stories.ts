@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
-import '../button/define.js';
 import './define.js';
 
 interface Args {
@@ -12,32 +11,34 @@ interface Args {
   error: string;
 }
 
+const reference = { parameters: { controls: { disable: true } } };
+
 const options = html`
-  <prism-option value="apricot">Apricot</prism-option>
-  <prism-option value="banana">Banana</prism-option>
-  <prism-option value="cherry">Cherry</prism-option>
-  <prism-option value="durian" disabled>Durian (sold out)</prism-option>
-  <prism-option value="elderberry">Elderberry</prism-option>
+  <prism-option value="24">24 mm</prism-option>
+  <prism-option value="35">35 mm</prism-option>
+  <prism-option value="50">50 mm</prism-option>
+  <prism-option value="85" disabled>85 mm (on loan)</prism-option>
+  <prism-option value="135">135 mm</prism-option>
 `;
 
 const meta: Meta<Args> = {
   title: 'Components/Select',
   component: 'prism-select',
   args: {
-    label: 'Fruit',
+    label: 'Focal length',
     size: 'md',
     disabled: false,
     required: false,
     description: '',
-    error: 'Choose a fruit.',
+    error: 'Choose a focal length.',
   },
   argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
   render: ({ label, size, disabled, required, description, error }) => html`
     <div style="max-inline-size: 320px">
       <prism-select
         label=${label}
-        name="fruit"
-        placeholder="Select a fruit"
+        name="focal-length"
+        placeholder="Select a focal length"
         size=${size}
         ?disabled=${disabled}
         ?required=${required}
@@ -56,14 +57,15 @@ const meta: Meta<Args> = {
 export default meta;
 type Story = StoryObj<Args>;
 
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
 export const Sizes: Story = {
+  ...reference,
   render: () => html`
     <div style="display: grid; gap: 24px; max-inline-size: 320px">
       ${(['sm', 'md', 'lg'] as const).map(
         (s) =>
-          html`<prism-select label="Size ${s}" size=${s} value="apricot"
+          html`<prism-select label="Size ${s}" size=${s} value="50"
             >${options}</prism-select
           >`,
       )}
@@ -71,30 +73,17 @@ export const Sizes: Story = {
   `,
 };
 
-export const Densities: Story = {
-  render: () => html`
-    <div style="display: grid; gap: 24px; max-inline-size: 320px">
-      ${(['compact', 'default', 'comfortable'] as const).map(
-        (d) =>
-          html`<div data-prism-density=${d}>
-            <prism-select label="Density ${d}" value="banana"
-              >${options}</prism-select
-            >
-          </div>`,
-      )}
-    </div>
-  `,
-};
-
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = { ...reference, args: { disabled: true } };
 
 export const WithHelper: Story = {
-  args: { description: 'We ship fruit on Mondays.' },
+  ...reference,
+  args: { description: 'Marked length of the mounted lens.' },
 };
 
-/** Flat attached error box (same as text field) animates in and replaces the helper text. Tab in to see the shared outer focus ring. */
+/** The attached error box appears after the field is reported invalid. */
 export const ErrorState: Story = {
-  args: { required: true, description: 'We ship fruit on Mondays.' },
+  ...reference,
+  args: { required: true, description: 'Marked length of the mounted lens.' },
   play: async ({ canvasElement }) => {
     const el = canvasElement.querySelector('prism-select')!;
     await el.updateComplete;
@@ -102,58 +91,4 @@ export const ErrorState: Story = {
   },
 };
 
-/**
- * The open popup overlays the helper text below the control. A popup can only
- * open from a user gesture, so press the button (or the select itself).
- */
-export const OpenMenuWithHelper: Story = {
-  args: { description: 'We ship fruit on Mondays.' },
-  render: ({ label, description }) => html`
-    <div style="max-inline-size: 320px; min-block-size: 320px">
-      <prism-select label=${label} placeholder="Select a fruit">
-        ${options}<span slot="description">${description}</span>
-      </prism-select>
-      <prism-button
-        type="button"
-        variant="outline"
-        @click=${(e: Event) =>
-          (e.target as HTMLElement)
-            .parentElement!.querySelector('prism-select')!
-            .showPicker()}
-        >Open the list</prism-button
-      >
-    </div>
-  `,
-};
-
-/**
- * The popup grows out of the trigger and the chevron turns over. The keys,
- * type-ahead and the checked option's mark are the browser's own.
- */
-export const Motion: Story = {
-  args: { label: 'Fruit' },
-  render: ({ label }) => html`
-    <div style="max-inline-size: 320px; min-block-size: 320px">
-      <prism-select label=${label} value="banana" placeholder="Select a fruit">
-        ${options}
-      </prism-select>
-    </div>
-  `,
-};
-
-/** Many options: the popup scrolls and keeps the chosen option in view. */
-export const LongList: Story = {
-  render: () => html`
-    <div style="max-inline-size: 320px; min-block-size: 360px">
-      <prism-select label="Colour" value="c07">
-        ${Array.from(
-          { length: 40 },
-          (_, i) =>
-            html`<prism-option value="c${String(i).padStart(2, '0')}"
-              >Colour ${i + 1}</prism-option
-            >`,
-        )}
-      </prism-select>
-    </div>
-  `,
-};
+export const Playground: Story = {};

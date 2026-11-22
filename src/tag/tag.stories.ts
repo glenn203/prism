@@ -15,7 +15,7 @@ const TONES = ['neutral', 'info', 'success', 'warning', 'danger', 'accent'];
 const meta: Meta<Args> = {
   title: 'Components/Tag',
   component: 'prism-tag',
-  args: { text: 'Urgent', tone: 'danger', emphasis: 'low', size: 'md' },
+  args: { text: 'Online', tone: 'neutral', emphasis: 'low', size: 'md' },
   argTypes: {
     tone: { control: 'select', options: TONES },
     emphasis: { control: 'inline-radio', options: ['high', 'low', 'ghost'] },
@@ -29,10 +29,13 @@ const meta: Meta<Args> = {
 export default meta;
 type Story = StoryObj<Args>;
 
-export const Default: Story = {};
+const reference = { parameters: { controls: { disable: true } } };
+
+export const Default: Story = { ...reference };
 
 /** Six tones, three emphases. The word carries the meaning, not the colour. */
 export const TonesAndEmphasis: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:12px">
       ${['low', 'high', 'ghost'].map(
@@ -48,6 +51,7 @@ export const TonesAndEmphasis: Story = {
 
 /** Jobs say what the word means. `job` has no colour of its own: pick the tone. */
 export const Jobs: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;flex-wrap:wrap">
       <prism-tag job="spectrum" tone="danger" emphasis="high"
@@ -67,6 +71,7 @@ export const Jobs: Story = {
 };
 
 export const Sizes: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;align-items:center">
       <prism-tag size="sm">Small, 20px</prism-tag>
@@ -76,6 +81,7 @@ export const Sizes: Story = {
 
 /** An icon in front helps reading. It never replaces the word. */
 export const WithIcon: Story = {
+  ...reference,
   render: () =>
     html`<prism-tag tone="info"
       ><span slot="icon" aria-hidden="true">${iconRefresh()}</span
@@ -85,6 +91,7 @@ export const WithIcon: Story = {
 
 /** Dismissible: an applied filter. The app removes it on the event. */
 export const Dismissible: Story = {
+  ...reference,
   render: () =>
     html`<div
       style="display:flex;gap:8px"
@@ -95,8 +102,9 @@ export const Dismissible: Story = {
     </div>`,
 };
 
-/** Selectable: on or off, like a filter chip. `aria-pressed` and a solid border. Pressing shrinks it evenly by 3% and eases back (the remove button too). */
+/** Selectable: on or off, like a filter chip. `aria-pressed` and a solid border. */
 export const Selectable: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px">
       <prism-tag selectable selected>Lumen OS</prism-tag>
@@ -107,5 +115,8 @@ export const Selectable: Story = {
 
 /** Trigger: click opens a Select. It looks like any Tag, with a caret. */
 export const Trigger: Story = {
+  ...reference,
   render: () => html`<prism-tag trigger job="status">In progress</prism-tag>`,
 };
+
+export const Playground: Story = {};

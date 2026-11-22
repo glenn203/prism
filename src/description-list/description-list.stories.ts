@@ -7,6 +7,8 @@ interface Args {
   orientation: 'horizontal' | 'vertical';
 }
 
+const reference = { parameters: { controls: { disable: true } } };
+
 const meta: Meta<Args> = {
   title: 'Components/Description list',
   component: 'prism-description-list',
@@ -19,18 +21,15 @@ const meta: Meta<Args> = {
   },
   render: ({ orientation }) =>
     html`<div style="max-inline-size:360px">
-      <prism-description-list
-        label="Resource details"
-        orientation=${orientation}
-      >
-        <prism-description-list-item label="OS"
+      <prism-description-list label="Plate details" orientation=${orientation}>
+        <prism-description-list-item label="Body"
           >Lumen Board 9</prism-description-list-item
         >
-        <prism-description-list-item label="Version"
-          >7.14.2</prism-description-list-item
+        <prism-description-list-item label="Lens"
+          >50 mm prime</prism-description-list-item
         >
-        <prism-description-list-item label="IP address"
-          >192.0.2.42</prism-description-list-item
+        <prism-description-list-item label="Aperture"
+          >f/2.8</prism-description-list-item
         >
         <prism-description-list-item label="Health"
           ><prism-tag job="health" tone="success"
@@ -44,6 +43,11 @@ export default meta;
 type Story = StoryObj<Args>;
 
 /** Labels line up in one column across rows. */
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
-export const Vertical: Story = { args: { orientation: 'vertical' } };
+export const Vertical: Story = {
+  ...reference,
+  args: { orientation: 'vertical' },
+};
+
+export const Playground: Story = {};

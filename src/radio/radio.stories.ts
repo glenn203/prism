@@ -41,23 +41,23 @@ const meta: Meta<Args> = {
     </prism-radio-group>`,
 };
 export default meta;
+
+const reference = { parameters: { controls: { disable: true } } };
 type Story = StoryObj<Args>;
 
 /**
  * Exactly one choice. Click a radio, or Tab to the group and use the arrow
  * keys: they move focus and pick together and skip disabled radios (the
- * browser wraps round at the ends, except WebKit). Pressing squishes the circle a little. The new dot springs
- * in with a gentle overshoot while the old one shrinks out, started on the
- * same frame, in about 400ms. A pick in the middle of a move turns each dot
- * round from where it is.
+ * browser wraps round at the ends, except WebKit).
  */
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
 /** Nothing picked yet. Tab lands on the first radio, and an arrow key picks. */
-export const NoneSelected: Story = { args: { value: '' } };
+export const NoneSelected: Story = { ...reference, args: { value: '' } };
 
 /** Help text goes in the `description` slot on the group, and the `description` attribute on a radio. */
 export const WithDescriptions: Story = {
+  ...reference,
   render: () =>
     html`<prism-radio-group label="Delivery speed" value="weekly">
       <span slot="description">You can change this any time.</span>
@@ -80,10 +80,14 @@ export const WithDescriptions: Story = {
 };
 
 /** The radios can sit in a row. */
-export const Horizontal: Story = { args: { orientation: 'horizontal' } };
+export const Horizontal: Story = {
+  ...reference,
+  args: { orientation: 'horizontal' },
+};
 
 /** One radio disabled, and a whole group disabled. */
 export const Disabled: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:24px">
       <prism-radio-group label="One choice off" value="a">
@@ -99,6 +103,7 @@ export const Disabled: Story = {
 
 /** Sizes, set on the group: sm (16px circle), md (20px) and lg (24px). All keep a 24px minimum target. */
 export const Sizes: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:24px">
       ${(['sm', 'md', 'lg'] as const).map(
@@ -122,6 +127,7 @@ export const Sizes: Story = {
  * `value` is submitted under the group's `name`.
  */
 export const InForm: Story = {
+  ...reference,
   render: () =>
     html`<form
       style="display:grid;gap:16px;max-inline-size:340px"
@@ -149,15 +155,4 @@ export const InForm: Story = {
     </form>`,
 };
 
-/**
- * Under `prefers-reduced-motion: reduce` nothing squishes, grows or shrinks:
- * the pick changes at once and the colour fades over 120ms. Try it with your
- * system setting turned on. Forced colours use the system highlight.
- */
-export const ReducedMotion: Story = {
-  render: () =>
-    html`<prism-radio-group label="Try me" value="a">
-      <prism-radio value="a" label="First"></prism-radio>
-      <prism-radio value="b" label="Second"></prism-radio>
-    </prism-radio-group>`,
-};
+export const Playground: Story = {};
