@@ -344,7 +344,7 @@ test('SearchInput: cancelling search skips form submit', async ({ page }) => {
   expect(await submitted(page)).toBeUndefined();
 });
 
-test('OtpInput: one real input with autofill attrs, typing, paste, backspace, complete', async ({
+test('OtpInput: one real input with autofill attrs, typing, paste, backspace, prism-otp-complete', async ({
   page,
 }) => {
   await mount(
@@ -372,7 +372,7 @@ test('OtpInput: one real input with autofill attrs, typing, paste, backspace, co
   await page.evaluate(() =>
     document
       .querySelector('prism-otp-input')!
-      .addEventListener('complete', (e) => {
+      .addEventListener('prism-otp-complete', (e) => {
         const w = window as unknown as { done?: unknown[] };
         (w.done ??= []).push((e as CustomEvent).detail);
       }),
@@ -460,7 +460,7 @@ test('densities × sizes: every control (and OTP box) matches the control-height
       .flatMap((d) =>
         ['sm', 'md', 'lg'].map(
           (s) =>
-            `<div data-prism-density="${d}" data-size="${s}">${tags
+            `<div data-prism-density="${d}" data-prism-size="${s}">${tags
               .map((t) => `<prism-${t} label="x" size="${s}"></prism-${t}>`)
               .join('')}</div>`,
         ),
@@ -469,20 +469,22 @@ test('densities × sizes: every control (and OTP box) matches the control-height
   );
   await withTheme(page);
   const rows = await page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('[data-size]')].map((row) => {
-      const probe = document.createElement('div');
-      probe.style.blockSize = `var(--prism-control-height-${row.dataset.size})`;
-      row.append(probe);
-      const want = probe.getBoundingClientRect().height;
-      probe.remove();
-      const got = [...row.children].map((el) => {
-        const t = el.shadowRoot!.querySelector(
-          '[part="input"], [part~="cell"]',
-        )!;
-        return t.getBoundingClientRect().height;
-      });
-      return { want, got };
-    }),
+    [...document.querySelectorAll<HTMLElement>('[data-prism-size]')].map(
+      (row) => {
+        const probe = document.createElement('div');
+        probe.style.blockSize = `var(--prism-control-height-${row.dataset.prismSize})`;
+        row.append(probe);
+        const want = probe.getBoundingClientRect().height;
+        probe.remove();
+        const got = [...row.children].map((el) => {
+          const t = el.shadowRoot!.querySelector(
+            '[part="input"], [part~="cell"]',
+          )!;
+          return t.getBoundingClientRect().height;
+        });
+        return { want, got };
+      },
+    ),
   );
   for (const r of rows) for (const h of r.got) expect(h).toBe(r.want);
 });

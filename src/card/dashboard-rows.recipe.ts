@@ -162,24 +162,24 @@ export function createDashboardRows(): HTMLElement {
     <style>${STYLE}</style>
     <div class="dash-bar">
       <h2>Dashboard</h2>
-      <prism-button variant="secondary" data-dash-reset>Reset layout</prism-button>
+      <prism-button variant="secondary" data-prism-dash-reset>Reset layout</prism-button>
     </div>
     ${ROWS.map(
       (cards, i) => `
       <section aria-labelledby="dash-row-${String(i + 1)}">
         <h2 id="dash-row-${String(i + 1)}" class="dash-sr">Row ${String(i + 1)}</h2>
         <div class="dash-zone">
-          <prism-card-list class="dash-list" label="Row ${String(i + 1)}" reorderable reorder-group="dashboard" data-dash-row="${String(i + 1)}">
+          <prism-card-list class="dash-list" label="Row ${String(i + 1)}" reorderable reorder-group="dashboard" data-prism-dash-row="${String(i + 1)}">
             ${cards.map(widgetHtml).join('')}
           </prism-card-list>
           <p class="dash-empty">Nothing here yet. Drag a card here, or use a card's menu to move one in.</p>
         </div>
       </section>`,
     ).join('')}
-    <div class="dash-sr" role="status" aria-live="polite" data-dash-status></div>`;
+    <div class="dash-sr" role="status" aria-live="polite" data-prism-dash-status></div>`;
 
   const lists = [...root.querySelectorAll<CardList>('prism-card-list')];
-  const status = root.querySelector<HTMLElement>('[data-dash-status]')!;
+  const status = root.querySelector<HTMLElement>('[data-prism-dash-status]')!;
   const home = lists.map((l) => [
     ...l.querySelectorAll<Card>(':scope > prism-card'),
   ]);
@@ -199,14 +199,14 @@ export function createDashboardRows(): HTMLElement {
           ':scope > prism-card-actions > prism-menu',
         );
         if (!menu) continue;
-        for (const old of menu.querySelectorAll('[data-dash-row-item]'))
+        for (const old of menu.querySelectorAll('[data-prism-dash-row-item]'))
           old.remove();
         const title =
           card.querySelector('prism-card-title')?.textContent?.trim() ?? '';
         lists.forEach((_, n) => {
           if (n === at) return;
           const item = document.createElement('prism-menu-item');
-          item.setAttribute('data-dash-row-item', String(n + 1));
+          item.setAttribute('data-prism-dash-row-item', String(n + 1));
           item.setAttribute(
             'aria-label',
             `Move to row ${String(n + 1)}, ${title}`,
@@ -223,7 +223,7 @@ export function createDashboardRows(): HTMLElement {
 
   root.addEventListener('prism-menu-select', (event) => {
     const { item } = (event as CustomEvent<{ item: HTMLElement }>).detail;
-    const row = Number(item.dataset['dashRowItem']);
+    const row = Number(item.dataset['prismDashRowItem']);
     if (!row) return;
     const card = item.closest<Card>('prism-card');
     const from = card?.parentElement as CardList | null;
@@ -234,13 +234,15 @@ export function createDashboardRows(): HTMLElement {
   // A drag, or a Move item, changes which row a card is in.
   root.addEventListener('prism-card-reorder', later);
 
-  root.querySelector('[data-dash-reset]')!.addEventListener('click', () => {
-    home.forEach((cards, i) => {
-      for (const card of cards) lists[i]!.append(card);
+  root
+    .querySelector('[data-prism-dash-reset]')!
+    .addEventListener('click', () => {
+      home.forEach((cards, i) => {
+        for (const card of cards) lists[i]!.append(card);
+      });
+      later();
+      say('Layout reset. Three rows of three cards.');
     });
-    later();
-    say('Layout reset. Three rows of three cards.');
-  });
 
   later();
   return root;

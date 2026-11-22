@@ -57,7 +57,7 @@ export class PrismSearchInput extends TextControl {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('data-adorned', '');
+    this.setAttribute('data-prism-adorned', '');
   }
 
   #clear(): void {

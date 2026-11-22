@@ -17,11 +17,11 @@ export const cardDev = { errors: true };
 export interface CardCapabilities {
   /** A standalone task card may hold one primary footer button. */
   standalone: boolean;
-  /** Selectable cards show a Checkbox or Radio at the start (M2). */
+  /** Selectable cards show a Checkbox or Radio at the start (Milestone 2). */
   selectable: boolean;
-  /** Draggable cards show a drag handle first (M4). */
+  /** Draggable cards show a drag handle first (Milestone 4). */
   draggable: boolean;
-  /** Widget cards may add a compact TimeRangeInput to header actions (M3). */
+  /** Widget cards may add a compact TimeRangeInput to header actions (Milestone 3). */
   widget: boolean;
 }
 

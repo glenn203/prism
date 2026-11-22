@@ -197,12 +197,14 @@ export class PrismCardActions extends LitElement {
               size="sm"
               label=${title ? `More options for ${title}` : 'More options'}
               @prism-menu-select=${(e: CustomEvent<{ item: HTMLElement }>) =>
-                this.folded[Number(e.detail.item.dataset['i'])]?.button.click()}
+                this.folded[
+                  Number(e.detail.item.dataset['prismIndex'])
+                ]?.button.click()}
             >
               ${this.folded.map(
                 (f, i) =>
                   html`<prism-menu-item
-                    data-i=${i}
+                    data-prism-index=${i}
                     ?disabled=${f.button.hasAttribute('disabled')}
                     >${f.label}</prism-menu-item
                   >`,

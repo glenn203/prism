@@ -317,10 +317,11 @@ export class PrismCard extends LitElement {
         --_prism-ov-pressed: transparent;
       }
       /* Rule 3: no tint while the pointer is over a nested control. */
-      [part='base'][data-nested] {
+      [part='base'][data-prism-nested] {
         --_prism-state-overlay: transparent !important;
       }
-      :host(:state(selected):not(:state(disabled))) [part='base'][data-nested] {
+      :host(:state(selected):not(:state(disabled)))
+        [part='base'][data-prism-nested] {
         --_prism-state-overlay: var(--_prism-ov-selected) !important;
       }
     `,
@@ -1014,7 +1015,7 @@ export class PrismCard extends LitElement {
   }
 
   override render() {
-    return html`<div part="base" ?data-nested=${this.nested}>
+    return html`<div part="base" ?data-prism-nested=${this.nested}>
       <div part="header" ?hidden=${!this.hasHeader}>
         <slot name="header"></slot>
         <div part="range" ?hidden=${!this.rangeOverridden}>

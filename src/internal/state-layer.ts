@@ -21,7 +21,7 @@ import { css, unsafeCSS, type CSSResult } from 'lit';
  * States (in the shadow root, so ::part() themes don't need per-state rules):
  *   hover     6%  :hover inside @media (hover: hover), or host :state(active)
  *             (keyboard highlight, e.g. aria-activedescendant)
- *   pressed  12%  :active, or [data-pressed]
+ *   pressed  12%  :active, or [data-prism-pressed]
  *   selected 11%  [aria-selected=true] / [aria-pressed=true] / [aria-current] /
  *             [aria-checked=true] on the surface, a checked native input
  *             directly inside it, or host :state(selected).
@@ -115,7 +115,7 @@ export function stateLayer(selector: string): CSSResult {
         --_prism-fb: var(--_bg-selected, var(--_bg, transparent));
       }
     }
-    :host(:not(:state(disabled))) ${live}:is(:active, [data-pressed]) {
+    :host(:not(:state(disabled))) ${live}:is(:active, [data-prism-pressed]) {
       --_prism-state-overlay: var(--_prism-ov-pressed);
       --_prism-fb: var(--_bg-pressed, var(--_bg, transparent));
     }

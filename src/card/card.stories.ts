@@ -286,7 +286,7 @@ export const CollectionCards: StoryObj<Args> = {
     </prism-card-group>`,
 };
 
-// ---- M3: widget, collapsible, card list (names provisional) ----
+// ---- Milestone 3: widget, collapsible, card list (names provisional) ----
 
 const widget = (
   title: string,
@@ -459,7 +459,7 @@ export const CardListOneColumn: StoryObj<Args> = {
   },
 };
 
-// ---- M4: reorderable lists (names provisional) ----
+// ---- Milestone 4: reorderable lists (names provisional) ----
 
 const REORDER_NAMES = [
   'Onboarding guide',

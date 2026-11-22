@@ -50,7 +50,7 @@ export class PrismPasswordInput extends TextControl {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('data-adorned', '');
+    this.setAttribute('data-prism-adorned', '');
     this.form?.addEventListener('submit', this.#hide);
   }
   override disconnectedCallback(): void {

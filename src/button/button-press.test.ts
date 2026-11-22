@@ -297,7 +297,9 @@ test.describe('press: reduced motion, disabled, still rows', () => {
     expect(await scaleAnims(h, 'button')).toEqual([]);
     expect(
       await h.evaluate((e) =>
-        e.shadowRoot!.querySelector('button')!.hasAttribute('data-pressed'),
+        e
+          .shadowRoot!.querySelector('button')!
+          .hasAttribute('data-prism-pressed'),
       ),
     ).toBe(true);
     const overlay = await h.evaluate(
@@ -310,7 +312,9 @@ test.describe('press: reduced motion, disabled, still rows', () => {
     await wait(page, 100);
     expect(
       await h.evaluate((e) =>
-        e.shadowRoot!.querySelector('button')!.hasAttribute('data-pressed'),
+        e
+          .shadowRoot!.querySelector('button')!
+          .hasAttribute('data-prism-pressed'),
       ),
     ).toBe(false);
   });
@@ -323,7 +327,9 @@ test.describe('press: reduced motion, disabled, still rows', () => {
     await wait(page, 50);
     expect(
       await host(page, '#b').evaluate((e) =>
-        e.shadowRoot!.querySelector('button')!.hasAttribute('data-pressed'),
+        e
+          .shadowRoot!.querySelector('button')!
+          .hasAttribute('data-prism-pressed'),
       ),
     ).toBe(true);
     await page.keyboard.up('Enter');

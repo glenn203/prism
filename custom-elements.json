@@ -7860,7 +7860,7 @@
           ],
           "events": [
             {
-              "name": "complete",
+              "name": "prism-otp-complete",
               "type": {
                 "text": "CustomEvent"
               },

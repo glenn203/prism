@@ -4,7 +4,7 @@
  * Call `enablePolish()` once. It listens for the pointer on the document and,
  * for the Prism buttons, cards, text fields and selects under it:
  *
- * - writes the pointer's place inside the element as `--x` and `--y` (pixels
+ * - writes the pointer's place inside the element as `--prism-pointer-x` and `--prism-pointer-y` (pixels
  *   from its top-left), which the light-following border reads;
  * - on a card inside a `data-prism-polish` scope that includes `tilt`, sets
  *   `data-prism-tilting` and writes `--prism-polish-nx` and `--prism-polish-ny`
@@ -65,8 +65,14 @@ export function enablePolish(doc: Document = document): () => void {
       if (r.width === 0 || r.height === 0) continue;
       const px = x - r.left;
       const py = y - r.top;
-      el.style.setProperty('--x', `${Math.round(px * 10) / 10}px`);
-      el.style.setProperty('--y', `${Math.round(py * 10) / 10}px`);
+      el.style.setProperty(
+        '--prism-pointer-x',
+        `${Math.round(px * 10) / 10}px`,
+      );
+      el.style.setProperty(
+        '--prism-pointer-y',
+        `${Math.round(py * 10) / 10}px`,
+      );
       if (el.localName === 'prism-card' && hasTilt(el)) {
         const nx = Math.max(-1, Math.min(1, (px / r.width) * 2 - 1));
         const ny = Math.max(-1, Math.min(1, (py / r.height) * 2 - 1));

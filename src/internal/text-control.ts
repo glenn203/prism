@@ -83,7 +83,7 @@ export abstract class TextControl extends FormAssociated(LitElement) {
       .adornment:disabled {
         cursor: default;
       }
-      :host([data-adorned]) [part='input'] {
+      :host([data-prism-adorned]) [part='input'] {
         padding-inline-end: calc(
           var(--prism-control-padding-inline, 0.75rem) + 24px
         );
@@ -91,8 +91,8 @@ export abstract class TextControl extends FormAssociated(LitElement) {
     `,
     css`
       /* Floating label: rests inside the field and floats onto the top edge.
-         Only where the component turns it on (data-floating). */
-      :host([data-floating]) [part='label'] {
+         Only where the component turns it on (data-prism-floating). */
+      :host([data-prism-floating]) [part='label'] {
         position: absolute;
         z-index: 3;
         inset-block-start: 0;
@@ -117,11 +117,11 @@ export abstract class TextControl extends FormAssociated(LitElement) {
         ${textRole('body')}
         line-height: var(--_prism-control-height);
       }
-      :host([data-floating]:dir(rtl)) [part='label'] {
+      :host([data-prism-floating]:dir(rtl)) [part='label'] {
         transform-origin: 100% 50%;
       }
       /* The patch hides the border where the label sits on it. */
-      :host([data-floating]) [part='label']::before {
+      :host([data-prism-floating]) [part='label']::before {
         content: '';
         position: absolute;
         z-index: -1;
@@ -131,11 +131,12 @@ export abstract class TextControl extends FormAssociated(LitElement) {
         opacity: var(--_prism-patch, 0);
       }
       /* The placeholder would overlap the resting label. */
-      :host([data-floating]:not(:state(floated))) [part='input']::placeholder {
+      :host([data-prism-floating]:not(:state(floated)))
+        [part='input']::placeholder {
         opacity: 0;
       }
       @media (prefers-reduced-motion: reduce) {
-        :host([data-floating]) [part='label'] {
+        :host([data-prism-floating]) [part='label'] {
           transition: none;
         }
       }
@@ -284,7 +285,7 @@ export abstract class TextControl extends FormAssociated(LitElement) {
 
   override willUpdate(changed: Map<PropertyKey, unknown>): void {
     super.willUpdate(changed);
-    this.toggleAttribute('data-floating', this.#isFloating);
+    this.toggleAttribute('data-prism-floating', this.#isFloating);
     this.setState('floated', this.#isFloating && this.#lifted);
     this.internals.setFormValue(
       this.isDisabled ? null : this.formValue(),

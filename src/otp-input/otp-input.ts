@@ -27,7 +27,7 @@ import { TextControl } from '../internal/text-control.js';
  * @cssstate focused - The input has focus (drives the active box ring).
  * @fires input - Value changed.
  * @fires change - Committed value change.
- * @fires complete - All boxes are filled. `detail.value`.
+ * @fires prism-otp-complete - All boxes are filled. `detail.value`.
  */
 export class PrismOtpInput extends TextControl {
   static override styles: CSSResultGroup = [
@@ -121,7 +121,7 @@ export class PrismOtpInput extends TextControl {
     if (next !== was && next.length === this.length) {
       void this.updateComplete.then(() =>
         this.dispatchEvent(
-          new CustomEvent('complete', {
+          new CustomEvent('prism-otp-complete', {
             bubbles: true,
             composed: true,
             detail: { value: next },

@@ -519,7 +519,7 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]::part(label) {
+  )[data-prism-floating]::part(label) {
   margin: 0;
   color: var(--prism-color-text-muted);
   transition: color var(--prism-duration-fast) var(--prism-ease-standard);
@@ -528,14 +528,14 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]::part(label)::before {
+  )[data-prism-floating]::part(label)::before {
   background: var(--prism-color-bg);
 }
 :is(
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]:state(floated):not(:state(invalid)):focus-within::part(
+  )[data-prism-floating]:state(floated):not(:state(invalid)):focus-within::part(
     label
   ) {
   color: var(--prism-color-accent-text);
@@ -544,19 +544,19 @@ prism-select:state(disabled)::part(trigger) {
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]:state(disabled)::part(label)::before,
+  )[data-prism-floating]:state(disabled)::part(label)::before,
 :is(
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating][readonly]::part(label)::before {
+  )[data-prism-floating][readonly]::part(label)::before {
   background: var(--prism-color-surface);
 }
 :is(
     prism-text-input,
     prism-password-input,
     prism-text-field
-  )[data-floating]::part(input)::placeholder {
+  )[data-prism-floating]::part(input)::placeholder {
   transition: opacity var(--prism-duration-fast) var(--prism-ease-standard);
 }
 :is(prism-text-input, prism-text-field)::part(prefix),
@@ -771,7 +771,9 @@ prism-otp-input:state(disabled)::part(cell) {
   )::part(error),
   prism-select::part(error),
   prism-otp-input::part(error) {
-    animation: none !important; /* error appears instantly */
+    /* stylelint-disable-next-line declaration-no-important --
+       reduced motion must cancel the error-box reveal on the part. */
+    animation: none !important;
   }
 }
 
@@ -946,7 +948,7 @@ prism-card-meta {
   }
 }
 
-/* ---------- Widget, collapsible, metric, skeleton, card list (M3) ----------
+/* ---------- Widget, collapsible, metric, skeleton, card list (Milestone 3) ----------
  * Names provisional. Colours, borders and radii only; layout is in the
  * components. Skeleton lines are decorative (aria-hidden, the state is text). */
 /* Widget: the range line under the description. "Overridden" is text, so the
@@ -1088,7 +1090,7 @@ prism-card-list::part(busy) {
   }
 }
 
-/* ---------- Reorder: handle, dragging, drop line, copy (M4) ----------
+/* ---------- Reorder: handle, dragging, drop line, copy (Milestone 4) ----------
  * Names provisional. The handle is a ghost icon button with a grab cursor and a
  * tint on hover. The original dims to 40% while its copy follows the pointer at
  * the predefined default elevation (the copy is never rotated). The drop line

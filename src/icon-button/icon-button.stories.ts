@@ -10,7 +10,7 @@ interface Args {
 }
 
 const meta: Meta<Args> = {
-  title: 'Components/IconButton',
+  title: 'Components/Icon button',
   component: 'prism-icon-button',
   args: { label: 'Refresh', size: 'md', disabled: false },
   argTypes: { size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] } },
