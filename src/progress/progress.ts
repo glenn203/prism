@@ -1,20 +1,22 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { tonePalette } from '../internal/tones.js';
+import { uniqueId } from '../internal/ids.js';
 import type { TagTone } from '../tag/tag.js';
 
 /**
  * A bar that shows how far something has got. Common props: `value`, `max`,
  * `label`, `tone`. NAMES PROVISIONAL.
  *
- * - Role `progressbar` with `aria-valuemin` 0, `aria-valuemax` and
- *   `aria-valuenow`, named by `label`.
- * - Leave `value` off for an indeterminate bar (`aria-valuenow` is omitted and
- *   the stripe moves; it stops under reduced motion).
+ * - A native `<progress>` named by a real `<label for>`. Leave `value` off
+ *   for an indeterminate bar (the native element is indeterminate and the
+ *   stripe moves; it stops under reduced motion).
  * - The label is visible by default. `hide-label` hides it from sight only.
  *   `show-value` writes the number beside it ("60%", or `value-text` such as
  *   "3 of 5 steps", which is also the `aria-valuetext`). Colour is never the
  *   only signal: the fill length and the written value both say it.
+ * - The track and fill are decorative: they keep the comet look; the native
+ *   `<progress>` is the accessible bar.
  * - Look: no track border; a faint inset edge shadow on the track. The fill is
  *   a comet: a bright head and a fading tail at the leading edge over a base
  *   gradient that is lighter at the left, plus a soft glow ahead of it
@@ -84,6 +86,15 @@ export class PrismProgress extends LitElement {
         overflow: hidden;
         border-radius: var(--prism-radius-full, 9999px);
       }
+      /* The native bar is for assistive tech; the fill is the visual. */
+      [part='track'] progress {
+        position: absolute;
+        inset: 0;
+        inline-size: 100%;
+        block-size: 100%;
+        opacity: 0;
+        pointer-events: none;
+      }
       [part='fill'] {
         block-size: 100%;
         inline-size: var(--_fill, 0%);
@@ -140,6 +151,7 @@ export class PrismProgress extends LitElement {
   @property({ reflect: true }) tone: TagTone = 'accent';
 
   readonly #internals = this.attachInternals();
+  readonly #id = uniqueId('prism-progress');
   #resize?: ResizeObserver;
 
   get #determinate(): boolean {
@@ -227,29 +239,37 @@ export class PrismProgress extends LitElement {
       ? Math.round((this.#now / (this.max || 1)) * 1000) / 10
       : 0;
     return html`<div part="base">
-      <div part="row" ?hidden=${this.hideLabel && !this.showValue}>
-        <span part="label" class=${this.hideLabel ? 'vh' : ''}
-          >${this.label}</span
-        >
-        ${
-          this.showValue && this.#determinate
-            ? html`<span part="value" aria-hidden="true">${this.#text}</span>`
-            : nothing
-        }
-      </div>
-      <div
-        part="track"
-        role="progressbar"
-        aria-label=${this.label || nothing}
-        aria-valuemin="0"
-        aria-valuemax=${this.max}
-        aria-valuenow=${this.#determinate ? this.#now : nothing}
-        aria-valuetext=${
-          this.#determinate && this.valueText ? this.valueText : nothing
-        }
-        style=${`--_fill:${pct}%`}
-      >
-        <div part="fill"></div>
+      ${
+        this.hideLabel && !this.showValue
+          ? html`<label part="label" class="vh" for=${this.#id}
+              >${this.label}</label
+            >`
+          : html`<div part="row">
+              <label
+                part="label"
+                class=${this.hideLabel ? 'vh' : ''}
+                for=${this.#id}
+                >${this.label}</label
+              >
+              ${
+                this.showValue && this.#determinate
+                  ? html`<span part="value" aria-hidden="true"
+                      >${this.#text}</span
+                    >`
+                  : nothing
+              }
+            </div>`
+      }
+      <div part="track" style=${`--_fill:${pct}%`}>
+        <progress
+          id=${this.#id}
+          max=${this.max}
+          value=${this.#determinate ? this.#now : nothing}
+          aria-valuetext=${
+            this.#determinate && this.valueText ? this.valueText : nothing
+          }
+        ></progress>
+        <div part="fill" aria-hidden="true"></div>
       </div>
     </div>`;
   }

@@ -9,11 +9,11 @@ import { ifDefined } from 'lit/directives/if-defined.js';
  * `orientation` and `label`.
  *
  * - `orientation="horizontal"` (default): labels in one column, values in the
- *   next, aligned across rows (a subgrid). `vertical` puts each label above
- *   its value.
- * - Semantics: the list is a `list` of `listitem`s; each label is a `term` and
- *   each value a `definition`, so a screen reader says "Version, 7.14.2".
- *   Give the list a `label` when it is not already named by a heading.
+ *   next, aligned across rows. `vertical` puts each label above its value.
+ * - Semantics: a native `<dl>`. Each item is a `<dt>` term and a `<dd>`
+ *   definition, so a screen reader says "Version, 7.14.2". Give the list a
+ *   `label` when it is not already named by a heading. Item hosts use
+ *   `display: contents` so the term and definition sit on this list's grid.
  *
  * @tag prism-description-list
  * @slot - The `prism-description-list-item`s.
@@ -46,12 +46,13 @@ export class PrismDescriptionList extends LitElement {
   @property() label = '';
 
   override render() {
-    return html`<div
+    // Items use display: contents and render <dt>/<dd> into this list.
+    // eslint-disable-next-line lit-a11y/definition-list -- slotted items, not raw divs
+    return html`<dl
       part="base"
-      role="list"
       aria-label=${ifDefined(this.label || undefined)}
     >
       <slot></slot>
-    </div>`;
+    </dl>`;
   }
 }
