@@ -116,30 +116,42 @@ export class PrismSelect extends FormAssociated(LitElement) {
         [part='trigger']:open::picker-icon {
           rotate: 180deg;
         }
-        /* The popup grows out of the trigger's lower edge. */
+        /* Traditional dropdown: under the field, same width, left-aligned,
+         * with a small gap. Flips above when there is no room below. */
         [part='trigger']::picker(select) {
           box-sizing: border-box;
-          margin-block-start: var(--prism-space-1, 0.25rem);
+          margin: 0;
           max-block-size: 18rem;
-          transform-origin: 50% 0;
           opacity: 1;
           transition:
             opacity var(--prism-duration-fast, 120ms)
               var(--prism-ease-standard, ease),
-            transform var(--prism-duration-default, 200ms)
-              var(--prism-ease-spring, ease),
             overlay var(--prism-duration-default, 200ms) allow-discrete,
             display var(--prism-duration-default, 200ms) allow-discrete;
           ${textRole('body')}
         }
+        @supports (top: anchor(bottom)) {
+          [part='trigger'] {
+            anchor-name: --prism-select-trigger;
+          }
+          [part='trigger']::picker(select) {
+            position-anchor: --prism-select-trigger;
+            inset: unset;
+            top: calc(anchor(bottom) + var(--prism-space-1, 0.25rem));
+            left: anchor(left);
+            right: auto;
+            bottom: auto;
+            inline-size: anchor-size(width);
+            min-inline-size: anchor-size(width);
+            position-try-fallbacks: flip-block;
+          }
+        }
         [part='trigger']:not(:open)::picker(select) {
           opacity: 0;
-          transform: translateY(-6px) scale(0.96, 0.88);
         }
         @starting-style {
           [part='trigger']:open::picker(select) {
             opacity: 0;
-            transform: translateY(-6px) scale(0.96, 0.88);
           }
         }
         [part='option'] {

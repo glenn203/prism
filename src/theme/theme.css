@@ -286,8 +286,8 @@ prism-select:state(placeholder)::part(trigger),
 prism-select::part(trigger)::picker-icon {
   color: var(--prism-color-text-muted);
 }
-/* The popup is the browser's own, drawn in Prism's look; it grows out of the
- * trigger (the component's motion). */
+/* The popup is the browser's own, drawn in Prism's look; it sits under the
+ * field like a traditional select (placement lives in the component). */
 prism-select::part(trigger)::picker(select) {
   /* 4px block, 2px inline (half unit). */
   padding: var(--prism-space-1) calc(var(--prism-space-1) / 2);
