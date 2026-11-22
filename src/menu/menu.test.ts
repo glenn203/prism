@@ -177,6 +177,9 @@ test('the popup is in the top layer, aligned to the button end, inside the viewp
   page,
 }) => {
   await setup(page);
+  await page.locator('#m').evaluate((el) => {
+    (el as HTMLElement).style.marginInlineStart = '12rem';
+  });
   await trigger(page).click();
   const r = await page.locator('#m').evaluate((el) => {
     const pop = el.shadowRoot!.querySelector('[part="popup"]') as HTMLElement;
@@ -191,7 +194,9 @@ test('the popup is in the top layer, aligned to the button end, inside the viewp
     };
   });
   expect(r.open).toBe(true);
-  expect(r.top).toBe(4);
+  expect(r.top).toBeGreaterThanOrEqual(3);
+  expect(r.top).toBeLessThanOrEqual(5);
+  expect(Math.abs(r.right)).toBeLessThanOrEqual(1);
   expect(r.inView).toBe(true);
 });
 

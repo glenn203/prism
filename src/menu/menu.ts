@@ -2,6 +2,11 @@ import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { iconMore } from '../internal/icons.js';
 import { uniqueId } from '../internal/ids.js';
+import {
+  canAnchorPopup,
+  clampPopupToViewport,
+  positionPopup,
+} from '../internal/popup-position.js';
 import '../icon-button/define.js';
 import { PrismMenuItem } from './menu-item.js';
 
@@ -16,8 +21,10 @@ const isItem = (el: Element): el is PrismMenuItem =>
  * Keys on the button: Enter, Space and ArrowDown open on the first item;
  * ArrowUp opens on the last. In the menu: ArrowDown/ArrowUp (wrap), Home, End,
  * type-ahead, Enter/Space activate, Esc closes and returns focus to the
- * button, Tab closes. The popup is in the top layer, so no card or scroll
- * container clips it.
+ * button, Tab closes. The popup is a native `popover="auto"` in the top
+ * layer, so light dismiss is platform behaviour and no card or scroll
+ * container clips it. It sits under the trigger (CSS anchor, with a JS
+ * fallback) and flips above when there is no room below.
  *
  * @tag prism-menu
  * @slot - `prism-menu-item` children.
@@ -37,7 +44,7 @@ export class PrismMenu extends LitElement {
       display: none;
     }
     [part='popup'] {
-      /* Top-layer popover positioned in JS. UA popover styles reset. */
+      /* Top-layer popover. UA popover styles reset. */
       position: fixed;
       inset: auto;
       margin: 0;
@@ -46,6 +53,23 @@ export class PrismMenu extends LitElement {
       min-inline-size: 10rem;
       max-block-size: min(20rem, 100vh - 1rem);
       overflow: auto;
+    }
+    @supports (top: anchor(bottom)) {
+      [part='trigger'] {
+        anchor-name: --prism-menu-trigger;
+      }
+      [part='popup'] {
+        position-anchor: --prism-menu-trigger;
+        inset: unset;
+        top: calc(anchor(bottom) + var(--prism-space-1, 0.25rem));
+        right: anchor(right);
+        left: auto;
+        position-try-fallbacks: flip-block;
+      }
+      :host([align='start']) [part='popup'] {
+        left: anchor(left);
+        right: auto;
+      }
     }
   `;
 
@@ -72,14 +96,10 @@ export class PrismMenu extends LitElement {
     return this.items.filter((i) => !i.disabled);
   }
 
-  override connectedCallback(): void {
-    super.connectedCallback();
-    document.addEventListener('pointerdown', this.#onOutside, true);
-  }
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    document.removeEventListener('pointerdown', this.#onOutside, true);
-  }
+  /** True when we closed the popup ourselves, so a trigger click is not a dismiss. */
+  #closing = false;
+  /** Set when light dismiss closes the popup; the following trigger click is ignored. */
+  #ignoreTriggerClick = false;
 
   override willUpdate(changed: Map<PropertyKey, unknown>): void {
     if (changed.has('open')) {
@@ -119,29 +139,40 @@ export class PrismMenu extends LitElement {
   /** Closes. Focus returns to the button unless `restoreFocus` is false. */
   hide(restoreFocus = true): void {
     if (!this.open) return;
+    this.#closing = true;
     this.open = false;
     if (restoreFocus) this.trigger?.focus();
   }
 
   #position(): void {
-    const t = this.trigger.getBoundingClientRect();
-    const p = this.popup.getBoundingClientRect();
-    const rtl = getComputedStyle(this).direction === 'rtl';
-    const alignRight = (this.align === 'end') !== rtl;
-    let left = alignRight ? t.right - p.width : t.left;
-    left = Math.max(4, Math.min(left, innerWidth - p.width - 4));
-    let top = t.bottom + 4;
-    if (top + p.height > innerHeight - 4 && t.top - 4 - p.height >= 4)
-      top = t.top - 4 - p.height;
-    this.popup.style.left = `${left}px`;
-    this.popup.style.top = `${top}px`;
+    if (canAnchorPopup()) {
+      this.popup.style.left = '';
+      this.popup.style.top = '';
+      this.popup.style.right = '';
+      clampPopupToViewport(this.popup);
+      return;
+    }
+    positionPopup(this.popup, this.trigger, { align: this.align });
   }
 
-  readonly #onOutside = (event: Event): void => {
-    if (this.open && !event.composedPath().includes(this)) this.hide(false);
+  #onToggle = (event: ToggleEvent): void => {
+    const next = event.newState === 'open';
+    if (this.open !== next) this.open = next;
+    if (next) {
+      this.#position();
+    } else if (this.#closing) {
+      this.#closing = false;
+    } else {
+      // Light dismiss also fires a click on the trigger; don't reopen.
+      this.#ignoreTriggerClick = true;
+    }
   };
 
   #onTriggerClick = (): void => {
+    if (this.#ignoreTriggerClick) {
+      this.#ignoreTriggerClick = false;
+      return;
+    }
     if (this.open) this.hide();
     else void this.show('first');
   };
@@ -254,8 +285,9 @@ export class PrismMenu extends LitElement {
         part="popup"
         id=${this.#id}
         role="menu"
-        popover="manual"
+        popover="auto"
         aria-label=${this.label}
+        @toggle=${this.#onToggle}
         @keydown=${this.#onPopupKeydown}
         @click=${this.#onPopupClick}
         @focusout=${this.#onFocusout}

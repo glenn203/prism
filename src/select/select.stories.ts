@@ -103,8 +103,8 @@ export const ErrorState: Story = {
 };
 
 /**
- * The open popup overlays the helper text below the control. A popup can only
- * open from a user gesture, so press the button (or the select itself).
+ * The open popup sits under the field, the same width as the control. A popup
+ * can only open from a user gesture, so press the button (or the select itself).
  */
 export const OpenMenuWithHelper: Story = {
   args: { description: 'We ship fruit on Mondays.' },
