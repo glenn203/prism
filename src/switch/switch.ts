@@ -803,7 +803,6 @@ export class PrismSwitch extends FormAssociated(LitElement) {
         type="button"
         role="switch"
         aria-checked=${this.checked ? 'true' : 'false'}
-        aria-labelledby="label"
         ?disabled=${this.isDisabled}
         @click=${this.#onClick}
         @pointerdown=${this.#onPointerDown}
@@ -816,7 +815,6 @@ export class PrismSwitch extends FormAssociated(LitElement) {
       </button>
       <label
         part="label"
-        id="label"
         for="control"
         class=${this.hideLabel ? 'visually-hidden' : ''}
         >${this.label}<slot></slot

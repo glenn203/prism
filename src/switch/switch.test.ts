@@ -41,6 +41,12 @@ test.describe('prism-switch: semantics', () => {
       'aria-checked',
       'true',
     );
+    await expect(sw(page, 'Auto-refresh')).toHaveAccessibleName('Auto-refresh');
+    expect(
+      await sw(page, 'Auto-refresh').evaluate((el) =>
+        el.hasAttribute('aria-labelledby'),
+      ),
+    ).toBe(false);
   });
 
   test('click, Space and Enter toggle; the label click toggles too', async ({
@@ -114,6 +120,7 @@ test.describe('prism-switch: semantics', () => {
       '<prism-switch id="s" label="Dark preview" hide-label></prism-switch>',
     );
     await expect(sw(page, 'Dark preview')).toBeVisible();
+    await expect(sw(page, 'Dark preview')).toHaveAccessibleName('Dark preview');
     const box = await page.locator('#s').evaluate((el) => {
       const l = el
         .shadowRoot!.querySelector('[part="label"]')!
