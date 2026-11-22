@@ -60,7 +60,7 @@ export class PrismRunningIndicator extends LitElement {
         align-items: center;
         gap: var(--prism-space-2, 0.5rem);
         font-family: var(--prism-font-family-sans, Inter, sans-serif);
-        font-size: var(--prism-font-size-14, 0.875rem);
+        font-size: var(--prism-text-body-font-size, 0.875rem);
         line-height: var(--prism-font-line-height-20, 1.25rem);
       }
       [part='graphic'] {

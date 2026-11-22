@@ -1,0 +1,701 @@
+/*
+ * Field chrome for the default theme: shared focus, attached error box,
+ * floating labels, and the text/select/otp control look. Assembled into
+ * theme.css by scripts/build-theme.mjs. Do not add per-component
+ * (button, card, tag, …) rules here.
+ */
+
+/* prism-theme-section: fields */
+/* ---------- Text inputs (TextInput, PasswordInput, SearchInput, OtpInput,
+ * TextArea; prism-text-field is the deprecated TextInput alias) ---------- */
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+) {
+  color: var(--prism-color-text);
+}
+/* Focus reach is 4px: label gap 4px, description gap 8px. */
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+)::part(label) {
+  margin-block-end: calc(
+    var(--prism-space-1) / 2
+  ); /* 2px: half a grid unit, per the mock */
+}
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+)::part(input) {
+  border-color: var(--prism-color-border-strong);
+  background: var(--prism-color-bg);
+  color: var(--prism-color-text);
+  transition:
+    background-color var(--prism-duration-fast) var(--prism-ease-standard),
+    border-color var(--prism-duration-fast) var(--prism-ease-standard),
+    box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  /* Focus ring rests at zero spread so it can grow in. */
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--_focus-ring),
+    0 0 0 0 var(--_focus-halo),
+    inset 0 0 0 0 var(--_focus-border);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  )::part(input)::placeholder {
+  color: var(--prism-color-text-muted);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):hover::part(input) {
+  border-color: var(--prism-color-text-muted);
+}
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+)::part(description) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-text-muted);
+}
+/* Text field error: see the shared attached error box below. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(invalid)::part(input) {
+  border-color: var(--prism-color-error);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(disabled)::part(label),
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(disabled)::part(description) {
+  color: var(--prism-color-text-muted);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(disabled)::part(input) {
+  border-color: var(--prism-color-border);
+  background: var(--prism-color-surface);
+  color: var(--prism-color-text-muted);
+  cursor: not-allowed;
+}
+
+/* ---------- Select ----------
+ * Same outer focus ring as text field/button (D9: outer ring everywhere).
+ * Menu and option shadows come only from the shared --prism-elevation-* tokens. */
+prism-select {
+  color: var(--prism-color-text);
+}
+prism-select::part(label) {
+  margin-block-end: calc(var(--prism-space-1) / 2); /* 2px, half unit */
+}
+prism-select::part(trigger) {
+  border-color: var(--prism-color-border-strong);
+  background: var(--prism-color-bg);
+  color: var(--prism-color-text);
+  transition:
+    border-color var(--prism-duration-fast) var(--prism-ease-standard),
+    box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  /* Focus ring rests at zero spread so it can grow in. */
+  outline: 2px solid transparent; /* forced-colors fallback */
+  outline-offset: var(--prism-focus-ring-offset);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--_focus-ring),
+    0 0 0 0 var(--_focus-halo),
+    inset 0 0 0 0 var(--_focus-border);
+}
+prism-select:hover::part(trigger) {
+  border-color: var(--prism-color-text-muted);
+}
+prism-select:state(placeholder)::part(trigger),
+prism-select::part(trigger)::picker-icon {
+  color: var(--prism-color-text-muted);
+}
+/* The popup is the browser's own, drawn in Prism's look; it grows out of the
+ * trigger (the component's motion). */
+prism-select::part(trigger)::picker(select) {
+  /* 4px block, 2px inline (half unit). */
+  padding: var(--prism-space-1) calc(var(--prism-space-1) / 2);
+  border: var(--prism-border-width) solid var(--prism-color-border-popup);
+  border-radius: var(--prism-radius-7);
+  background: var(--prism-color-bg);
+  color: var(--prism-color-text);
+  box-shadow: var(--prism-elevation-default);
+}
+/* An option: the shared hover tint for the pointer and the keyboard, the
+ * selected fill, and a check mark as the non-colour cue. */
+prism-select::part(option) {
+  min-block-size: max(24px, calc(var(--_prism-control-height, 2.25rem) - 4px));
+  padding-inline: var(--prism-space-2);
+  border-radius: var(--prism-radius-5);
+  color: var(--prism-color-text);
+}
+prism-select::part(option):is(:hover, :focus-visible) {
+  background: var(--prism-color-surface-hover);
+}
+prism-select::part(option):checked {
+  background: var(--prism-color-surface-pressed);
+}
+prism-select::part(option):disabled {
+  color: var(--prism-color-text-muted);
+}
+prism-select::part(description) {
+  margin-block-start: var(--prism-space-1);
+  color: var(--prism-color-text-muted);
+}
+prism-select:state(invalid)::part(trigger) {
+  border-color: var(--prism-color-error);
+}
+/* ---------- Field focus (text-style inputs and select) ----------
+ * The border turns the full focus colour (the accent) and gains an inset line
+ * so it reads 2px without moving the content. The ring keeps its 1px gap, 2px
+ * band and 1px halo (4px reach) in that colour at 50% and 12%. The border
+ * carries the contrast, so the ring can be translucent. Invalid fields do the
+ * same from the error colour. */
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+)::part(input),
+prism-select::part(trigger) {
+  --_focus-border: var(--prism-color-focus-border);
+  --_focus-ring: var(--prism-focus-ring-color);
+  --_focus-halo: var(--prism-focus-halo-color);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(invalid)::part(input),
+prism-select:state(invalid)::part(trigger) {
+  --_focus-border: var(--prism-color-error);
+  --_focus-ring: var(--prism-focus-ring-error-color);
+  --_focus-halo: var(--prism-focus-halo-error-color);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  )::part(input):focus,
+prism-select::part(trigger):focus {
+  border-color: var(--_focus-border);
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--_focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--_focus-halo),
+    inset 0 0 0 var(--prism-border-width, 1px) var(--_focus-border);
+}
+/* ---------- Shared attached error box (text field + select) ----------
+ * Attached to the field: 8px side margins and Prism's font family. No shadow;
+ * --prism-elevation-urgent is reserved, unused. Replaces helper text. */
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-otp-input,
+  prism-text-area,
+  prism-text-field
+)::part(input),
+prism-select::part(trigger) {
+  position: relative;
+  z-index: 1;
+}
+/* Select trigger sits above the attached error box. */
+prism-select::part(trigger) {
+  z-index: 2;
+}
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-text-area,
+  prism-text-field
+)::part(error),
+prism-select::part(error) {
+  /* 2px tuck (half unit). Visible: 5px + 16px line + 3px = 24px. The line
+   * box starts 5px below the control (clears the 4px focus reach by 1px);
+   * cap tops sit ~8px down and the baseline 7px from the bottom, so the
+   * text reads optically centered. */
+  --_prism-status-overlap: calc(var(--prism-space-1) / 2);
+  margin-block-start: calc(-1 * var(--_prism-status-overlap));
+  margin-inline: var(--prism-space-2);
+  padding-block: calc(var(--_prism-status-overlap) + 5px) 3px;
+  padding-inline: var(--prism-space-2);
+  border-radius: 0 0 8px 8px; /* element radius; not on Prism's odd ramp */
+  background: var(--prism-color-error-surface);
+  color: var(--prism-color-on-error-surface);
+  font-size: var(--prism-text-caption-font-size);
+  font-weight: var(--prism-font-weight-regular);
+  line-height: var(--prism-font-line-height-16);
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: none;
+  pointer-events: none; /* overlap is visual only */
+}
+/* Tuck cue: concave fillets (radius-5) flare the box's top corners into the
+ * control's flat bottom edge, so it reads as growing out from under the input
+ * despite the 8px side margins. Same fill token, no shadow. */
+:is(
+  prism-text-input,
+  prism-password-input,
+  prism-search-input,
+  prism-text-area,
+  prism-text-field
+)::part(error),
+prism-select::part(error) {
+  position: relative;
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(error)::before,
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(error)::after,
+prism-select::part(error)::before,
+prism-select::part(error)::after {
+  content: '';
+  position: absolute;
+  inset-block-start: var(--_prism-status-overlap);
+  inline-size: var(--prism-radius-5);
+  block-size: var(--prism-radius-5);
+  background: var(--prism-color-error-surface);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(error)::before,
+prism-select::part(error)::before {
+  inset-inline-start: calc(-1 * var(--prism-radius-5));
+  mask: radial-gradient(
+    circle at 0 100%,
+    transparent var(--prism-radius-5),
+    #000 calc(var(--prism-radius-5) + 0.5px)
+  );
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(error)::after,
+prism-select::part(error)::after {
+  inset-inline-end: calc(-1 * var(--prism-radius-5));
+  mask: radial-gradient(
+    circle at 100% 100%,
+    transparent var(--prism-radius-5),
+    #000 calc(var(--prism-radius-5) + 0.5px)
+  );
+}
+/* Error-only: runs when the box is un-hidden (invalid), never on focus. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  ):state(invalid)::part(error),
+prism-select:state(invalid)::part(error) {
+  /* Standard ease, never a spring (no bounce on the error box). */
+  animation: prism-error-in var(--prism-duration-default)
+    var(--prism-ease-standard) backwards;
+}
+prism-select:state(disabled)::part(label),
+prism-select:state(disabled)::part(description) {
+  color: var(--prism-color-text-muted);
+}
+prism-select:state(disabled)::part(trigger) {
+  border-color: var(--prism-color-border);
+  background: var(--prism-color-surface);
+  color: var(--prism-color-text-muted);
+  cursor: not-allowed;
+}
+
+/* ---------- Floating label, affixes and read-only (text inputs) ----------
+ * The label rests inside the field like a placeholder (muted) and floats onto
+ * the top edge on focus or with a value. The patch behind it is the field's
+ * own fill, so the edge reads as notched. The motion is the component's
+ * (springs on transform and opacity); only colours are set here. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating]::part(label) {
+  margin: 0;
+  color: var(--prism-color-text-muted);
+  transition: color var(--prism-duration-fast) var(--prism-ease-standard);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating]::part(label)::before {
+  background: var(--prism-color-bg);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating]:state(floated):not(:state(invalid)):focus-within::part(
+    label
+  ) {
+  color: var(--prism-color-accent-text);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating]:state(disabled)::part(label)::before,
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating][readonly]::part(label)::before {
+  background: var(--prism-color-surface);
+}
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-text-field
+  )[data-prism-floating]::part(input)::placeholder {
+  transition: opacity var(--prism-duration-fast) var(--prism-ease-standard);
+}
+:is(prism-text-input, prism-text-field)::part(prefix),
+:is(prism-text-input, prism-text-field)::part(suffix) {
+  color: var(--prism-color-text-muted);
+}
+:is(prism-text-input, prism-text-field):state(disabled)::part(prefix),
+:is(prism-text-input, prism-text-field):state(disabled)::part(suffix) {
+  color: var(--prism-color-text-muted);
+}
+/* Read-only: same edge, the surface fill, so it reads as not editable. It
+ * stays focusable and keeps its ring. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )[readonly]:not(:state(disabled))::part(input) {
+  background: var(--prism-color-surface);
+}
+
+/* An invalid field's label is the error text colour, resting, floated and
+ * focused. The value text keeps the normal colour. */
+:is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  ):state(invalid)::part(label),
+prism-select:state(invalid)::part(label) {
+  color: var(--prism-color-error-text);
+}
+
+/* ---------- Text input adornments (password toggle, search clear) ----------
+ * Transparent icon buttons on the shared state layer (on-colour veil). */
+:is(prism-password-input, prism-search-input)::part(toggle),
+:is(
+  prism-password-input,
+  prism-search-input,
+  prism-text-input,
+  prism-text-field
+)::part(clear) {
+  --_bg: transparent;
+  --_on: var(--prism-color-text);
+  --_bg-hover: var(--prism-color-surface-hover);
+  --_bg-pressed: var(--prism-color-surface-pressed);
+  --_bg-selected: var(--prism-color-surface-pressed);
+  border-radius: var(--prism-radius-3);
+  color: var(--prism-color-text-muted);
+  transition:
+    background-color var(--prism-duration-fast) var(--prism-ease-standard),
+    color var(--prism-duration-fast) var(--prism-ease-standard);
+}
+@media (hover: hover) {
+  :is(prism-password-input, prism-search-input)::part(toggle):hover,
+  :is(
+      prism-password-input,
+      prism-search-input,
+      prism-text-input,
+      prism-text-field
+    )::part(clear):hover {
+    color: var(--_on);
+  }
+}
+:is(prism-password-input, prism-search-input)::part(toggle):focus-visible,
+:is(
+    prism-password-input,
+    prism-search-input,
+    prism-text-input,
+    prism-text-field
+  )::part(clear):focus-visible {
+  outline: var(--prism-focus-ring-width) solid var(--prism-color-focus-ring);
+  outline-offset: 0;
+}
+prism-search-input::part(search-icon) {
+  color: var(--prism-color-text-muted);
+}
+prism-text-area::part(counter) {
+  color: var(--prism-color-text-muted);
+}
+prism-text-area:state(at-limit)::part(counter) {
+  color: var(--prism-color-error-text);
+}
+
+/* ---------- OTP error: red text only ----------
+ * No fill, inset, tuck, flares or box. Sits where the description sits, but
+ * 5px below the boxes: the active box's focus ring reaches 4px, and a 4px gap
+ * would leave 0px clearance; 5px clears it by 1px. */
+prism-otp-input::part(error) {
+  margin-block-start: calc(
+    var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+      var(--prism-focus-halo-width) + 1px
+  );
+  color: var(--prism-color-on-error-surface);
+  font-size: var(--prism-text-caption-font-size);
+  font-weight: var(--prism-font-weight-regular);
+  line-height: var(--prism-font-line-height-16);
+  letter-spacing: normal;
+  text-transform: none;
+}
+prism-otp-input:state(invalid)::part(error) {
+  animation: prism-fade-in var(--prism-duration-default)
+    var(--prism-ease-standard) backwards;
+}
+
+/* ---------- OTP boxes: same box, ring and error styling as an input ---------- */
+prism-otp-input::part(cell) {
+  border-color: var(--prism-color-border-strong);
+  background: var(--prism-color-bg);
+  color: var(--prism-color-text);
+  font: 500 var(--prism-text-body-font-size) / 1
+    var(--prism-text-body-font-family);
+  transition:
+    border-color var(--prism-duration-fast) var(--prism-ease-standard),
+    box-shadow var(--prism-duration-default) var(--prism-ease-spring);
+  box-shadow:
+    0 0 0 0 var(--prism-color-bg),
+    0 0 0 0 var(--prism-color-focus-ring),
+    0 0 0 0 var(--prism-focus-halo);
+}
+prism-otp-input:hover::part(cell) {
+  border-color: var(--prism-color-text-muted);
+}
+prism-otp-input::part(cell-active) {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-focus-ring),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+prism-otp-input:state(invalid)::part(cell) {
+  border-color: var(--prism-color-error);
+}
+prism-otp-input:state(invalid)::part(cell-active) {
+  box-shadow:
+    0 0 0 var(--prism-focus-ring-offset) var(--prism-color-bg),
+    0 0 var(--prism-focus-ring-blur)
+      calc(var(--prism-focus-ring-offset) + var(--prism-focus-ring-width))
+      var(--prism-color-error),
+    0 0 0
+      calc(
+        var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
+          var(--prism-focus-halo-width)
+      )
+      var(--prism-focus-halo);
+}
+prism-otp-input:state(disabled)::part(cell) {
+  border-color: var(--prism-color-border);
+  background: var(--prism-color-surface);
+  color: var(--prism-color-text-muted);
+}
+
+@keyframes prism-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--prism-space-2)));
+  }
+}
+
+@keyframes prism-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* prism-theme-section: fields-reduce */
+@media (prefers-reduced-motion: reduce) {
+  /* Motion tokens collapse: near-zero durations, springs become linear so
+     nothing moves; only opacity may change. Extra specificity so this wins
+     over tokens.css's :root regardless of stylesheet order. */
+  :root:root {
+    --prism-duration-fast: 0.01ms;
+    --prism-duration-default: 0.01ms;
+    --prism-duration-slow: 0.01ms;
+    --prism-motion-switch: 0.01ms;
+    --prism-motion-segmented: 0.01ms;
+    --prism-ease-spring: linear;
+    --prism-ease-spring-bouncy: linear;
+  }
+  prism-select::part(trigger)::picker(select) {
+    transform: none; /* opacity only, no translate/scale */
+  }
+  :is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-otp-input,
+    prism-text-area,
+    prism-text-field
+  )::part(input),
+  prism-select::part(trigger),
+  prism-otp-input::part(cell),
+  :is(prism-password-input, prism-search-input)::part(toggle),
+  :is(prism-password-input, prism-search-input)::part(clear) {
+    transition: none; /* ring appears instantly */
+  }
+  :is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(error),
+  prism-select::part(error),
+  prism-otp-input::part(error) {
+    /* stylelint-disable-next-line declaration-no-important --
+       reduced motion must cancel the error-box reveal on the part. */
+    animation: none !important;
+  }
+}
+
+/* prism-theme-section: fields-forced */
+/* ---------- Forced colours: field focus outline only while focused ----------
+ * Most controls rest with a transparent 2px outline so a focus ring can grow
+ * in. Forced colours paints a transparent outline in the text colour, so every
+ * control would wear a stray second border. Here the outline is off at rest and
+ * drawn in Highlight while focused (box shadows are dropped in this mode, so
+ * the outline is the focus indicator). The assembler keeps forced-colours
+ * blocks last in theme.css.
+ */
+@media (forced-colors: active) {
+  :is(
+    prism-text-input,
+    prism-password-input,
+    prism-search-input,
+    prism-text-area,
+    prism-text-field
+  )::part(input),
+  prism-select::part(trigger) {
+    outline-style: none;
+  }
+  :is(
+      prism-text-input,
+      prism-password-input,
+      prism-search-input,
+      prism-text-area,
+      prism-text-field
+    )::part(input):focus,
+  prism-select::part(trigger):focus {
+    outline: 2px solid Highlight;
+    outline-offset: var(--prism-focus-ring-offset);
+  }
+  prism-select:state(disabled)::part(trigger) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  /* Tints are dropped, so the active option is the system highlight. The
+   * browser would put a Canvas plate behind its text and check mark (white
+   * boxes on the highlight), so these colours are set by hand. */
+  prism-select::part(option):is(:hover, :focus-visible) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

@@ -160,7 +160,7 @@ export class PrismCardList extends PrismCardGroup {
         }
       }
       :host([columns='1']) [part='grid'] {
-        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-columns: minmax(0, 1fr);
       }
       ::slotted(prism-card),
       ::slotted(prism-card-skeleton) {

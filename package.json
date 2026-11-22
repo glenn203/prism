@@ -205,10 +205,10 @@
   },
   "customElements": "./custom-elements.json",
   "scripts": {
-    "build": "pnpm tokens && rimraf dist && tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/tokens/tokens.css','dist/tokens/tokens.css');require('fs').cpSync('src/theme/theme.css','dist/theme/theme.css');require('fs').cpSync('src/theme/polish.css','dist/theme/polish.css')\"",
+    "build": "pnpm tokens && node scripts/build-theme.mjs && rimraf dist && tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/tokens/tokens.css','dist/tokens/tokens.css');require('fs').cpSync('src/theme/theme.css','dist/theme/theme.css');require('fs').cpSync('src/theme/polish.css','dist/theme/polish.css')\"",
     "analyze": "cem analyze --config custom-elements-manifest.config.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . && stylelint 'src/**/*.css' && node scripts/check-prefixes.mjs && tsc --noEmit",
+    "lint": "eslint . && stylelint 'src/**/*.css' && node scripts/check-prefixes.mjs && node scripts/build-theme.mjs check && tsc --noEmit",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "node --test test/tokens.test.mjs && playwright test --project=chromium",

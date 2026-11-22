@@ -221,7 +221,7 @@ export class PrismCard extends LitElement {
         gap: var(--prism-space-2, 0.5rem);
         align-items: baseline;
         font-family: var(--prism-font-family-sans, system-ui, sans-serif);
-        font-size: var(--prism-font-size-12, 0.75rem);
+        font-size: var(--prism-text-caption-font-size, 0.75rem);
         line-height: var(--prism-font-line-height-20, 1.25rem);
       }
       [part='range'][hidden] {

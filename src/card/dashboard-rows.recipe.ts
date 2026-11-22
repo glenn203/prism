@@ -101,7 +101,7 @@ const STYLE = `
 .dash { display: grid; gap: 24px; }
 .dash-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .dash h2 { margin: 0 0 12px; font: 600 16px/24px var(--prism-font-family-sans); color: var(--prism-color-text); }
-.dash-bar h2 { margin: 0; font-size: 20px; line-height: 28px; }
+.dash-bar h2 { margin: 0; font-size: var(--prism-text-heading-2-font-size, 20px); line-height: 28px; }
 .dash-zone { position: relative; }
 .dash-list { display: block; min-block-size: 112px; }
 prism-card-list.dash-list::part(grid) {

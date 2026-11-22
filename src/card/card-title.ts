@@ -51,7 +51,7 @@ export class PrismCardTitle extends LitElement {
           system-ui,
           sans-serif
         );
-        --_title-font-size: var(--prism-font-size-14, 0.875rem);
+        --_title-font-size: var(--prism-text-label-font-size, 0.875rem);
         --_title-line-height: var(--prism-font-line-height-20, 1.25rem);
         --_title-font-weight: var(--prism-font-weight-semibold, 600);
         display: block;
