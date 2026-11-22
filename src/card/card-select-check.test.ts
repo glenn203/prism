@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { axe } from '../../test/axe.js';
 import { mount } from '../../test/fixture.js';
 import { maxStep, recordFrames, wait } from '../../test/field.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 async function setup(page: Page, theme = 'light') {
   await mount(
@@ -66,6 +67,7 @@ test.describe('selectable card corner check', () => {
     page,
   }) => {
     await setup(page);
+    await polishMotion(page);
     const rows = await recordFrames(
       page.locator(mark('a')),
       1000,

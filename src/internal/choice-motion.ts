@@ -1,3 +1,4 @@
+import { hasPolishEffect } from './polish-scope.js';
 import type { Tune } from './spring-motion.js';
 
 /**
@@ -39,3 +40,7 @@ export const canAnimate = (host: Element, box: Element | null): boolean =>
   host.isConnected &&
   !prefersReducedMotion() &&
   typeof box?.animate === 'function';
+
+/** Like `canAnimate`, and only inside a polish scope that includes motion. */
+export const canPolishAnimate = (host: Element, box: Element | null): boolean =>
+  canAnimate(host, box) && hasPolishEffect(host, 'motion');

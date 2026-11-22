@@ -30,7 +30,7 @@ const preview: Preview = {
     },
     polish: {
       description:
-        'Polish (opt-in layer): squircle corners, light-following border, card tilt. Sets data-prism-polish on the preview root.',
+        'Polish (opt-in layer): squircle corners, light-following border, card tilt, and motion. Sets data-prism-polish on the preview root.',
       toolbar: {
         title: 'Polish',
         icon: 'sparkles',
@@ -41,6 +41,7 @@ const preview: Preview = {
           { value: 'squircle', title: 'Squircle corners only' },
           { value: 'light', title: 'Light border only' },
           { value: 'tilt', title: 'Card tilt only' },
+          { value: 'motion', title: 'Motion only' },
         ],
       },
     },

@@ -4,7 +4,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import {
   POP_OFF,
   POP_ON,
-  canAnimate,
+  canPolishAnimate,
   clamp,
   num,
   prefersReducedMotion,
@@ -393,7 +393,7 @@ export class PrismCheckbox extends FormAssociated(LitElement) {
   /** Moves to the current pose; `pop` is the extra push when the state flips. */
   #retarget(pop = 0): void {
     const pose = this.#pose();
-    if (!this.#ready || !canAnimate(this, this.#part('box')))
+    if (!this.#ready || !canPolishAnimate(this, this.#part('box')))
       return this.#motion.snap(pose);
     this.#motion.go(pose, (key) =>
       key === 'q' ? squishTune(pose.q > 0, pop) : TUNE[key],

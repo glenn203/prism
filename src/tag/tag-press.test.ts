@@ -7,11 +7,13 @@ import {
   scaleAnims,
   scaleOf,
 } from '../../test/press.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 async function setup(page: Page, markup: string) {
   await mount(page, markup);
   await page.addStyleTag({ path: 'src/tokens/tokens.css' });
   await page.addStyleTag({ path: 'src/theme/theme.css' });
+  await polishMotion(page);
   await wait(page, 600);
 }
 

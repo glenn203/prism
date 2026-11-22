@@ -1,7 +1,7 @@
 import type { LitElement } from 'lit';
 import {
   POP_ON,
-  canAnimate,
+  canPolishAnimate,
   clamp,
   num,
   prefersReducedMotion,
@@ -129,7 +129,7 @@ export class RadioOption {
   /** Moves to the current pose; `pop` is the extra push when it is picked. */
   #retarget(pop = 0): void {
     const pose = this.#pose();
-    if (!this.#ready || !canAnimate(this.host, this.#part('box') ?? null))
+    if (!this.#ready || !canPolishAnimate(this.host, this.#part('box') ?? null))
       return this.#motion.snap(pose);
     this.#motion.go(pose, (key) => {
       if (key === 'q') return squishTune(pose.q > 0, pop);

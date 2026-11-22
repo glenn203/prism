@@ -1,5 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { canAnimate } from './choice-motion.js';
+import { canPolishAnimate } from './choice-motion.js';
 import { Press } from './press.js';
 import { SpringMotion, type Tune } from './spring-motion.js';
 
@@ -12,7 +12,9 @@ import { SpringMotion, type Tune } from './spring-motion.js';
  * It moves the CSS `scale` property, not `transform`, so it stacks with a
  * transform the control already has (a card's tilt). Pointer and key events are
  * heard on the host, whose box does not shrink, so the pointer never "leaves"
- * a control that has just got smaller under it.
+ * a control that has just got smaller under it. The scale only plays inside a
+ * polish motion scope; without it, and under reduced motion, only the press
+ * colour (when `mark` is set) shows.
  */
 
 /** Pressing in: quick and nearly critical. */
@@ -147,7 +149,7 @@ export class PressScale implements ReactiveController {
   #show(q: number): void {
     const el = this.o.target();
     if (!el) return;
-    const moving = q !== 0 && canAnimate(this.host, el);
+    const moving = q !== 0 && canPolishAnimate(this.host, el);
     el.style.scale = moving ? String(this.#scale(q)) : '';
     if (this.o.mark) el.toggleAttribute('data-prism-pressed', q !== 0);
   }
@@ -156,7 +158,7 @@ export class PressScale implements ReactiveController {
     const q = this.#press.held ? 1 : 0;
     const el = this.o.target();
     if (this.o.mark) el?.toggleAttribute('data-prism-pressed', q !== 0);
-    if (!canAnimate(this.host, el ?? null)) {
+    if (!canPolishAnimate(this.host, el ?? null)) {
       this.#motion.snap({ q });
       return this.#show(q);
     }

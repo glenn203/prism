@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { axe } from '../../test/axe.js';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
 import { animsOn, maxStep, recordFrames, wait } from '../../test/field.js';
+import { polishMotion } from '../../test/polish-motion.js';
 import { mouseDown, scaleOf } from '../../test/press.js';
 
 async function setup(page: Page, markup: string, theme = 'light') {
@@ -18,6 +19,12 @@ async function setup(page: Page, markup: string, theme = 'light') {
     document.body.style.color = 'var(--prism-color-text)';
   }, theme);
   await wait(page, 600);
+  return errors;
+}
+
+async function setupMotion(page: Page, markup: string, theme = 'light') {
+  const errors = await setup(page, markup, theme);
+  await polishMotion(page);
   return errors;
 }
 
@@ -390,10 +397,22 @@ test.describe('prism-segmented-control: motion', () => {
     expect(r.opacity).toBe(1);
   });
 
+  test('without polish motion, a pick jumps to a static selected surface', async ({
+    page,
+  }) => {
+    await setup(page, RANGE());
+    await radio(page, 'Month').click();
+    expect(await animsOn(s(page), 'indicator')).toEqual([]);
+    const r = await rects(page, 'month');
+    expect(Math.abs(r.il - r.sl)).toBeLessThan(0.6);
+    expect(Math.abs(r.ir - r.sr)).toBeLessThan(0.6);
+    expect(r.opacity).toBe(1);
+  });
+
   test('no value: no indicator; the first pick fades it in on the segment without sliding', async ({
     page,
   }) => {
-    await setup(page, RANGE('', ''));
+    await setupMotion(page, RANGE('', ''));
     expect((await rects(page, 'day')).opacity).toBe(0);
     const rows = await recordFrames(
       s(page),
@@ -432,7 +451,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('a pick slides it on springs: transform and opacity only, ending exactly on the segment', async ({
     page,
   }) => {
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     await radio(page, 'Month').click();
     const a = await animsOn(s(page), 'indicator');
     expect(a).toHaveLength(1);
@@ -448,7 +467,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('it morphs: the width stretches between the two segment widths on the way, in about 325ms', async ({
     page,
   }) => {
-    await setup(page, SEVEN.replace('full-width', ''));
+    await setupMotion(page, SEVEN.replace('full-width', ''));
     const rows = await recordFrames(
       s(page),
       900,
@@ -492,7 +511,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('the slide takes the motion token, 325ms, and --prism-segmented-duration changes it', async ({
     page,
   }) => {
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     const token = await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue('--prism-motion-segmented')
@@ -524,7 +543,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('every frame is continuous and the bounce never leaves the track', async ({
     page,
   }) => {
-    await setup(page, SEVEN);
+    await setupMotion(page, SEVEN);
     const track = await s(page).evaluate((e) => {
       const t = e.shadowRoot!.querySelector('[part="track"]')!;
       const r = t.getBoundingClientRect();
@@ -571,7 +590,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('interruptible: a new pick mid-slide turns it round from where it is, with no jump', async ({
     page,
   }) => {
-    await setup(page, SEVEN);
+    await setupMotion(page, SEVEN);
     const rows = await recordFrames(
       s(page),
       1100,
@@ -609,7 +628,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('a change from code slides the same way as a click', async ({
     page,
   }) => {
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     await s(page).evaluate(
       (e) => ((e as unknown as { value: string }).value = 'day'),
     );
@@ -623,7 +642,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('a resize does not animate: the indicator just follows', async ({
     page,
   }) => {
-    await setup(page, SEVEN);
+    await setupMotion(page, SEVEN);
     await s(page).evaluate((e) => ((e as HTMLElement).style.width = '360px'));
     await wait(page, 150);
     expect(await animsOn(s(page), 'indicator')).toEqual([]);
@@ -648,7 +667,7 @@ test.describe('prism-segmented-control: motion', () => {
 
   test('reduced motion: it jumps, with no animation', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     await radio(page, 'Month').click();
     expect(await animsOn(s(page), 'indicator')).toEqual([]);
     await wait(page, 30);
@@ -660,7 +679,7 @@ test.describe('prism-segmented-control: motion', () => {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     const token = await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue('--prism-motion-segmented')
@@ -674,7 +693,7 @@ test.describe('prism-segmented-control: motion', () => {
   test('pressing a segment squishes it evenly by about 3% and it springs back; reduced motion keeps only the colour', async ({
     page,
   }) => {
-    await setup(page, RANGE());
+    await setupMotion(page, RANGE());
     await mouseDown(page, seg(page, 'day'));
     await wait(page, 300);
     expect(await scaleOf(s(page), 'label:nth-of-type(1)')).toBeCloseTo(0.97, 3);

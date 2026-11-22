@@ -8,6 +8,7 @@ import {
   recordFrames,
   wait,
 } from '../../test/field.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 async function setup(page: Page, markup: string, theme = 'light') {
   const errors: string[] = [];
@@ -102,6 +103,7 @@ test.describe('prism-text-input: floating label', () => {
     page,
   }) => {
     await setup(page, FLOAT);
+    await polishMotion(page);
     const input = page.getByRole('textbox', { name: 'Email' });
     await input.fill('ada@example.com');
     await input.blur();
@@ -146,6 +148,7 @@ test.describe('prism-text-input: floating label', () => {
     page,
   }) => {
     await setup(page, FLOAT);
+    await polishMotion(page);
     await page.getByRole('textbox', { name: 'Email' }).focus();
     const label = await animsOn(host(page), 'label');
     const patch = await animsOn(host(page), 'label', '::before');
@@ -163,6 +166,7 @@ test.describe('prism-text-input: floating label', () => {
     page,
   }) => {
     await setup(page, FLOAT);
+    await polishMotion(page);
     const rows = await recordFrames(
       host(page),
       900,
@@ -353,6 +357,7 @@ test.describe('prism-text-input: error', () => {
     page,
   }) => {
     await setup(page, REQ);
+    await polishMotion(page);
     const rows = await recordFrames(
       host(page),
       900,
@@ -380,6 +385,7 @@ test.describe('prism-text-input: error', () => {
     page,
   }) => {
     await setup(page, REQ);
+    await polishMotion(page);
     await page.getByRole('textbox', { name: 'Name' }).focus();
     expect(await animsOn(host(page), 'control')).toEqual([]);
     await host(page).evaluate((e) =>
@@ -396,6 +402,7 @@ test.describe('prism-text-input: error', () => {
     page,
   }) => {
     await setup(page, REQ);
+    await polishMotion(page);
     await host(page).evaluate((e) =>
       (e as HTMLElement & { reportValidity(): boolean }).reportValidity(),
     );

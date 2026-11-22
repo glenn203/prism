@@ -3,13 +3,13 @@ import { html, type TemplateResult } from 'lit';
 import '../define.js';
 
 /**
- * Polish is an opt-in layer of three small effects. Load
+ * Polish is an opt-in layer of four small effects. Load
  * `prism/polish.css` after `prism/theme.css`, call `enablePolish()` from
  * `prism/polish` once, and set `data-prism-polish` on `<html>` or on any
  * section. With no attribute, nothing changes.
  *
  * ```html
- * <html data-prism-polish>                 <!-- all three -->
+ * <html data-prism-polish>                 <!-- all four -->
  * <section data-prism-polish="squircle">   <!-- one (or several, separated by spaces) -->
  * <section data-prism-polish="off">        <!-- off again inside an "on" page -->
  * ```
@@ -17,7 +17,7 @@ import '../define.js';
  * Use the **Polish** control in the toolbar above to switch it for every story.
  * The pages below set their own scope, so they look the same whatever the toolbar says.
  *
- * ## The three effects
+ * ## The four effects
  *
  * 1. **Squircle corners** (`squircle`). `corner-shape: squircle` behind the
  *    `--prism-corner-shape` token, on cards, buttons, tags, text inputs and menus.
@@ -34,6 +34,12 @@ import '../define.js';
  *    (`--prism-tilt-max`) in 900px of perspective, and ease back when it leaves.
  *    Transform only, one update per animation frame. Cards only, never buttons. Off
  *    on touch screens and under reduced motion.
+ * 4. **Motion** (`motion`). Press-scale on buttons, icon buttons, tags, cards,
+ *    card titles and segments; the invalid-field nudge; the floating-label
+ *    spring; checkbox and radio squish; the check-mark draw; and the segmented
+ *    indicator springs. Off, the default still has a static selected surface
+ *    (the segmented indicator jumps, and a check mark simply appears). Off
+ *    under reduced motion as well. The switch is not part of this effect.
  *
  * ## Browser support
  *

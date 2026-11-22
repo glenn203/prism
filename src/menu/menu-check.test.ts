@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { axe } from '../../test/axe.js';
 import { mount } from '../../test/fixture.js';
 import { maxStep, recordFrames, wait } from '../../test/field.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 const MENU = `
   <prism-menu id="m" label="View options">
@@ -111,6 +112,7 @@ test.describe('checkable menu items', () => {
     page,
   }) => {
     await setup(page);
+    await polishMotion(page);
     await open(page);
     const rows = await recordFrames(
       page.locator('#rulers'),

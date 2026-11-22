@@ -20,7 +20,7 @@ import {
   syncFieldA11y,
 } from './field-parts.js';
 import { FieldValidityController } from './field-validity.js';
-import { canAnimate } from './choice-motion.js';
+import { canPolishAnimate } from './choice-motion.js';
 import {
   LABEL_TUNE,
   NUDGE_TUNE,
@@ -327,7 +327,7 @@ export abstract class TextControl extends FormAssociated(LitElement) {
       .querySelector('[part="description"]')
       ?.toggleAttribute('hidden', invalid);
     this.#moveLabel();
-    if (invalid && !this.#wasInvalid && canAnimate(this, el))
+    if (invalid && !this.#wasInvalid && canPolishAnimate(this, el))
       this.#nudge.go({ n: 0 }, () => NUDGE_TUNE);
     this.#wasInvalid = invalid;
   }
@@ -340,7 +340,7 @@ export abstract class TextControl extends FormAssociated(LitElement) {
       return;
     }
     const to: LabelPose = { l: this.#lifted ? 1 : 0 };
-    if (!this.#painted || !this.#label.target || !canAnimate(this, el))
+    if (!this.#painted || !this.#label.target || !canPolishAnimate(this, el))
       this.#label.snap(to);
     else this.#label.go(to, () => LABEL_TUNE);
   }

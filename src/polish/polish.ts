@@ -16,17 +16,12 @@
  * `prefers-reduced-motion: reduce`. It returns a function that turns it off and
  * clears what it wrote.
  */
+import { hasPolishEffect } from '../internal/polish-scope.js';
+
 const TARGETS =
   'prism-button, prism-card, prism-text-input, prism-password-input, prism-search-input, prism-text-field, prism-select';
 
-const hasTilt = (el: Element): boolean => {
-  const scope = el.closest('[data-prism-polish]');
-  if (!scope) return false;
-  const words = (scope.getAttribute('data-prism-polish') ?? '')
-    .split(/\s+/)
-    .filter(Boolean);
-  return words.length === 0 || words.includes('all') || words.includes('tilt');
-};
+const hasTilt = (el: Element): boolean => hasPolishEffect(el, 'tilt');
 
 export function enablePolish(doc: Document = document): () => void {
   const win = doc.defaultView;

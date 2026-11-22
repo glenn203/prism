@@ -1,6 +1,6 @@
 import { css, html, svg, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { canAnimate } from './choice-motion.js';
+import { canPolishAnimate } from './choice-motion.js';
 import {
   CHECK_OFF_TUNE,
   CHECK_ON_TUNE,
@@ -16,8 +16,8 @@ import { SpringMotion } from './spring-motion.js';
  * looks and moves the same everywhere. The host puts `checkMarkStyles` in its
  * styles and `check.render()` where the mark goes; `check.set(on)` moves it.
  *
- * Nothing animates on first paint, while the host is off screen, or under
- * reduced motion: the mark just is, or is not, there.
+ * Nothing animates on first paint, while the host is off screen, without
+ * polish motion, or under reduced motion: the mark just is, or is not, there.
  */
 export const checkMarkStyles = css`
   [part='check'] {
@@ -72,7 +72,7 @@ export class CheckMark {
     );
     if (
       !this.#motion.target ||
-      !canAnimate(this.host, box ?? null) ||
+      !canPolishAnimate(this.host, box ?? null) ||
       !this.host.checkVisibility?.()
     )
       this.#motion.snap(to);

@@ -1,9 +1,10 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { anims, drawn, optionOf, wait } from '../../test/choice.js';
+import { polishMotion } from '../../test/polish-motion.js';
 import { axe } from '../../test/axe.js';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
 
-async function setup(page: Page, markup: string) {
+async function setup(page: Page, markup: string, motion = false) {
   const errors: string[] = [];
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(m.text());
@@ -11,6 +12,7 @@ async function setup(page: Page, markup: string) {
   await mount(page, markup);
   await page.addStyleTag({ path: 'src/tokens/tokens.css' });
   await page.addStyleTag({ path: 'src/theme/theme.css' });
+  if (motion) await polishMotion(page);
   await wait(page, 600);
   return errors;
 }
@@ -374,7 +376,7 @@ test.describe('prism-radio: motion', () => {
   test('picking: the new dot grows with a gentle overshoot as the old one shrinks out, started together', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     await radio(page, 'Monthly').click();
     // Both have a start time once the frame after the click has run.
     await wait(page, 50);
@@ -409,7 +411,7 @@ test.describe('prism-radio: motion', () => {
   });
 
   test('arrow-key moves animate the same way', async ({ page }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     await radio(page, 'Weekly').focus();
     await page.keyboard.press('ArrowDown');
     expect((await anims(host(page, '#c'))).length).toBe(3);
@@ -420,7 +422,7 @@ test.describe('prism-radio: motion', () => {
   });
 
   test('a change from code moves the same way as a click', async ({ page }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     await host(page, '#g').evaluate(
       (el) => ((el as never as { value: string }).value = 'a'),
     );
@@ -434,7 +436,7 @@ test.describe('prism-radio: motion', () => {
   test('every frame is continuous: no step or change of step jumps', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     await radio(page, 'Monthly').click();
     const dur = (await anims(host(page, '#c')))[0]!.duration;
     const series: Record<string, number[]> = {
@@ -466,7 +468,7 @@ test.describe('prism-radio: motion', () => {
   test('picking another mid-move turns each dot round from where it is: no snap', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     for (const at of [40, 90, 150, 230]) {
       await radio(page, 'Monthly').click();
       const ahead = {
@@ -489,7 +491,7 @@ test.describe('prism-radio: motion', () => {
   test('rapid picks always end at rest with the last pick checked and nothing left running', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     const order = ['#a', '#c', '#b', '#a', '#c', '#b', '#a'];
     for (const id of order) {
       await host(page, id).evaluate((el) => (el as HTMLElement).click());
@@ -508,7 +510,7 @@ test.describe('prism-radio: motion', () => {
   test('the end of the move is exactly the stylesheet rest pose', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     await radio(page, 'Monthly').click();
     const dur = (await anims(host(page, '#c')))[0]!.duration;
     const last = await drawn(host(page, '#c'), dur - 0.01);
@@ -527,7 +529,7 @@ test.describe('prism-radio: motion', () => {
   test('press squishes the box; letting go outside does nothing', async ({
     page,
   }) => {
-    await setup(page, GROUP);
+    await setup(page, GROUP, true);
     const b = (await radio(page, 'Daily').boundingBox())!;
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.mouse.down();
