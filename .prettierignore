@@ -8,3 +8,4 @@ tokens/prism.tokens.resolved.json
 
 # Assembled by scripts/build-theme.mjs; format the part files instead.
 src/theme/theme.css
+showcase-static

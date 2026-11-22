@@ -210,7 +210,7 @@
     "build": "pnpm tokens && node scripts/build-theme.mjs && rimraf dist && tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/tokens/tokens.css','dist/tokens/tokens.css');require('fs').cpSync('src/theme/theme.css','dist/theme/theme.css');require('fs').cpSync('src/theme/theme-accent.css','dist/theme/theme-accent.css');require('fs').cpSync('src/theme/polish.css','dist/theme/polish.css')\"",
     "analyze": "cem analyze --config custom-elements-manifest.config.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . && stylelint 'src/**/*.css' && node scripts/check-prefixes.mjs && node scripts/build-theme.mjs check && tsc --noEmit",
+    "lint": "eslint . && stylelint 'src/**/*.css' 'showcase/**/*.css' && node scripts/check-prefixes.mjs && node scripts/build-theme.mjs check && tsc --noEmit",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "node --test test/tokens.test.mjs && playwright test --project=chromium",
@@ -219,7 +219,10 @@
     "build-storybook": "storybook build --disable-telemetry -o storybook-static && node scripts/storybook-title.mjs",
     "changeset": "changeset",
     "release": "pnpm build && pnpm analyze && changeset publish",
-    "tokens": "node scripts/build-tokens.mjs"
+    "tokens": "node scripts/build-tokens.mjs",
+    "build-showcase": "vite build --config showcase/vite.config.ts",
+    "showcase": "vite dev --config showcase/vite.config.ts --port 4177",
+    "build-pages": "node scripts/build-pages.mjs"
   },
   "peerDependencies": {
     "lit": "^3.2.1"

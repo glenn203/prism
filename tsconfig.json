@@ -18,5 +18,5 @@
     "outDir": "dist",
     "noEmit": true
   },
-  "include": ["src", "test", "playwright.config.ts", ".storybook/*.ts"]
+  "include": ["src", "test", "playwright.config.ts", ".storybook/*.ts", "showcase"]
 }
