@@ -17,10 +17,14 @@ pnpm add prism lit
 ```js
 import 'prism/define'; // registers every tag: <prism-button>, <prism-text-input>, <prism-password-input>, …
 import 'prism/tokens.css'; // --prism-* design tokens (spacing, type, color, density)
-import 'prism/theme.css'; // optional default look
+import 'prism/theme.css'; // optional default look (neutral)
+import 'prism/accent.css'; // optional spectral accent
+import 'prism/polish.css'; // optional polish (see the toolbar)
 ```
 
 Without `theme.css` the components are unstyled apart from structural sizing. Style them yourself with `::part()` and `:state()`.
+
+This Storybook is the neutral reference: default stories use the hued neutral band, with colour only for meaning (error and focus). The toolbar can switch light and dark, and can turn polish on. A spectral accent is opt-in in an app via `accent.css`.
 
 ## Principles
 

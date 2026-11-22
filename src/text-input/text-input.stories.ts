@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 import './define.js';
+import '../button/define.js';
 
 interface Args {
   label: string;
@@ -9,9 +10,13 @@ interface Args {
   required: boolean;
   disabled: boolean;
   readonly: boolean;
+  floating: boolean;
+  clearable: boolean;
   description: string;
   error: string;
 }
+
+const reference = { parameters: { controls: { disable: true } } };
 
 /**
  * Single-line input for text, email, url and tel. `<prism-text-field>` is a
@@ -31,6 +36,8 @@ const meta: Meta<Args> = {
     required: false,
     disabled: false,
     readonly: false,
+    floating: false,
+    clearable: false,
     description: 'We only use this for receipts.',
     error: 'Enter an email address.',
   },
@@ -44,6 +51,8 @@ const meta: Meta<Args> = {
       ?required=${a.required}
       ?disabled=${a.disabled}
       ?readonly=${a.readonly}
+      ?floating=${a.floating}
+      ?clearable=${a.clearable}
       style="max-inline-size: 320px"
     >
       <span slot="description">${a.description}</span>
@@ -54,16 +63,30 @@ const meta: Meta<Args> = {
 export default meta;
 type S = StoryObj<Args>;
 
-export const Default: S = {};
-export const Required: S = { args: { required: true } };
-export const Disabled: S = { args: { disabled: true } };
-export const Readonly: S = { args: { readonly: true } };
-export const Phone: S = {
-  args: { label: 'Phone', type: 'tel', description: 'Digits and spaces.' },
+export const Default: S = { ...reference };
+export const Required: S = { ...reference, args: { required: true } };
+export const Disabled: S = { ...reference, args: { disabled: true } };
+export const Readonly: S = { ...reference, args: { readonly: true } };
+
+export const Sizes: S = {
+  ...reference,
+  render: () => html`
+    <div style="display: grid; gap: 24px; max-inline-size: 320px">
+      ${(['sm', 'md', 'lg'] as const).map(
+        (s) =>
+          html`<prism-text-input
+            label="Size ${s}"
+            size=${s}
+            value="lumen@example.com"
+          ></prism-text-input>`,
+      )}
+    </div>
+  `,
 };
 
 /** Submit the form empty to see the attached error box. */
 export const Invalid: S = {
+  ...reference,
   args: { required: true },
   render: (a) => html`
     <form
@@ -79,8 +102,12 @@ export const Invalid: S = {
   `,
 };
 
-/** The label rests inside the field and floats onto its top edge on focus or with a value. Click in, type, clear and click out to watch it move; it follows a value set from code the same way. */
+/**
+ * The label rests inside the field and floats onto its top edge on focus or
+ * with a value.
+ */
 export const FloatingLabel: S = {
+  ...reference,
   args: { label: 'Email', description: 'We only use this for receipts.' },
   render: (a) => html`
     <div style="display: grid; gap: 28px; max-inline-size: 320px">
@@ -98,59 +125,24 @@ export const FloatingLabel: S = {
         floating
         value="lumen@example.com"
       ></prism-text-input>
-      <prism-text-input
-        label="With a placeholder"
-        floating
-        placeholder="name@example.com"
-      ></prism-text-input>
-      <prism-password-input label="Password" floating></prism-password-input>
     </div>
   `,
 };
 
 /** A short prefix or suffix sits inside the field; the text keeps clear of both and of the clear button. */
 export const PrefixSuffixClear: S = {
+  ...reference,
   render: () => html`
     <div style="display: grid; gap: 28px; max-inline-size: 320px">
-      <prism-text-input label="Amount" floating clearable value="42">
-        <span slot="prefix">$</span>
-        <span slot="suffix">USD</span>
-        <span slot="description">Before tax.</span>
+      <prism-text-input label="Focal length" floating clearable value="50">
+        <span slot="suffix">mm</span>
+        <span slot="description">The marked length of the lens.</span>
       </prism-text-input>
-      <prism-text-input label="Website" clearable value="lumen.example">
+      <prism-text-input label="Plate" clearable value="lumen.example">
         <span slot="prefix">https://</span>
       </prism-text-input>
-      <prism-text-input label="Weight" size="sm" value="12">
-        <span slot="suffix">kg</span>
-      </prism-text-input>
     </div>
   `,
 };
 
-/** Submit the empty form: the field gives one small sideways nudge as the error appears, then the attached error box. */
-export const FloatingInvalid: S = {
-  render: () => html`
-    <form
-      @submit=${(e: Event) => e.preventDefault()}
-      style="display: grid; gap: 12px; max-inline-size: 320px"
-    >
-      <prism-text-input label="Name" name="name" floating required>
-        <span slot="description">As shown on your card.</span>
-        <span slot="error">Enter a name.</span>
-      </prism-text-input>
-      <prism-button>Submit</prism-button>
-    </form>
-  `,
-};
-
-/** Read-only keeps focus and selection with the surface fill; disabled is inert. */
-export const ReadonlyAndDisabled: S = {
-  render: () => html`
-    <div style="display: grid; gap: 28px; max-inline-size: 320px">
-      <prism-text-input label="Plan" floating readonly value="Team">
-      </prism-text-input>
-      <prism-text-input label="Seat" floating disabled value="Window">
-      </prism-text-input>
-    </div>
-  `,
-};
+export const Playground: S = {};

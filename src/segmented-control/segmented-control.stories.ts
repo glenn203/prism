@@ -38,24 +38,22 @@ const meta: Meta<Args> = {
     </prism-segmented-control>`,
 };
 export default meta;
+
+const reference = { parameters: { controls: { disable: true } } };
 type Story = StoryObj<Args>;
 
 /**
  * One choice from a few, with one indicator that slides to it. Click, or Tab
  * to the control and use the arrow keys (they move focus and pick together).
- * The indicator is two springs, one per edge: the edge that
- * leads is quick and bouncy, the one behind follows, so the shape stretches on
- * the way and pulls together on the new segment. Pick again mid-move and it
- * turns round from where it is. Pressing a segment squishes it evenly by about
- * 3%. Under reduced motion it jumps and only the colours change.
  */
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
 /** Nothing picked: no indicator. The first pick fades it in on the segment. */
-export const NoneSelected: Story = { args: { value: '' } };
+export const NoneSelected: Story = { ...reference, args: { value: '' } };
 
 /** Icons with text, and icon-only segments (they need a `label`). */
 export const WithIcons: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:20px;justify-items:start">
       <prism-segmented-control label="Layout" value="list">
@@ -126,6 +124,7 @@ export const WithIcons: Story = {
 
 /** Small, medium and large follow the control heights and density. */
 export const Sizes: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:16px;justify-items:start">
       ${(['sm', 'md', 'lg'] as const).map(
@@ -145,6 +144,7 @@ export const Sizes: Story = {
 
 /** `full-width` shares the row equally. The indicator morphs between unequal segments too. */
 export const FullWidth: Story = {
+  ...reference,
   render: () =>
     html`<div style="max-inline-size:480px;display:grid;gap:16px">
       <prism-segmented-control label="Plan" value="team" full-width>
@@ -162,6 +162,7 @@ export const FullWidth: Story = {
 
 /** A disabled segment is skipped by the arrows; a disabled control picks nothing. */
 export const Disabled: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:16px;justify-items:start">
       <prism-segmented-control label="One segment off" value="day">
@@ -179,6 +180,7 @@ export const Disabled: Story = {
 
 /** Right-to-left: the row mirrors and the indicator follows. Left and Right swap where the browser does it (not WebKit). */
 export const RightToLeft: Story = {
+  ...reference,
   render: () =>
     html`<div dir="rtl">
       <prism-segmented-control label="Range" value="b">
@@ -191,6 +193,7 @@ export const RightToLeft: Story = {
 
 /** In a form: it submits `range`, is required, and resets to its starting segment. */
 export const InAForm: Story = {
+  ...reference,
   render: () =>
     html`<form
       style="display:grid;gap:12px;justify-items:start"
@@ -214,3 +217,5 @@ export const InAForm: Story = {
       <output></output>
     </form>`,
 };
+
+export const Playground: Story = {};

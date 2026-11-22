@@ -3,46 +3,71 @@ import { html } from 'lit';
 import './define.js';
 
 interface Args {
-  label: string;
   autocomplete: 'current-password' | 'new-password';
-  required: boolean;
   disabled: boolean;
+  required: boolean;
+  label: string;
 }
 
-/** Password with a show/hide toggle (aria-pressed). Name pending. */
+const reference = { parameters: { controls: { disable: true } } };
+
 const meta: Meta<Args> = {
   title: 'Components/Password input',
   component: 'prism-password-input',
+  args: {
+    autocomplete: 'current-password',
+    disabled: false,
+    required: false,
+    label: 'Password',
+  },
   argTypes: {
     autocomplete: {
       control: 'inline-radio',
       options: ['current-password', 'new-password'],
     },
   },
-  args: {
-    label: 'Password',
-    autocomplete: 'current-password',
-    required: false,
-    disabled: false,
-  },
-  render: (a) => html`
-    <prism-password-input
-      label=${a.label}
-      name="password"
-      autocomplete=${a.autocomplete}
-      ?required=${a.required}
-      ?disabled=${a.disabled}
-      style="max-inline-size: 320px"
+  render: ({ autocomplete, disabled, required, label }) =>
+    html`<form
+      style="max-inline-size: 320px; display: grid; gap: 16px"
+      @submit=${(e: Event) => e.preventDefault()}
     >
-      <span slot="description">At least 12 characters.</span>
-      <span slot="error">Enter your password.</span>
-    </prism-password-input>
-  `,
+      <prism-password-input
+        name="password"
+        label=${label}
+        autocomplete=${autocomplete}
+        ?disabled=${disabled}
+        ?required=${required}
+      >
+        <span slot="error">Enter a password.</span>
+      </prism-password-input>
+    </form>`,
 };
 export default meta;
-type S = StoryObj<Args>;
-export const SignIn: S = {};
-export const NewPassword: S = {
-  args: { label: 'New password', autocomplete: 'new-password' },
+type Story = StoryObj<Args>;
+
+/** Sign in. The label and tooltip stay "Show password" / "Hide password". */
+export const Default: Story = { ...reference };
+
+/**
+ * A new password. Show helps people check their typo; a confirmation field
+ * is a second check, not a substitute.
+ */
+export const NewPassword: Story = {
+  ...reference,
+  args: { autocomplete: 'new-password' },
 };
-export const Disabled: S = { args: { disabled: true } };
+
+export const Disabled: Story = { ...reference, args: { disabled: true } };
+
+/** The attached error box appears after the field is reported invalid. */
+export const Invalid: Story = {
+  ...reference,
+  args: { required: true },
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('prism-password-input')!;
+    await el.updateComplete;
+    el.reportValidity();
+  },
+};
+
+export const Playground: Story = {};

@@ -5,38 +5,44 @@ import './define.js';
 interface Args {
   label: string;
   placeholder: string;
+  value: string;
   disabled: boolean;
 }
 
-/**
- * Search box (role searchbox) with a clear button. Escape clears; Enter fires
- * `search`. Name pending.
- */
+const reference = { parameters: { controls: { disable: true } } };
+
 const meta: Meta<Args> = {
   title: 'Components/Search input',
   component: 'prism-search-input',
-  args: { label: 'Search', placeholder: 'Search docs', disabled: false },
-  render: (a) => html`
-    <prism-search-input
-      label=${a.label}
-      placeholder=${a.placeholder}
-      name="q"
-      ?disabled=${a.disabled}
-      style="max-inline-size: 320px"
-      @search=${(e: CustomEvent<{ value: string }>) =>
-        console.log('search', e.detail.value)}
-    ></prism-search-input>
-  `,
+  args: {
+    label: 'Search lenses',
+    placeholder: 'Search lenses',
+    value: '',
+    disabled: false,
+  },
+  render: ({ label, placeholder, value, disabled }) =>
+    html`<div style="max-inline-size: 320px">
+      <prism-search-input
+        name="q"
+        label=${label}
+        placeholder=${placeholder}
+        value=${value}
+        ?disabled=${disabled}
+        @prism-search=${(e: CustomEvent<{ value: string }>) =>
+          console.log('search', e.detail.value)}
+      ></prism-search-input>
+    </div>`,
 };
 export default meta;
-type S = StoryObj<Args>;
-export const Default: S = {};
-export const WithValue: S = {
-  render: (a) =>
-    html`<prism-search-input
-      label=${a.label}
-      value="lit components"
-      style="max-inline-size: 320px"
-    ></prism-search-input>`,
+type Story = StoryObj<Args>;
+
+export const Default: Story = { ...reference };
+
+export const WithValue: Story = {
+  ...reference,
+  args: { value: '50 mm prime' },
 };
-export const Disabled: S = { args: { disabled: true } };
+
+export const Disabled: Story = { ...reference, args: { disabled: true } };
+
+export const Playground: Story = {};

@@ -8,7 +8,7 @@ import { DEFAULT_FONT, FONTS, applyFont } from './fonts.js';
 import { enablePolish } from '../src/polish/polish.js';
 
 // Pointer effects for the opt-in polish layer. They only act where the
-// `data-prism-polish` attribute is set (see the Polish page).
+// `data-prism-polish` attribute is set (the toolbar below).
 enablePolish();
 
 const preview: Preview = {
@@ -79,7 +79,7 @@ const preview: Preview = {
     layout: 'padded',
     options: {
       storySort: {
-        order: ['Introduction', 'Foundations', 'Components', 'Card recipes'],
+        order: ['Introduction', 'Foundations', 'Components'],
       },
     },
   },

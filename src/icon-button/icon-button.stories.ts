@@ -21,11 +21,17 @@ const meta: Meta<Args> = {
 };
 export default meta;
 
-export const Default: StoryObj<Args> = {};
-export const Disabled: StoryObj<Args> = { args: { disabled: true } };
+const reference = { parameters: { controls: { disable: true } } };
+
+export const Default: StoryObj<Args> = { ...reference };
+export const Disabled: StoryObj<Args> = {
+  ...reference,
+  args: { disabled: true },
+};
 
 /** Square at the control height; follows density. */
 export const Sizes: StoryObj<Args> = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;align-items:center">
       <prism-icon-button label="Close" size="sm">${iconX()}</prism-icon-button>
@@ -35,3 +41,5 @@ export const Sizes: StoryObj<Args> = {
       >
     </div>`,
 };
+
+export const Playground: StoryObj<Args> = {};

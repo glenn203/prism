@@ -5,30 +5,46 @@ import '../tag/define.js';
 import { iconRefresh } from '../internal/icons.js';
 
 interface Args {
-  type: 'default' | 'borderless';
+  type:
+    | 'default'
+    | 'borderless'
+    | 'clickable'
+    | 'selectable'
+    | 'widget'
+    | 'collapsible';
   raised: boolean;
   standalone: boolean;
+  disabled: boolean;
 }
+
+const reference = { parameters: { controls: { disable: true } } };
 
 const meta: Meta<Args> = {
   title: 'Components/Card',
   component: 'prism-card',
-  args: { type: 'default', raised: false, standalone: false },
+  args: { type: 'default', raised: false, standalone: false, disabled: false },
   argTypes: {
-    type: { control: 'inline-radio', options: ['default', 'borderless'] },
+    type: {
+      control: 'select',
+      options: [
+        'default',
+        'borderless',
+        'clickable',
+        'selectable',
+        'widget',
+        'collapsible',
+      ],
+    },
   },
   parameters: { layout: 'padded' },
-};
-export default meta;
-
-const frame = (inner: unknown, width = 360) =>
-  html`<div style="max-inline-size:${width}px">${inner}</div>`;
-
-/** Header, content and footer. The footer takes meta and up to two actions. */
-export const Default: StoryObj<Args> = {
-  render: ({ type, raised, standalone }) =>
+  render: ({ type, raised, standalone, disabled }) =>
     frame(
-      html`<prism-card type=${type} ?raised=${raised} ?standalone=${standalone}>
+      html`<prism-card
+        type=${type}
+        ?raised=${raised}
+        ?standalone=${standalone}
+        ?disabled=${disabled}
+      >
         <prism-card-title slot="header" level="3"
           >Onboarding guide</prism-card-title
         >
@@ -43,21 +59,52 @@ export const Default: StoryObj<Args> = {
       </prism-card>`,
     ),
 };
+export default meta;
+type Story = StoryObj<Args>;
 
-/** Replaces Panel: a flat fill, no border and no shadow. */
-export const Borderless: StoryObj<Args> = {
-  args: { type: 'borderless' },
-  render: Default.render!,
+const frame = (inner: unknown, width = 360) =>
+  html`<div style="max-inline-size:${width}px">${inner}</div>`;
+
+/** Header, content and footer. The footer takes meta and up to two actions. */
+export const Default: Story = { ...reference };
+
+/** Surface variants: default, borderless, raised, and a standalone task. */
+export const Variants: Story = {
+  ...reference,
+  render: () =>
+    html`<div
+      style="display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,320px))"
+    >
+      <prism-card>
+        <prism-card-title slot="header" level="3">Default</prism-card-title>
+        <p style="margin:0">Bordered surface.</p>
+      </prism-card>
+      <prism-card type="borderless">
+        <prism-card-title slot="header" level="3">Borderless</prism-card-title>
+        <p style="margin:0">A flat fill, no border and no shadow.</p>
+      </prism-card>
+      <prism-card raised>
+        <prism-card-title slot="header" level="3">Raised</prism-card-title>
+        <p style="margin:0">A shadow plus a transparent border.</p>
+      </prism-card>
+      <prism-card standalone>
+        <prism-card-title slot="header" level="3"
+          >Renew your plan</prism-card-title
+        >
+        <p style="margin:0">
+          A standalone task may hold one primary footer button.
+        </p>
+        <prism-card-actions slot="footer">
+          <prism-button variant="ghost">Snooze</prism-button>
+          <prism-button>Renew now</prism-button>
+        </prism-card-actions>
+      </prism-card>
+    </div>`,
 };
 
-/** A shadow from the predefined elevation level, plus a transparent border. */
-export const Raised: StoryObj<Args> = {
-  args: { raised: true },
-  render: Default.render!,
-};
-
-/** Header parts: icon, title, tag, description and two ghost icon buttons. */
-export const HeaderParts: StoryObj<Args> = {
+/** Header parts: icon, title, tag, description and actions. */
+export const HeaderParts: Story = {
+  ...reference,
   render: () =>
     frame(
       html`<prism-card>
@@ -96,99 +143,15 @@ export const HeaderParts: StoryObj<Args> = {
 };
 
 /**
- * Content-only (marketing) card: buttons on the right, 8px apart, medium,
- * soft on the right and ghost to its left. No primary, outline or destructive.
+ * Clickable: the title is the one real control (a link or a button) and its
+ * click area covers the card. Nested controls sit above it. A disabled card
+ * is not a link, and the reason is written in the text.
  */
-export const ContentOnly: StoryObj<Args> = {
+export const Clickable: Story = {
+  ...reference,
   render: () =>
-    frame(
-      html`<prism-card>
-        <p style="margin:0">Add a profile photo so your team can find you.</p>
-        <prism-card-actions>
-          <prism-button variant="ghost">Later</prism-button>
-          <prism-button variant="secondary">Set up</prism-button>
-        </prism-card-actions>
-      </prism-card>`,
-    ),
-};
-
-/** A standalone task card may hold one primary footer button. */
-export const StandaloneTask: StoryObj<Args> = {
-  render: () =>
-    frame(
-      html`<prism-card standalone>
-        <prism-card-title slot="header" level="3"
-          >Renew your plan</prism-card-title
-        >
-        <p style="margin:0">Your trial ends this week.</p>
-        <prism-card-actions slot="footer">
-          <prism-button variant="ghost">Snooze</prism-button>
-          <prism-button>Renew now</prism-button>
-        </prism-card-actions>
-      </prism-card>`,
-    ),
-};
-
-/** Cards in a row share a height; footers line up at the bottom. */
-export const FootersAlign: StoryObj<Args> = {
-  render: () =>
-    html`<div
-      style="display:flex;gap:16px;align-items:stretch;max-inline-size:760px"
-    >
-      ${[1, 2].map(
-        (n) =>
-          html`<prism-card style="flex:1">
-            <prism-card-title slot="header" level="3"
-              >Card ${n}</prism-card-title
-            >
-            <p style="margin:0">
-              ${n === 2 ? 'A much longer body. '.repeat(8) : 'Short.'}
-            </p>
-            <prism-card-meta slot="footer">Footer ${n}</prism-card-meta>
-          </prism-card>`,
-      )}
-    </div>`,
-};
-
-/** At 280px or less the icon buttons fold into one overflow menu. */
-export const Narrow: StoryObj<Args> = {
-  render: () =>
-    frame(
-      html`<prism-card>
-        <prism-card-title slot="header" level="3">Guide</prism-card-title>
-        <prism-card-actions slot="header">
-          <prism-icon-button label="Refresh Guide"
-            >${iconRefresh()}</prism-icon-button
-          >
-          <prism-icon-button label="Export Guide">E</prism-icon-button>
-        </prism-card-actions>
-        <p style="margin:0">Body</p>
-        <prism-card-meta slot="footer">Updated 2 min ago</prism-card-meta>
-        <prism-card-actions slot="footer">
-          <prism-button variant="ghost">View all</prism-button>
-        </prism-card-actions>
-      </prism-card>`,
-      260,
-    ),
-};
-
-const ROW = (v: string, title: string, desc: string) =>
-  html`<prism-card type="selectable" kind="choice" value=${v}>
-    <prism-card-select slot="header"></prism-card-select>
-    <prism-card-title slot="header" level="3">${title}</prism-card-title>
-    <prism-card-description slot="header">${desc}</prism-card-description>
-    <div>Choose it anywhere on the card.</div>
-  </prism-card>`;
-
-/**
- * Clickable (link): the title is the one real link and its click area covers
- * the card. Nested controls sit above it. Hover is the tint only. Pressing
- * shrinks the card by 1% at most, on the same spring, and it stacks with tilt.
- */
-export const ClickableLink: StoryObj<Args> = {
-  render: () =>
-    frame(
-      html`<prism-card type="clickable">
+    html`<div style="display:grid;gap:16px;max-inline-size:360px">
+      <prism-card type="clickable">
         <prism-card-title slot="header" level="3" href="#guide"
           >Onboarding guide</prism-card-title
         >
@@ -202,40 +165,35 @@ export const ClickableLink: StoryObj<Args> = {
           </prism-menu>
         </prism-card-actions>
         <div>Updated 2 min ago by the Design team.</div>
-      </prism-card>`,
-    ),
-};
-
-/** Clickable (action): the title is a button, for example to open a Drawer. */
-export const ClickableAction: StoryObj<Args> = {
-  render: () =>
-    frame(
-      html`<prism-card type="clickable" raised>
+      </prism-card>
+      <prism-card type="clickable" raised>
         <prism-card-title slot="header" level="3" action
           >resource-eu-0042</prism-card-title
         >
-        <div>Opens the details Drawer.</div>
-      </prism-card>`,
-    ),
-};
-
-/** Disabled: no tint, not a link, and the reason is written in the text. */
-export const ClickableDisabled: StoryObj<Args> = {
-  render: () =>
-    frame(
-      html`<prism-card type="clickable" disabled>
+        <div>The title is a button, for example to open a detail view.</div>
+      </prism-card>
+      <prism-card type="clickable" disabled>
         <prism-card-title slot="header" level="3" href="#x"
           >Archive report</prism-card-title
         >
         <prism-card-description slot="header"
           >Needs the Editor role.</prism-card-description
         >
-      </prism-card>`,
-    ),
+      </prism-card>
+    </div>`,
 };
 
-/** Choice cards in a single-select group: a radio group. Arrows move and select. The corner check draws itself in on a spring. */
-export const ChoiceCards: StoryObj<Args> = {
+const ROW = (v: string, title: string, desc: string) =>
+  html`<prism-card type="selectable" kind="choice" value=${v}>
+    <prism-card-select slot="header"></prism-card-select>
+    <prism-card-title slot="header" level="3">${title}</prism-card-title>
+    <prism-card-description slot="header">${desc}</prism-card-description>
+    <div>Choose it anywhere on the card.</div>
+  </prism-card>`;
+
+/** Choice cards in a single-select group: a radio group. Arrows move and select. */
+export const ChoiceCards: Story = {
+  ...reference,
   render: () =>
     html`<prism-card-group
       selection="single"
@@ -253,7 +211,8 @@ export const ChoiceCards: StoryObj<Args> = {
  * title stays a link, and actions keep working. A polite message says how many
  * are selected. Selection is by id and survives paging.
  */
-export const CollectionCards: StoryObj<Args> = {
+export const CollectionCards: Story = {
+  ...reference,
   render: () =>
     html`<prism-card-group
       selection="multi"
@@ -286,8 +245,6 @@ export const CollectionCards: StoryObj<Args> = {
     </prism-card-group>`,
 };
 
-// ---- Milestone 3: widget, collapsible, card list (names provisional) ----
-
 const widget = (
   title: string,
   value: string,
@@ -318,41 +275,9 @@ const widget = (
     </prism-card-actions>
   </prism-card>`;
 
-/**
- * Widgets follow the page's time range (`data-prism-time-range` on the Toolbar
- * or page). The second widget overrides it: its range shows in the header with
- * the word "Overridden". Change the page range with the select.
- */
-export const WidgetTimeRange: StoryObj<Args> = {
-  render: () =>
-    html`<section
-      id="widget-page"
-      data-prism-time-range="Last 24 hours"
-      style="display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,340px))"
-    >
-      <label style="grid-column:1/-1;font:14px var(--prism-font-family-sans)"
-        >Page time range
-        <select
-          data-prism-select
-          @change=${(e: Event) =>
-            (e.target as HTMLElement)
-              .closest('section')
-              ?.setAttribute(
-                'data-prism-time-range',
-                (e.target as HTMLSelectElement).value,
-              )}
-        >
-          <option>Last 24 hours</option>
-          <option>Last 7 days</option>
-        </select>
-      </label>
-      ${widget('Items over time', '1,284')}
-      ${widget('Items, 30 days', '9,402', { range: 'Last 30 days' })}
-    </section>`,
-};
-
-/** States stay inside the widget; the header and footer stay put. */
-export const WidgetStates: StoryObj<Args> = {
+/** Widget states stay inside the widget; the header and footer stay put. */
+export const WidgetStates: Story = {
+  ...reference,
   render: () =>
     html`<div
       style="display:grid;gap:16px;grid-template-columns:repeat(3,minmax(0,300px))"
@@ -367,7 +292,8 @@ export const WidgetStates: StoryObj<Args> = {
 };
 
 /** The title row is the toggle. Closed by default; actions sit beside it. */
-export const Collapsible: StoryObj<Args> = {
+export const Collapsible: Story = {
+  ...reference,
   render: () =>
     frame(
       html`<div style="display:grid;gap:16px">
@@ -411,7 +337,8 @@ const resourceCards = (page: number, size: number): string =>
  * A paged list of collection cards. "Next" swaps in the next page's cards (as a
  * server would); selected ids stay selected and "N selected" keeps counting.
  */
-export const CardList: StoryObj<Args> = {
+export const CardList: Story = {
+  ...reference,
   render: () => {
     const list = document.createElement('prism-card-list');
     list.setAttribute('label', 'Resources');
@@ -430,8 +357,9 @@ export const CardList: StoryObj<Args> = {
   },
 };
 
-/** Loading, refreshing, empty, no matches, error. */
-export const CardListStates: StoryObj<Args> = {
+/** Loading, no matches, error. */
+export const CardListStates: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:grid;gap:32px">
       <prism-card-list
@@ -448,36 +376,18 @@ export const CardListStates: StoryObj<Args> = {
     </div>`,
 };
 
-/** One column in an Aside, Drawer or Modal. */
-export const CardListOneColumn: StoryObj<Args> = {
-  render: () => {
-    const list = document.createElement('prism-card-list');
-    list.setAttribute('label', 'Resources');
-    list.setAttribute('columns', '1');
-    list.innerHTML = resourceCards(1, 3);
-    list.style.maxInlineSize = '420px';
-    return list;
-  },
-};
-
-// ---- Milestone 4: reorderable lists (names provisional) ----
-
 const REORDER_NAMES = [
   'Onboarding guide',
   'Release review',
   'Account setup',
   'Data export',
 ];
-const reorderCard = (name: string, menu = true) => `
+const reorderCard = (name: string) => `
   <prism-card value="${name}">
     <prism-card-handle slot="header"></prism-card-handle>
     <prism-card-title slot="header" level="3">${name}</prism-card-title>
     <prism-card-description slot="header">Runs on request</prism-card-description>
-    ${
-      menu
-        ? `<prism-card-actions slot="header"><prism-menu label="More options for ${name}"><prism-menu-item>Rename</prism-menu-item></prism-menu></prism-card-actions>`
-        : ''
-    }
+    <prism-card-actions slot="header"><prism-menu label="More options for ${name}"><prism-menu-item>Rename</prism-menu-item></prism-menu></prism-card-actions>
     <p style="margin:0">Steps for ${name.toLowerCase()}.</p>
     <prism-card-meta slot="footer">Updated 2 min ago</prism-card-meta>
   </prism-card>`;
@@ -487,7 +397,8 @@ const reorderCard = (name: string, menu = true) => `
  * and use Move to top, up, down, bottom: no drag needed. A polite message says
  * what moved. Escape cancels a drag.
  */
-export const ReorderableList: StoryObj<Args> = {
+export const Reorderable: Story = {
+  ...reference,
   render: () => {
     const list = document.createElement('prism-card-list');
     list.setAttribute('label', 'Guides');
@@ -499,42 +410,4 @@ export const ReorderableList: StoryObj<Args> = {
   },
 };
 
-/** In a grid the line is vertical and the Move items read start, earlier, later, end. */
-export const ReorderableGrid: StoryObj<Args> = {
-  render: () => {
-    const list = document.createElement('prism-card-list');
-    list.setAttribute('label', 'Guides');
-    list.setAttribute('reorderable', '');
-    list.style.maxInlineSize = '760px';
-    list.innerHTML = REORDER_NAMES.map((n) => reorderCard(n)).join('');
-    return list;
-  },
-};
-
-/** No overflow menu: the handle is the menu button, named "Reorder {title}". */
-export const ReorderableHandleMenu: StoryObj<Args> = {
-  render: () => {
-    const list = document.createElement('prism-card-list');
-    list.setAttribute('label', 'Guides');
-    list.setAttribute('reorderable', '');
-    list.setAttribute('columns', '1');
-    list.style.maxInlineSize = '420px';
-    list.innerHTML = REORDER_NAMES.map((n) => reorderCard(n, false)).join('');
-    return list;
-  },
-};
-
-/** Two lists in one group: drag a card from Draft to Active. */
-export const ReorderBetweenLists: StoryObj<Args> = {
-  render: () => {
-    const wrap = document.createElement('div');
-    wrap.style.cssText =
-      'display:grid;grid-template-columns:repeat(2,minmax(0,320px));gap:32px';
-    const mk = (label: string, names: string[]) =>
-      `<prism-card-list label="${label}" reorderable columns="1" reorder-group="guides">${names.map((n) => reorderCard(n)).join('')}</prism-card-list>`;
-    wrap.innerHTML =
-      mk('Draft', REORDER_NAMES.slice(0, 2)) +
-      mk('Active', REORDER_NAMES.slice(2));
-    return wrap;
-  },
-};
+export const Playground: Story = {};

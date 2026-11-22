@@ -28,6 +28,8 @@ const meta: Meta<Args> = {
     ></prism-running-indicator>`,
 };
 export default meta;
+
+const reference = { parameters: { controls: { disable: true } } };
 type Story = StoryObj<Args>;
 
 /**
@@ -36,15 +38,17 @@ type Story = StoryObj<Args>;
  * the label. One pulse takes 1.92s and is followed by an 800ms rest, so the
  * whole cycle is 2.72s. In the rest the ring is gone and the dot is still.
  */
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
 /** The label is always in the page for screen readers. `show-label` also shows it. */
 export const ScreenReaderOnly: Story = {
+  ...reference,
   args: { label: 'Export running', showLabel: false },
 };
 
 /** Sizes: sm 16px (fits a card header), md 24px, lg 40px. */
 export const Sizes: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:32px;align-items:center">
       ${(['sm', 'md', 'lg'] as const).map(
@@ -60,6 +64,7 @@ export const Sizes: Story = {
 
 /** The tone colours the dot and the ring together. Use success for "online", accent for a running job. */
 export const Tones: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
       ${TONES.map(
@@ -74,32 +79,4 @@ export const Tones: Story = {
     </div>`,
 };
 
-/** Beside a heading while a job runs. Swap it for a Tag when the job ends. */
-export const BesideAHeading: Story = {
-  render: () =>
-    html`<div style="display:flex;gap:8px;align-items:center">
-      <prism-running-indicator
-        size="sm"
-        label="Rendering preview"
-      ></prism-running-indicator>
-      <h3
-        style="margin:0;font:600 16px/24px var(--prism-font-family-sans);color:var(--prism-color-text)"
-      >
-        Preview render
-      </h3>
-    </div>`,
-};
-
-/**
- * Under `prefers-reduced-motion: reduce` it holds still: the dot with a faint
- * ring. The dot and the written label are always there, so motion never
- * carries the meaning alone.
- */
-export const ReducedMotion: Story = {
-  render: () =>
-    html`<prism-running-indicator
-      size="lg"
-      label="Running"
-      show-label
-    ></prism-running-indicator>`,
-};
+export const Playground: Story = {};

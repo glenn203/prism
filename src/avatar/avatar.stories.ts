@@ -6,6 +6,7 @@ interface Args {
   name: string;
   size: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   shape: 'circle' | 'square';
+  decorative: boolean;
 }
 
 // A tiny inline picture so the story needs no network.
@@ -18,25 +19,29 @@ const PHOTO =
 const meta: Meta<Args> = {
   title: 'Components/Avatar',
   component: 'prism-avatar',
-  args: { name: 'Iris Vale', size: 'md', shape: 'circle' },
+  args: { name: 'Iris Vale', size: 'md', shape: 'circle', decorative: false },
   argTypes: {
     size: { control: 'inline-radio', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
     shape: { control: 'inline-radio', options: ['circle', 'square'] },
   },
-  render: ({ name, size, shape }) =>
+  render: ({ name, size, shape, decorative }) =>
     html`<prism-avatar
       name=${name}
       size=${size}
       shape=${shape}
+      ?decorative=${decorative}
     ></prism-avatar>`,
 };
 export default meta;
 type Story = StoryObj<Args>;
 
+const reference = { parameters: { controls: { disable: true } } };
+
 /** Initials come from the name. */
-export const Default: Story = {};
+export const Default: Story = { ...reference };
 
 export const Sizes: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;align-items:center">
       ${['xs', 'sm', 'md', 'lg', 'xl'].map(
@@ -47,6 +52,7 @@ export const Sizes: Story = {
 };
 
 export const WithPicture: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;align-items:center">
       <prism-avatar name="Quill Mercer" src=${PHOTO}></prism-avatar>
@@ -62,9 +68,12 @@ export const WithPicture: Story = {
 
 /** Name already written next to it: `decorative` hides it from assistive tech. */
 export const BesideAName: Story = {
+  ...reference,
   render: () =>
     html`<div style="display:flex;gap:8px;align-items:center">
       <prism-avatar name="Iris Vale" size="sm" decorative></prism-avatar>
       <span>Iris Vale</span>
     </div>`,
 };
+
+export const Playground: Story = {};

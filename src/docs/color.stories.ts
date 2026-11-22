@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
-import { html, svg } from 'lit';
+import { html } from 'lit';
 import resolvedJson from '../../tokens/prism.tokens.resolved.json?raw';
 
 const meta: Meta = {
@@ -171,34 +171,6 @@ const styles = html`<style>
   }
   .c-table td {
     font-variant-numeric: tabular-nums;
-  }
-  .c-stage {
-    border-radius: var(--prism-radius-11);
-    overflow: hidden;
-    background: var(--prism-color-bg);
-  }
-  .c-stage svg {
-    display: block;
-    inline-size: 100%;
-    block-size: auto;
-  }
-  .c-airy {
-    display: grid;
-    gap: var(--prism-space-4);
-    padding: var(--prism-space-8);
-    border-radius: var(--prism-radius-11);
-    background: var(--prism-gradient-mist);
-    color: var(--prism-color-text);
-  }
-  .c-airy h2 {
-    margin: 0;
-    font-size: var(--prism-font-size-28);
-    line-height: var(--prism-font-line-height-36);
-  }
-  .c-ray {
-    block-size: 4px;
-    border-radius: var(--prism-radius-full);
-    background: var(--prism-gradient-spectrum);
   }
 </style>`;
 
@@ -477,106 +449,4 @@ export const Contrast: StoryObj = {
           </tbody>
         </table>
       </div>`,
-};
-
-const BANDS = [
-  'red',
-  'amber',
-  'green',
-  'cyan',
-  'blue',
-  'violet',
-  'magenta',
-] as const;
-
-/** A beam of white light, a glass prism, and the spectrum it throws. */
-export const Refraction: StoryObj = {
-  render: () => {
-    const y0 = 172;
-    const step = 17;
-    const origin = [456, 146];
-    const bands = BANDS.map((h, i) => {
-      const [a, b] = [y0 + i * step, y0 + (i + 1) * step];
-      return svg`<polygon
-        points="${origin[0]},${origin[1]} 800,${a} 800,${b}"
-        style="fill: var(--prism-color-${h}-500)"
-      />`;
-    });
-    return html`${styles}
-      <div class="c-page">
-        <section>
-          <h2>Refraction</h2>
-          <p>
-            Light, split and mixed. The stage is a dark scope so the beam can
-            glow. The bands are the 500 step of each spectral hue, and on a
-            Display P3 screen they run at full chroma.
-          </p>
-        </section>
-        <div class="c-stage" data-prism-theme="dark">
-          <svg
-            viewBox="0 0 800 320"
-            role="img"
-            aria-label="A beam of white light enters a glass prism and fans out into the spectrum, red through magenta"
-          >
-            <defs>
-              <linearGradient id="beam" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#fff" stop-opacity="0" />
-                <stop offset="1" stop-color="#fff" stop-opacity="1" />
-              </linearGradient>
-              <linearGradient id="glass" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0" stop-color="#fff" stop-opacity="0.22" />
-                <stop offset="1" stop-color="#fff" stop-opacity="0.04" />
-              </linearGradient>
-              <filter id="glow" x="-10%" y="-30%" width="120%" height="160%">
-                <feGaussianBlur stdDeviation="9" />
-              </filter>
-            </defs>
-            <g filter="url(#glow)" opacity="0.7" style="mix-blend-mode: screen">
-              ${bands}
-            </g>
-            <g opacity="0.92" style="mix-blend-mode: screen">${bands}</g>
-            <polygon points="400,50 310,205 490,205" fill="url(#glass)" />
-            <polygon
-              points="400,50 310,205 490,205"
-              fill="none"
-              stroke-width="1.5"
-              style="stroke: var(--prism-color-border)"
-              stroke-linejoin="round"
-            />
-            <polygon
-              points="40,196 341,151 456,146 341,155"
-              fill="url(#beam)"
-            />
-            <line
-              x1="341"
-              y1="153"
-              x2="456"
-              y2="146"
-              stroke="#fff"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-          </svg>
-        </div>
-        <div class="c-airy">
-          <div class="c-ray" aria-hidden="true"></div>
-          <h2>Airy by default</h2>
-          <p>
-            Pale tints sit behind text with room to spare, and the color shows
-            up only where it means something: the action, the focus ring, the
-            status. Everything else stays clear glass.
-          </p>
-          <div class="c-row">
-            <prism-button type="button">Split the light</prism-button>
-            <prism-button type="button" variant="secondary"
-              >Mix it back</prism-button
-            >
-            <prism-tag tone="accent">Refracted</prism-tag>
-            <prism-tag tone="info">Cool</prism-tag>
-            <prism-tag tone="success">Clear</prism-tag>
-            <prism-tag tone="warning">Warm</prism-tag>
-          </div>
-        </div>
-      </div>`;
-  },
 };
