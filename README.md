@@ -89,18 +89,23 @@ pnpm install
 pnpm exec playwright install chromium
 ```
 
-| Script                 | What it does                            |
-| ---------------------- | --------------------------------------- |
-| `pnpm build`           | Compiles `src/` to `dist/` with `tsc`   |
-| `pnpm analyze`         | Writes `custom-elements.json`           |
-| `pnpm lint`            | ESLint, stylelint, prefix check, types  |
-| `pnpm format`          | Prettier                                |
-| `pnpm test`            | Playwright browser tests                |
-| `pnpm storybook`       | Storybook on port 6006                  |
-| `pnpm build-storybook` | Static Storybook in `storybook-static/` |
-| `pnpm changeset`       | Records a change for the next release   |
+| Script                 | What it does                                                    |
+| ---------------------- | --------------------------------------------------------------- |
+| `pnpm build`           | Compiles `src/` to `dist/` with `tsc`                           |
+| `pnpm analyze`         | Writes `custom-elements.json`                                   |
+| `pnpm lint`            | ESLint, stylelint, prefix check, types                          |
+| `pnpm format`          | Prettier                                                        |
+| `pnpm test`            | Playwright browser tests                                        |
+| `pnpm storybook`       | Storybook on port 6006                                          |
+| `pnpm build-storybook` | Static Storybook in `storybook-static/`                         |
+| `pnpm showcase`        | Theme showcase on port 4177                                     |
+| `pnpm build-showcase`  | Static showcase in `showcase-static/`                           |
+| `pnpm build-pages`     | Storybook at the root, showcase in `storybook-static/showcase/` |
+| `pnpm changeset`       | Records a change for the next release                           |
 
 The Storybook toolbar can switch light and dark, turn polish on or off, and (preview-only) change the font (Inter, Geist with Geist Mono, Figtree, Manrope, Plus Jakarta Sans, Onest). The font switcher sets `--prism-font-family-sans` on the preview root and loads the font from Google Fonts. Tokens and text styles do not change, and Inter stays the default. Stories are the neutral reference; polish is off until you turn it on.
+
+On GitHub Pages, Storybook stays at the site root ([glenn203.github.io/prism](https://glenn203.github.io/prism/)) and the theme showcase is at [`/showcase`](https://glenn203.github.io/prism/showcase/). The showcase uses the built package, loads tokens, `theme.css`, `accent.css` and polish, and has a switcher for a neutral default vs the spectral accent, light and dark, and polish on or off.
 
 Add a changeset with every change that affects the published package.
 

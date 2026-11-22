@@ -11,6 +11,7 @@ export default tseslint.config(
     ignores: [
       'dist',
       'storybook-static',
+      'showcase-static',
       'test-results',
       'playwright-report',
       'custom-elements.json',

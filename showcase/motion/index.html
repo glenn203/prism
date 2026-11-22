@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motion · Prism showcase</title>
+    <script>
+      (() => {
+        try {
+          const t =
+            localStorage.getItem('prism-showcase-appearance') || 'light';
+          const p = localStorage.getItem('prism-showcase-polish') ?? 'on';
+          document.documentElement.dataset.prismTheme = t;
+          if (p !== 'off') document.documentElement.dataset.prismPolish = 'all';
+        } catch {
+          document.documentElement.dataset.prismTheme = 'light';
+          document.documentElement.dataset.prismPolish = 'all';
+        }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+  </head>
+  <body data-prism-page="motion">
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

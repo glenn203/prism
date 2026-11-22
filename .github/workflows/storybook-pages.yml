@@ -1,4 +1,4 @@
-name: Storybook to GitHub Pages
+name: GitHub Pages
 
 on:
   push:
@@ -26,9 +26,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm tokens
-      - run: pnpm build-storybook
+      - run: pnpm build
+      - run: pnpm build-pages
         env:
           STORYBOOK_BASE: /prism/
+          SHOWCASE_BASE: /prism/showcase/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

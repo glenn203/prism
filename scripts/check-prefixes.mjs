@@ -7,11 +7,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 
-const roots = ['src', 'test', 'DESIGN.md', 'README.md', 'scripts'];
+const roots = ['src', 'test', 'DESIGN.md', 'README.md', 'scripts', 'showcase'];
 const skipDir = new Set([
   'dist',
   'node_modules',
   'storybook-static',
+  'showcase-static',
   'test-results',
 ]);
 const skipFile = new Set(['custom-elements.json', 'check-prefixes.mjs']);
