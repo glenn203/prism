@@ -16,7 +16,7 @@ async function setup(page: Page, markup: string) {
 }
 
 test.describe('prism-progress', () => {
-  test('role progressbar with valuemin, valuemax, valuenow and a name', async ({
+  test('a native progress bar named by its label reports max and value', async ({
     page,
   }) => {
     const errors = await setup(
@@ -25,9 +25,9 @@ test.describe('prism-progress', () => {
     );
     expect(errors).toEqual([]);
     const bar = page.getByRole('progressbar', { name: 'Storage used' });
-    await expect(bar).toHaveAttribute('aria-valuemin', '0');
-    await expect(bar).toHaveAttribute('aria-valuemax', '100');
-    await expect(bar).toHaveAttribute('aria-valuenow', '60');
+    await expect(bar).toHaveJSProperty('max', 100);
+    await expect(bar).toHaveJSProperty('value', 60);
+    await expect(bar).toHaveAttribute('value', '60');
   });
 
   test('the fill length follows value and max', async ({ page }) => {
@@ -50,13 +50,13 @@ test.describe('prism-progress', () => {
       page,
       '<prism-progress id="a" label="A" value="150"></prism-progress><prism-progress id="b" label="B" value="-5"></prism-progress>',
     );
-    await expect(page.getByRole('progressbar', { name: 'A' })).toHaveAttribute(
-      'aria-valuenow',
-      '100',
+    await expect(page.getByRole('progressbar', { name: 'A' })).toHaveJSProperty(
+      'value',
+      100,
     );
-    await expect(page.getByRole('progressbar', { name: 'B' })).toHaveAttribute(
-      'aria-valuenow',
-      '0',
+    await expect(page.getByRole('progressbar', { name: 'B' })).toHaveJSProperty(
+      'value',
+      0,
     );
   });
 
@@ -80,7 +80,7 @@ test.describe('prism-progress', () => {
     ).toHaveAttribute('aria-valuetext', '3 of 5 steps');
   });
 
-  test('indeterminate: no valuenow, a state, the comet travels, and under reduced motion it pulses instead', async ({
+  test('indeterminate: no value, a state, the comet travels, and under reduced motion it pulses instead', async ({
     page,
   }) => {
     await setup(
@@ -88,7 +88,7 @@ test.describe('prism-progress', () => {
       '<prism-progress id="p" label="Loading"></prism-progress>',
     );
     const bar = page.getByRole('progressbar', { name: 'Loading' });
-    expect(await bar.getAttribute('aria-valuenow')).toBeNull();
+    await expect(bar).not.toHaveAttribute('value');
     const anim = () =>
       page
         .locator('#p')

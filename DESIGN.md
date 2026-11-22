@@ -334,8 +334,8 @@ settled spec yet, so those names and props are provisional.
 | `prism-tag`              | Short word with meaning. `job`, `emphasis` (high, low, ghost), `tone`, `size` (sm 20px, md 24px). Behaviors: read-only, `dismissible`, `selectable`, `trigger`.           |
 | `prism-badge`            | `job="count"` (`count`, `max` 99, `show-zero`) or `job="status"` (`status` live, running, stopped). Not clickable. The parent carries the name, the badge the number.     |
 | `prism-avatar`           | Person or entity. `name` (initials fallback, accessible name), `src`, `size` xs to xl (24, 32, 40, 48, 64px), `shape`, `decorative` when the name is written beside it.   |
-| `prism-progress`         | `role=progressbar` with `aria-valuemin/max/now/valuetext`. `label` (required), `value`, `max`, `value-text`, `show-value`, `hide-label`, `tone`. No value: indeterminate. |
-| `prism-description-list` | Label/value list. `label`, `orientation` (horizontal, vertical). Children `prism-description-list-item` with `label`. Roles: list, listitem, term, definition.            |
+| `prism-progress`         | Native `<progress>` named by `<label for>`. `label` (required), `value`, `max`, `value-text` (also `aria-valuetext`), `show-value`, `hide-label`, `tone`. No value: indeterminate. |
+| `prism-description-list` | Native `<dl>` of `<dt>`/`<dd>` pairs. `label`, `orientation` (horizontal, vertical). Children `prism-description-list-item` with `label`.                                  |
 
 Rules: the word carries the meaning, never colour alone (Tag text, Badge status
 word, Progress value text, Description list labels). Tag selected shows a solid border;

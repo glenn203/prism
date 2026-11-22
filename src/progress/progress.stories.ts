@@ -40,10 +40,10 @@ const meta: Meta<Args> = {
 export default meta;
 type Story = StoryObj<Args>;
 
-/** Role progressbar with min, max and now, named by the label. */
+/** A native progress bar named by the label. */
 export const Default: Story = {};
 
-/** `value-text` puts words in the bar and in `aria-valuetext`. */
+/** `value-text` puts words beside the bar and in `aria-valuetext`. */
 export const Steps: Story = {
   render: () =>
     html`<div style="max-inline-size:320px">

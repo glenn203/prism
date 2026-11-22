@@ -24,18 +24,18 @@ const LIST = (
 </prism-description-list></div>`;
 
 test.describe('prism-description-list', () => {
-  test('a named list of list items; each label is a term and each value a definition', async ({
+  test('a named description list; each label is a term and each value a definition', async ({
     page,
   }) => {
     const errors = await setup(page, LIST());
     expect(errors).toEqual([]);
-    await expect(
-      page.getByRole('list', { name: 'Resource details' }),
-    ).toHaveCount(1);
-    await expect(page.getByRole('listitem')).toHaveCount(3);
+    const list = page.locator('prism-description-list#d');
+    await expect(list.locator('dl')).toHaveAccessibleName('Resource details');
     await expect(page.getByRole('term')).toHaveCount(3);
     await expect(page.getByRole('definition')).toHaveCount(3);
     await expect(page.getByRole('term').first()).toHaveText('OS');
+    await expect(page.getByRole('list')).toHaveCount(0);
+    await expect(page.getByRole('listitem')).toHaveCount(0);
   });
 
   test('horizontal: labels share one column so values line up', async ({

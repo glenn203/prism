@@ -2,25 +2,28 @@ import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 
 /**
- * One label and value of a `prism-description-list`. The default slot is the value
- * (text, a Tag, a link). NAME PROVISIONAL.
+ * One term and definition of a `prism-description-list`. The default slot is
+ * the value (text, a tag, a link). NAME PROVISIONAL.
+ *
+ * The host uses `display: contents` so the `<dt>` and `<dd>` participate in
+ * the parent list's grid.
  *
  * @tag prism-description-list-item
  * @slot - The value.
- * @csspart label - The label (a `term`).
- * @csspart value - The value (a `definition`).
+ * @csspart label - The term (`<dt>`).
+ * @csspart value - The definition (`<dd>`).
  */
 export class PrismDescriptionListItem extends LitElement {
   static override styles = css`
     :host {
-      display: grid;
-      grid-template-columns: subgrid;
-      grid-column: 1 / -1;
-      align-items: baseline;
-      min-inline-size: 0;
+      display: contents;
     }
     :host([hidden]) {
       display: none;
+    }
+    [part='label'],
+    [part='value'] {
+      margin: 0;
     }
     [part='value'] {
       min-inline-size: 0;
@@ -28,13 +31,8 @@ export class PrismDescriptionListItem extends LitElement {
     }
   `;
 
-  /** The label: "Version", "OS". */
+  /** The term: "Version", "OS". */
   @property() label = '';
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    if (!this.hasAttribute('role')) this.setAttribute('role', 'listitem');
-  }
 
   override updated(): void {
     if (!this.label)
@@ -42,7 +40,7 @@ export class PrismDescriptionListItem extends LitElement {
   }
 
   override render() {
-    return html`<span part="label" role="term">${this.label}</span
-      ><span part="value" role="definition"><slot></slot></span>`;
+    return html`<dt part="label">${this.label}</dt>
+      <dd part="value"><slot></slot></dd>`;
   }
 }
