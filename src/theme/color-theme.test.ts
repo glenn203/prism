@@ -45,9 +45,9 @@ test('light is the default, dark is opt-in, and a light scope inside dark restor
   await page.emulateMedia({ colorScheme: 'dark' }); // the system must not matter
   await setup(page);
   const bg = (sel: string) => paint(page, sel, 'color-bg');
-  const white = await literal(page, 'oklch(1 0 260)');
+  const white = await literal(page, 'oklch(0.995 0.002 255)');
   expect(await bg('#light')).toBe(white);
-  expect(await bg('#dark')).toBe(await literal(page, 'oklch(0.129 0.03 260)'));
+  expect(await bg('#dark')).toBe(await literal(page, 'oklch(0.155 0.01 255)'));
   expect(await bg('#inner')).toBe(white);
 });
 
@@ -55,7 +55,7 @@ test('auto follows the system colour scheme', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await setup(page);
   expect(await paint(page, '#auto', 'color-bg')).toBe(
-    await literal(page, 'oklch(1 0 260)'),
+    await literal(page, 'oklch(0.995 0.002 255)'),
   );
   await page.emulateMedia({ colorScheme: 'dark' });
   expect(await paint(page, '#auto', 'color-bg')).toBe(
@@ -86,7 +86,7 @@ test('everything built from a themed role follows it: halo, elevation, mist, col
   expect(await read('#light', 'color-scheme')).toBe('light');
 });
 
-test('primary button: white text on vivid violet in light, ink on lighter violet in dark', async ({
+test('primary button: near-white text on near-black in light, ink on near-white in dark', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' }); // no colour transition mid-read
@@ -106,12 +106,23 @@ test('primary button: white text on vivid violet in light, ink on lighter violet
       return { bg: s.backgroundColor, fg: s.color };
     }, sel);
   const [light, dark] = [await style('#l'), await style('#d')];
-  expect(light.fg).toBe(await literal(page, 'oklch(1 0 260)')); // white
-  expect(dark.fg).toBe(await literal(page, 'oklch(0.129 0.03 260)')); // ink
-  const fill = async (sel: string) =>
-    painted(page.locator(`${sel} prism-button`), 'base');
-  const [lf, df] = [await fill('#l'), await fill('#d')];
-  expect(lf[2]! - lf[1]!).toBeGreaterThan(100); // vivid violet: blue far above green
-  expect(df).not.toEqual(lf);
-  expect(df[0]! + df[1]! + df[2]!).toBeGreaterThan(lf[0]! + lf[1]! + lf[2]!); // lighter in dark
+  expect(light.fg).toBe(await literal(page, 'oklch(0.995 0.002 255)')); // near-white
+  expect(light.bg).toBe(await literal(page, 'oklch(0.2 0.011 255)')); // near-black
+  expect(dark.fg).toBe(await literal(page, 'oklch(0.155 0.01 255)')); // ink
+  expect(dark.bg).toBe(await literal(page, 'oklch(0.985 0.004 255)')); // near-white
+});
+
+test('the opt-in accent layer restores the spectral accent on a primary button', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await mount(
+    page,
+    `<div id="l"><prism-button type="button">Go</prism-button></div>`,
+  );
+  await page.addStyleTag({ url: '/src/tokens/tokens.css' });
+  await page.addStyleTag({ url: '/src/theme/theme.css' });
+  await page.addStyleTag({ url: '/src/theme/theme-accent.css' });
+  const fill = await painted(page.locator('#l prism-button'), 'base');
+  expect(fill[2]! - fill[1]!).toBeGreaterThan(100); // violet: blue far above green
 });

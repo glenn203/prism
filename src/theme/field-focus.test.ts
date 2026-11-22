@@ -129,19 +129,19 @@ for (const theme of ['light', 'dark']) {
   }
 }
 
-test('swapping the accent recolours the border and the ring together', async ({
+test('swapping the focus border recolours the border and the ring together', async ({
   page,
 }) => {
   await setup(page, FIELDS['text input'].markup, 'light');
   await page.evaluate(() =>
     document.documentElement.style.setProperty(
-      '--prism-color-accent',
+      '--prism-color-focus-border',
       'rgb(0, 128, 0)',
     ),
   );
   const { focused } = await focusAndMeasure(page, 'input', false);
   expect(focused.border).toEqual([0, 128, 0]);
-  // 50% of the accent over the page: halfway between green and the page.
+  // 50% of the focus colour over the page: halfway between green and the page.
   const half = focused.page.map((p, i) => (p + [0, 128, 0][i]!) / 2);
   focused.shadows[1]!.colour.forEach((v, i) =>
     expect(Math.abs(v - half[i]!)).toBeLessThanOrEqual(6),

@@ -1,0 +1,52 @@
+/*
+ * Opt-in accent layer: the spectral (violet) accent and a matching focus
+ * colour. Defaults in tokens.css stay on the neutral band, with colour only
+ * for meaning (error and the default focus colour). Load this after
+ * tokens.css, and after theme.css if you use it, to restore the brand look:
+ *
+ *   import 'prism/tokens.css';
+ *   import 'prism/theme.css';
+ *   import 'prism/accent.css';
+ */
+
+:root {
+  --prism-color-accent: var(--prism-color-violet-600);
+  --prism-color-accent-hover: var(--prism-color-violet-700);
+  --prism-color-accent-active: var(--prism-color-violet-900);
+  --prism-color-accent-text: oklch(0.42 0.224 300);
+  --prism-color-accent-surface: oklch(0.915 0.043 300);
+  --prism-color-focus-ring: var(--prism-color-violet-600);
+  --prism-color-focus-border: var(--prism-color-accent);
+}
+
+[data-prism-theme='dark'] {
+  --prism-color-accent: var(--prism-color-violet-500);
+  --prism-color-accent-hover: var(--prism-color-violet-300);
+  --prism-color-accent-active: var(--prism-color-violet-300);
+  --prism-color-accent-text: oklch(0.83 0.1 300);
+  --prism-color-accent-surface: oklch(0.3 0.137 300);
+  --prism-color-focus-ring: var(--prism-color-violet-300);
+  --prism-color-focus-border: var(--prism-color-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-prism-theme='auto'] {
+    --prism-color-accent: var(--prism-color-violet-500);
+    --prism-color-accent-hover: var(--prism-color-violet-300);
+    --prism-color-accent-active: var(--prism-color-violet-300);
+    --prism-color-accent-text: oklch(0.83 0.1 300);
+    --prism-color-accent-surface: oklch(0.3 0.137 300);
+    --prism-color-focus-ring: var(--prism-color-violet-300);
+    --prism-color-focus-border: var(--prism-color-accent);
+  }
+}
+
+[data-prism-theme='light'] {
+  --prism-color-accent: var(--prism-color-violet-600);
+  --prism-color-accent-hover: var(--prism-color-violet-700);
+  --prism-color-accent-active: var(--prism-color-violet-900);
+  --prism-color-accent-text: oklch(0.42 0.224 300);
+  --prism-color-accent-surface: oklch(0.915 0.043 300);
+  --prism-color-focus-ring: var(--prism-color-violet-600);
+  --prism-color-focus-border: var(--prism-color-accent);
+}
