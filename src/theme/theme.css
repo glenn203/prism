@@ -1842,7 +1842,12 @@ prism-segmented-control::part(base):focus-visible {
   prism-card-handle::part(base):focus-visible,
   prism-tag::part(base):focus-visible,
   prism-tag::part(remove):focus-visible,
-  prism-switch::part(base):has(:focus-visible) {
+  prism-switch::part(base):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: var(--prism-focus-ring-offset);
+  }
+  /* The track is a span; with delegatesFocus the host is :focus, not always :focus-visible. */
+  prism-switch:focus::part(base) {
     outline: 2px solid Highlight;
     outline-offset: var(--prism-focus-ring-offset);
   }
