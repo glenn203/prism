@@ -3,6 +3,7 @@ import { property, state } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
 import { TextControl } from '../internal/text-control.js';
 import { textRole } from '../internal/control-styles.js';
+import { visuallyHidden } from '../internal/visually-hidden.js';
 
 /**
  * A multi-line text input. `autosize` grows it with its content (from
@@ -29,6 +30,7 @@ import { textRole } from '../internal/control-styles.js';
 export class PrismTextArea extends TextControl {
   static override styles: CSSResultGroup = [
     TextControl.styles,
+    visuallyHidden,
     css`
       [part='input'] {
         block-size: auto;
@@ -59,14 +61,6 @@ export class PrismTextArea extends TextControl {
         ${textRole('caption')}
         text-align: end;
         font-variant-numeric: tabular-nums;
-      }
-      .sr-only {
-        position: absolute;
-        inline-size: 1px;
-        block-size: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
       }
     `,
   ];
@@ -152,7 +146,7 @@ export class PrismTextArea extends TextControl {
     return html`<div part="counter" aria-hidden="true">
         ${this.value.length} / ${this.maxlength}
       </div>
-      <div class="sr-only" role="status" aria-live="polite">
+      <div class="visually-hidden" role="status" aria-live="polite">
         ${this.announcement}
       </div>`;
   }

@@ -8,7 +8,7 @@ interface Args {
 }
 
 const meta: Meta<Args> = {
-  title: 'Components/DescriptionList',
+  title: 'Components/Description list',
   component: 'prism-description-list',
   args: { orientation: 'horizontal' },
   argTypes: {

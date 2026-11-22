@@ -56,7 +56,7 @@ export class PrismCardSkeleton extends LitElement {
       inline-size: 45%;
       block-size: 0.875rem;
     }
-    :host([variant='card']) [part='line'][data-footer] {
+    :host([variant='card']) [part='line'][data-prism-footer] {
       margin-block-start: auto;
       inline-size: 30%;
     }
@@ -76,7 +76,7 @@ export class PrismCardSkeleton extends LitElement {
       return html`<div part="base">
         <span part="line"></span><span part="line"></span>
         <span part="line"></span><span part="line"></span>
-        <span part="line" data-footer></span>
+        <span part="line" data-prism-footer></span>
       </div>`;
     const n = Math.max(1, Math.min(8, Math.round(this.lines) || 3));
     return html`<div part="base">

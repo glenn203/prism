@@ -790,7 +790,7 @@ const MATRIX = [
       ['color.text', 'icon'], // hover icon colour
     ],
   ],
-  // Card family (M1). Cards are not interactive yet, so these rows also stand
+  // Card family (Milestone 1). Cards are not interactive yet, so these rows also stand
   // in for the controls placed on them: the surface is the base the overlay of
   // a ghost button or icon button composites over.
   [
@@ -813,7 +813,7 @@ const MATRIX = [
       ['color.text-muted', 'icon'],
     ],
   ],
-  // M2: clickable, choice and collection cards. The edge (strong border) and
+  // Milestone 2: clickable, choice and collection cards. The edge (strong border) and
   // the selected ring (accent) are non-text and must hold 3:1 against the card
   // fill in every state, and the text on the overlay 4.5:1.
   [
@@ -828,7 +828,7 @@ const MATRIX = [
       ['color.text', 'icon'], // check mark / radio dot
     ],
   ],
-  // M3: widget (metric number, label, range line and its "Overridden" flag),
+  // Milestone 3: widget (metric number, label, range line and its "Overridden" flag),
   // the collapsible toggle (title text, chevron over the hover and press tint),
   // and the card list (selected count, pager text, page-size select edge).
   // Skeleton lines are decorative (aria-hidden) and carry no information.
@@ -861,7 +861,7 @@ const MATRIX = [
       ['color.border-strong', 'border'], // page-size select edge
     ],
   ],
-  // M4: the drag handle (grip icon, tinted on hover and press), the drop line
+  // Milestone 4: the drag handle (grip icon, tinted on hover and press), the drop line
   // and its dot (accent), and the drag copy (text, strong edge). The original
   // dims to 40% while it is dragged; that transient state is not measured.
   [

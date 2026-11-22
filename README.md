@@ -34,16 +34,16 @@ Register the components you use. Class files have no side effects; the
 
 ```js
 import 'prism/button/define';
-import 'prism/text-field/define';
+import 'prism/text-input/define';
 // or everything at once: import 'prism/define';
 ```
 
 ```html
 <form>
-  <prism-text-field label="Email" name="email" type="email" required>
+  <prism-text-input label="Email" name="email" type="email" required>
     <span slot="description">We only use this for receipts.</span>
     <span slot="error">Enter an email address.</span>
-  </prism-text-field>
+  </prism-text-input>
   <prism-button type="submit">Save</prism-button>
 </form>
 ```
@@ -58,7 +58,7 @@ prism-button:state(disabled)::part(base) {
   opacity: 0.5;
 }
 
-prism-text-field:state(invalid)::part(input) {
+prism-text-input:state(invalid)::part(input) {
   border-color: red;
 }
 ```
@@ -75,9 +75,10 @@ customElements.define('lumen-button', class extends PrismButton {});
 | Tag                | Parts                                    | States                | Slots                   |
 | ------------------ | ---------------------------------------- | --------------------- | ----------------------- |
 | `prism-button`     | `base`, `label`                          | `disabled`, `pressed` | default, `start`, `end` |
-| `prism-text-field` | `label`, `input`, `description`, `error` | `invalid`, `disabled` | `description`, `error`  |
+| `prism-text-input` | `label`, `input`, `description`, `error` | `invalid`, `disabled` | `description`, `error`  |
 
-The full API is in `custom-elements.json`.
+The full API is in `custom-elements.json`. `prism-text-field` is a
+deprecated alias of `prism-text-input` and will be removed before 1.0.
 
 ## Contributing
 
@@ -92,7 +93,7 @@ pnpm exec playwright install chromium
 | ---------------------- | --------------------------------------- |
 | `pnpm build`           | Compiles `src/` to `dist/` with `tsc`   |
 | `pnpm analyze`         | Writes `custom-elements.json`           |
-| `pnpm lint`            | ESLint and a type check                 |
+| `pnpm lint`            | ESLint, stylelint, prefix check, types  |
 | `pnpm format`          | Prettier                                |
 | `pnpm test`            | Playwright browser tests                |
 | `pnpm storybook`       | Storybook on port 6006                  |

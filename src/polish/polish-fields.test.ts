@@ -86,8 +86,8 @@ test('the light follows the pointer: it is measured on the control, not on the l
   const pos = await page.locator('#t').evaluate((el) => {
     const s = (el as HTMLElement).style;
     return [
-      parseFloat(s.getPropertyValue('--x')),
-      parseFloat(s.getPropertyValue('--y')),
+      parseFloat(s.getPropertyValue('--prism-pointer-x')),
+      parseFloat(s.getPropertyValue('--prism-pointer-y')),
     ];
   });
   expect(pos[0]).toBeCloseTo(30, 0);

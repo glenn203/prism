@@ -203,11 +203,11 @@ export class PrismCardList extends PrismCardGroup {
       [part='drop-line'][hidden] {
         display: none;
       }
-      [part='drop-line']:not([data-vertical]) {
+      [part='drop-line']:not([data-prism-vertical]) {
         block-size: var(--_drop-line-width);
         margin-block-start: calc(var(--_drop-line-width) / -2);
       }
-      [part='drop-line'][data-vertical] {
+      [part='drop-line'][data-prism-vertical] {
         inline-size: var(--_drop-line-width);
         margin-inline-start: calc(var(--_drop-line-width) / -2);
       }
@@ -217,13 +217,13 @@ export class PrismCardList extends PrismCardGroup {
         block-size: var(--_drop-dot-size);
         border-radius: 50%;
       }
-      [part='drop-line']:not([data-vertical]) [part='drop-dot'] {
+      [part='drop-line']:not([data-prism-vertical]) [part='drop-dot'] {
         inset-inline-start: 0;
         inset-block-start: calc(
           (var(--_drop-line-width) - var(--_drop-dot-size)) / 2
         );
       }
-      [part='drop-line'][data-vertical] [part='drop-dot'] {
+      [part='drop-line'][data-prism-vertical] [part='drop-dot'] {
         inset-block-start: 0;
         inset-inline-start: calc(
           (var(--_drop-line-width) - var(--_drop-dot-size)) / 2
@@ -721,7 +721,7 @@ export class PrismCardList extends PrismCardGroup {
       : `left:${String(info.x - host.left)}px;top:${String(info.y - host.top)}px;inline-size:${String(info.length)}px`;
     return html`<div
       part="drop-line"
-      ?data-vertical=${info.vertical}
+      ?data-prism-vertical=${info.vertical}
       style=${style}
     >
       <span part="drop-dot"></span>

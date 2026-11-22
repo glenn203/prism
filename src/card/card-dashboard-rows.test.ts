@@ -59,7 +59,7 @@ const listStatus = (page: Page, row: number) =>
   );
 const dashStatus = (page: Page) =>
   page.evaluate(() =>
-    document.querySelector('[data-dash-status]')!.textContent!.trim(),
+    document.querySelector('[data-prism-dash-status]')!.textContent!.trim(),
   );
 const trigger = (page: Page, title: string) =>
   page.getByRole('button', { name: `More options for ${title}`, exact: true });
@@ -370,7 +370,7 @@ test.describe('dashboard rows: announcements', () => {
       ['status', 'polite'],
     ]);
     const dash = await page.evaluate(() => {
-      const s = document.querySelector('[data-dash-status]')!;
+      const s = document.querySelector('[data-prism-dash-status]')!;
       return [s.getAttribute('role'), s.getAttribute('aria-live')];
     });
     expect(dash).toEqual(['status', 'polite']);

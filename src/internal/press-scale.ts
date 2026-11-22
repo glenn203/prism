@@ -62,7 +62,7 @@ export interface PressScaleOptions {
   rim?: boolean;
   /** Enter presses too (a button, unlike a native radio). Default true. */
   enter?: boolean;
-  /** Mark the target `data-pressed` while held, so the state layer shows the press colour. */
+  /** Mark the target `data-prism-pressed` while held, so the state layer shows the press colour. */
   mark?: boolean;
 }
 
@@ -149,13 +149,13 @@ export class PressScale implements ReactiveController {
     if (!el) return;
     const moving = q !== 0 && canAnimate(this.host, el);
     el.style.scale = moving ? String(this.#scale(q)) : '';
-    if (this.o.mark) el.toggleAttribute('data-pressed', q !== 0);
+    if (this.o.mark) el.toggleAttribute('data-prism-pressed', q !== 0);
   }
 
   #retarget(): void {
     const q = this.#press.held ? 1 : 0;
     const el = this.o.target();
-    if (this.o.mark) el?.toggleAttribute('data-pressed', q !== 0);
+    if (this.o.mark) el?.toggleAttribute('data-prism-pressed', q !== 0);
     if (!canAnimate(this.host, el ?? null)) {
       this.#motion.snap({ q });
       return this.#show(q);

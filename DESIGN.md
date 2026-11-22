@@ -7,8 +7,12 @@ Read this before adding or changing a component. Variant names are
 
 - Elements: `prism-*` (`prism-button`, `prism-select`).
 - CSS variables: `--prism-*`. Private, component-internal variables start
-  with `--_` (`--_bg`, `--_on`).
-- Data attributes: `data-prism-*` (`data-prism-density`).
+  with `--_` (`--_bg`, `--_on`). Shared library internals use `--_prism-*`
+  (`--_prism-state-overlay`).
+- Data attributes: `data-prism-*` (`data-prism-density`, `data-prism-pressed`).
+- Events: reuse `input` and `change` when the control behaves like a form
+  control, and `search` only on a search field. Every other event is
+  `prism-{component}-{verb}` (`prism-menu-select`, `prism-otp-complete`).
 - There are no aliases for old names.
 
 ## Tokens, density, grid
@@ -47,7 +51,7 @@ element's own text colour `--_on` on top as an alpha overlay:
 | State          | Overlay of `--_on`                   | Trigger                                                                   |
 | -------------- | ------------------------------------ | ------------------------------------------------------------------------- |
 | hover          | 6% (`--prism-state-hover`)           | `:hover` **only under `@media (hover: hover)`**, or host `:state(active)` |
-| pressed        | 12% (`--prism-state-pressed`)        | `:active` or `[data-pressed]`                                             |
+| pressed        | 12% (`--prism-state-pressed`)        | `:active` or `[data-prism-pressed]`                                       |
 | selected       | 11% (`--prism-state-selected`)       | `aria-selected/pressed/checked=true`, `aria-current`, `:state(selected)`  |
 | selected+hover | 15% (`--prism-state-selected-hover`) | both                                                                      |
 | disabled       | no change (inert)                    | `:disabled`, `aria-disabled=true`, `:state(disabled)`                     |
@@ -118,7 +122,7 @@ prism-tab::part(base) {
 All variants use the shared state layer, the same focus ring and the same
 inert disabled look.
 
-## Card family (M1: shared Card, names provisional)
+## Card family (Milestone 1: shared Card, names provisional)
 
 Settled names: Card, CardTitle, CardDescription, TimeRangeInput. Everything else here is **provisional**: `prism-card-actions`, `prism-card-meta`,
 `prism-icon-button`, `prism-menu`, `prism-menu-item`, the `type`, `raised` and
@@ -171,7 +175,7 @@ the bottom of cards in the same row. Never position it with absolute placement.
 - A dragged copy (later milestone) uses `--prism-elevation-default`.
 - Interactive cards (later) take `color-border-strong` so the edge meets 3:1.
 
-### Interactive cards (M2, names provisional)
+### Interactive cards (Milestone 2, names provisional)
 
 | Type                      | Whole-card click | Title                         | Control                                | Tab stops                                    |
 | ------------------------- | ---------------- | ----------------------------- | -------------------------------------- | -------------------------------------------- |
@@ -192,7 +196,7 @@ the bottom of cards in the same row. Never position it with absolute placement.
   flat. Raised keeps a transparent border and its shadow.
 - **State layer.** Clickable and choice cards tint 6% hover, 12% pressed. Other
   cards only use the layer for selected (11%, 15% on hover). While the pointer
-  is over a nested control the card shows no tint (`data-nested` on the base).
+  is over a nested control the card shows no tint (`data-prism-nested` on the base).
   Hover never lifts.
 - **Focus.** Focus on the title (or a choice card's control) draws the ring
   around the whole card (`:state(focus-ring)`); the title and the choice radio
@@ -209,13 +213,13 @@ the bottom of cards in the same row. Never position it with absolute placement.
   `group.selected` (ids), `clear()`, listen for `prism-selection-change`. Ids of
   cards that are not on screen stay selected. `SelectionController` is the
   plain, reusable store behind it. The visible count and "Clear selection"
-  button belong to the card list (M3).
+  button belong to the card list (Milestone 3).
 - **Control labels.** IDs cannot cross shadow roots, so the select's name and
   description are copied from the title and description. A disabled card's
   reason must be in its description (dev error otherwise). A nested control's
   label must include the card title (dev error otherwise).
 
-### Widget, collapsible and card list (M3, names provisional)
+### Widget, collapsible and card list (Milestone 3, names provisional)
 
 - **Widget** (`type="widget"`, a Card in a Grid; there is no Widget component).
   Header: title, a scope description, up to two actions (refresh icon button,
@@ -276,7 +280,7 @@ the bottom of cards in the same row. Never position it with absolute placement.
   `no-matches` ("No matches", Clear filters), `error` (what failed, Retry). One
   failed card uses `state="error"` on that card.
 
-### Reorder (M4, names provisional)
+### Reorder (Milestone 4, names provisional)
 
 `prism-card-list[reorderable]` lets people reorder cards. Every card gets a
 `prism-card-handle` in its header (the grip). The handle is the pointer way; the
@@ -704,7 +708,7 @@ An optional layer for demos and products that want a slightly more finished feel
 
 - **Switch.** `data-prism-polish` on any ancestor (the page root for a global switch): empty or `all` turns on all three, or list `squircle`, `light`, `tilt`. `off` (or `none`) turns it off again inside a scope. Load `@glenn203/prism/polish.css` after the theme, and call `enablePolish()` once for the two pointer effects. The Storybook toolbar sets the attribute for you.
 - **Squircle corners.** `--prism-corner-shape` becomes `squircle`, and radii on buttons, icon buttons, tags, text fields, checkbox boxes, cards, menus and menu items are multiplied by `--prism-corner-scale` (1.5). Both are gated by `@supports (corner-shape: squircle)`; where it is not supported nothing changes, so the normal radius stays. The scale is there because a squircle at the same radius reads tighter than a round corner. Pills and the switch track are left alone.
-- **Light-following border.** On hover and keyboard focus, buttons and clickable, selectable or raised cards draw a 1px gradient ring (the spectrum hues at their 600 level in light, 300 in dark) whose highlight follows the pointer through `--x` and `--y`. It is a mask over the border box, so it sits on top of the existing border and focus ring and never replaces them; the border keeps its 3:1 contrast. Disabled and borderless cards, touch (`hover: none`, `pointer: coarse`) and forced colours get no ring.
+- **Light-following border.** On hover and keyboard focus, buttons and clickable, selectable or raised cards draw a 1px gradient ring (the spectrum hues at their 600 level in light, 300 in dark) whose highlight follows the pointer through `--prism-pointer-x` and `--prism-pointer-y`. It is a mask over the border box, so it sits on top of the existing border and focus ring and never replaces them; the border keeps its 3:1 contrast. Disabled and borderless cards, touch (`hover: none`, `pointer: coarse`) and forced colours get no ring.
 - **Card tilt.** Cards only, at most `--prism-tilt-max` (2.5 degrees) under `--prism-tilt-perspective`, easing back on leave. Transform only. Never on buttons, on a dragged card, on touch, or when motion is reduced.
 - **Fields.** Text inputs and the select trigger get the same ring on hover and while focus is inside (measured on the control or trigger, not on the label above). It sits under the floating label and is not drawn on disabled or invalid fields.
 - **Reduced motion.** Corners still apply. The ring has no fade, the pointer is not tracked, nothing tilts.

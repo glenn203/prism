@@ -67,7 +67,7 @@ test.describe('prism-text-input: floating label', () => {
       const label = root.querySelector('[part="label"]')!;
       const control = root.querySelector('[part="control"]')!;
       return {
-        attr: el.hasAttribute('data-floating'),
+        attr: el.hasAttribute('data-prism-floating'),
         inside: control.contains(label),
         above:
           label.getBoundingClientRect().bottom <=
@@ -216,13 +216,19 @@ test.describe('prism-text-input: floating label', () => {
        <prism-text-area id="a" label="Notes" floating></prism-text-area>`,
     );
     expect(
-      await host(page, '#p').evaluate((e) => e.hasAttribute('data-floating')),
+      await host(page, '#p').evaluate((e) =>
+        e.hasAttribute('data-prism-floating'),
+      ),
     ).toBe(true);
     expect(
-      await host(page, '#s').evaluate((e) => e.hasAttribute('data-floating')),
+      await host(page, '#s').evaluate((e) =>
+        e.hasAttribute('data-prism-floating'),
+      ),
     ).toBe(false);
     expect(
-      await host(page, '#a').evaluate((e) => e.hasAttribute('data-floating')),
+      await host(page, '#a').evaluate((e) =>
+        e.hasAttribute('data-prism-floating'),
+      ),
     ).toBe(false);
   });
 });

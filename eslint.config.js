@@ -14,6 +14,7 @@ export default tseslint.config(
       'test-results',
       'playwright-report',
       'custom-elements.json',
+      'pw.local.config.ts',
     ],
   },
   eslint.configs.recommended,
@@ -34,11 +35,32 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    settings: {
+      wc: { elementBaseClasses: ['LitElement'] },
+    },
+    rules: {
+      'wc/no-invalid-element-name': ['error', { prefix: ['prism-'] }],
+      'wc/tag-name-matches-class': 'error',
+      'lit/attribute-names': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'CallExpression[callee.property.name=/^(setAttribute|toggleAttribute|hasAttribute|getAttribute|removeAttribute)$/] > Literal[value=/^data-(?!prism-)/]',
+          message: 'Data attributes must use the data-prism- prefix.',
+        },
+      ],
+    },
   },
   {
     files: ['**/*.test.ts', 'test/**'],
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
   },
   { files: ['**/*.js', '**/*.mjs'], ...tseslint.configs.disableTypeChecked },
+  {
+    files: ['**/*.js', '**/*.mjs'],
+    languageOptions: { globals: { ...globals.node } },
+  },
   prettier,
 );

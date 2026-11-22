@@ -92,13 +92,13 @@
 
 /* ---------- 2. Light-following border ----------
  * A thin gradient ring drawn over the control's own border on hover and on
- * keyboard focus. The highlight sits under the pointer (--x, --y, set by
+ * keyboard focus. The highlight sits under the pointer (--prism-pointer-x, --prism-pointer-y, set by
  * enablePolish()) and runs violet, blue, cyan. The control's own border, focus
  * ring and state overlay are not touched, so contrast and focus visibility are
  * unchanged. A ring made only of the 600 (light) or 300 (dark) steps, which are
  * at least 3:1 on the page.
  * Off on touch screens. Under reduced motion it is a still ring: it appears
- * without a fade and the highlight stays where --x and --y rest (top centre).
+ * without a fade and the highlight stays where --prism-pointer-x and --prism-pointer-y rest (top centre).
  */
 :is(
   [data-prism-polish=''],
@@ -120,7 +120,8 @@
   border-radius: inherit;
   corner-shape: inherit;
   background: radial-gradient(
-    var(--prism-polish-radius, 9rem) circle at var(--x, 50%) var(--y, 0%),
+    var(--prism-polish-radius, 9rem) circle at var(--prism-pointer-x, 50%)
+      var(--prism-pointer-y, 0%),
     light-dark(var(--prism-color-violet-600), var(--prism-color-violet-300)),
     light-dark(var(--prism-color-blue-600), var(--prism-color-blue-300)) 38%,
     light-dark(var(--prism-color-cyan-600), var(--prism-color-cyan-300)) 66%,
@@ -187,7 +188,8 @@ prism-select::part(trigger)::after {
   border: var(--prism-border-width, 1px) solid transparent;
   border-radius: var(--prism-radius-5);
   background: radial-gradient(
-    var(--prism-polish-radius, 9rem) circle at var(--x, 50%) var(--y, 0%),
+    var(--prism-polish-radius, 9rem) circle at var(--prism-pointer-x, 50%)
+      var(--prism-pointer-y, 0%),
     light-dark(var(--prism-color-violet-600), var(--prism-color-violet-300)),
     light-dark(var(--prism-color-blue-600), var(--prism-color-blue-300)) 38%,
     light-dark(var(--prism-color-cyan-600), var(--prism-color-cyan-300)) 66%,

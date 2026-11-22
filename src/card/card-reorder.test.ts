@@ -74,7 +74,7 @@ const line = (page: Page, id = '#l') =>
     const r = l.getBoundingClientRect();
     return {
       hidden: l.hidden || getComputedStyle(l).display === 'none',
-      vertical: l.hasAttribute('data-vertical'),
+      vertical: l.hasAttribute('data-prism-vertical'),
       w: r.width,
       h: r.height,
       x: r.x,

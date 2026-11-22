@@ -11,7 +11,7 @@ interface Args {
 
 /**
  * One-time code: one real input (autocomplete="one-time-code") drawn as boxes.
- * Paste fills every box; `complete` fires when full. Name pending Technical
+ * Paste fills every box; `prism-otp-complete` fires when full. Name pending Technical
  * Writer.
  */
 const meta: Meta<Args> = {
@@ -30,8 +30,8 @@ const meta: Meta<Args> = {
       name="otp"
       ?required=${a.required}
       ?disabled=${a.disabled}
-      @complete=${(e: CustomEvent<{ value: string }>) =>
-        console.log('complete', e.detail.value)}
+      @prism-otp-complete=${(e: CustomEvent<{ value: string }>) =>
+        console.log('prism-otp-complete', e.detail.value)}
     >
       <span slot="description">Sent to •••• 1234.</span>
       <span slot="error">Enter the ${a.length}-digit code.</span>

@@ -240,15 +240,17 @@ test.describe('polish: light-following border', () => {
     expect(m.ring).toBe('1px');
   });
 
-  test('--x and --y follow the pointer inside the button', async ({ page }) => {
+  test('--prism-pointer-x and --prism-pointer-y follow the pointer inside the button', async ({
+    page,
+  }) => {
     await setup(page, scoped('data-prism-polish="light"', BUTTON));
     const box = (await page.locator('#b').boundingBox())!;
     await page.mouse.move(box.x + 10, box.y + 8);
     await page.mouse.move(box.x + 30, box.y + 12, { steps: 4 });
     await settle(page, 80);
     const v = await page.locator('#b').evaluate((el) => ({
-      x: parseFloat(el.style.getPropertyValue('--x')),
-      y: parseFloat(el.style.getPropertyValue('--y')),
+      x: parseFloat(el.style.getPropertyValue('--prism-pointer-x')),
+      y: parseFloat(el.style.getPropertyValue('--prism-pointer-y')),
     }));
     expect(v.x).toBeCloseTo(30, 0);
     expect(v.y).toBeCloseTo(12, 0);
@@ -269,12 +271,12 @@ test.describe('polish: light-following border', () => {
     expect(
       await page
         .locator('#c')
-        .evaluate((el) => el.style.getPropertyValue('--x')),
+        .evaluate((el) => el.style.getPropertyValue('--prism-pointer-x')),
     ).not.toBe('');
     expect(
       await page
         .locator('#inner')
-        .evaluate((el) => el.style.getPropertyValue('--x')),
+        .evaluate((el) => el.style.getPropertyValue('--prism-pointer-x')),
     ).not.toBe('');
     expect(await ring(page, '#c')).toBe('1');
     await page.locator('#plain').hover();
@@ -330,7 +332,7 @@ test.describe('polish: light-following border', () => {
         name: string,
         ...rest: [string, string?]
       ) {
-        if (name === '--x') count++;
+        if (name === '--prism-pointer-x') count++;
         return orig.call(this, name, ...rest);
       };
       const r = el.getBoundingClientRect();
@@ -534,7 +536,7 @@ test.describe('polish: reduced motion', () => {
     expect(
       await page
         .locator('#b')
-        .evaluate((el) => el.style.getPropertyValue('--x')),
+        .evaluate((el) => el.style.getPropertyValue('--prism-pointer-x')),
     ).toBe('');
     // The ring rests at its default place.
     // Cards do not tilt.

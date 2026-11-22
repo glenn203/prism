@@ -3,19 +3,21 @@ import { mount } from '../../test/fixture.js';
 
 const heights = (page: Page) =>
   page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('[data-probe]')].map((el) => {
-      const target = el.shadowRoot!.querySelector<HTMLElement>(
-        el.localName === 'prism-button' ? '[part="base"]' : '[part="input"]',
-      )!;
-      return target.getBoundingClientRect().height;
-    }),
+    [...document.querySelectorAll<HTMLElement>('[data-prism-probe]')].map(
+      (el) => {
+        const target = el.shadowRoot!.querySelector<HTMLElement>(
+          el.localName === 'prism-button' ? '[part="base"]' : '[part="input"]',
+        )!;
+        return target.getBoundingClientRect().height;
+      },
+    ),
   );
 
 const grid = (size: string) =>
   ['compact', 'default', 'comfortable']
     .map(
       (d) =>
-        `<div data-prism-density="${d}"><prism-button data-probe size="${size}">B</prism-button><prism-text-field data-probe size="${size}" label="F"></prism-text-field></div>`,
+        `<div data-prism-density="${d}"><prism-button data-prism-probe size="${size}">B</prism-button><prism-text-field data-prism-probe size="${size}" label="F"></prism-text-field></div>`,
     )
     .join('');
 
@@ -48,7 +50,7 @@ test('lg height is 32/44/56 in compact/default/comfortable', async ({
 test('nested density overrides the ancestor', async ({ page }) => {
   await withTokens(
     page,
-    `<div data-prism-density="comfortable"><prism-button data-probe>A</prism-button><section data-prism-density="compact"><prism-button data-probe>B</prism-button></section></div>`,
+    `<div data-prism-density="comfortable"><prism-button data-prism-probe>A</prism-button><section data-prism-density="compact"><prism-button data-prism-probe>B</prism-button></section></div>`,
   );
   expect(await heights(page)).toEqual([48, 24]);
 });
@@ -58,7 +60,7 @@ test('works without tokens.css (default-density fallbacks)', async ({
 }) => {
   await mount(
     page,
-    `<prism-button data-probe size="sm">A</prism-button><prism-button data-probe>B</prism-button><prism-text-field data-probe size="lg" label="F"></prism-text-field>`,
+    `<prism-button data-prism-probe size="sm">A</prism-button><prism-button data-prism-probe>B</prism-button><prism-text-field data-prism-probe size="lg" label="F"></prism-text-field>`,
   );
   expect(await heights(page)).toEqual([32, 36, 44]);
 });
