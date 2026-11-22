@@ -76,6 +76,14 @@ export class PrismCardTitle extends LitElement {
         text-decoration: none;
         /* The card shows the focus ring around itself (rule 4). */
       }
+      /* Unstretched title links must meet the 24px target. A stretched
+         link uses ::after over the whole card, so the card is the target. */
+      :host(:not([stretch])) [part='link'] {
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        min-block-size: 1.5rem;
+      }
       [part='link']:focus-visible {
         outline: none;
       }
@@ -98,10 +106,11 @@ export class PrismCardTitle extends LitElement {
         all: unset;
         box-sizing: border-box;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: var(--prism-space-1, 0.25rem);
         cursor: pointer;
         color: inherit;
+        min-block-size: 1.5rem;
         /* A little room for the hover tint without moving the chevron. */
         padding-inline: var(--prism-space-1, 0.25rem);
         /* Only the start side pulls back, so the toggle still fits its text. */

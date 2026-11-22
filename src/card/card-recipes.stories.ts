@@ -349,6 +349,7 @@ export const KpiDashboard: Story = {
       <label style="grid-column:1/-1;font:14px var(--prism-font-family-sans)"
         >Time range
         <select
+          data-prism-select
           @change=${(e: Event) =>
             (e.target as HTMLElement)
               .closest('section')

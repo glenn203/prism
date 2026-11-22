@@ -1052,16 +1052,24 @@ prism-card-skeleton[variant='card']::part(base) {
   gap: var(--prism-space-2);
   color: var(--prism-color-text-muted);
 }
-[data-prism-page-size] select {
+[data-prism-page-size] select,
+[data-prism-select] {
+  box-sizing: border-box;
   min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+  padding-block: var(--prism-space-1);
   padding-inline: var(--prism-space-2);
   color: var(--prism-color-text);
   background: var(--prism-color-bg);
   border: var(--prism-border-width) solid var(--prism-color-border-strong);
   border-radius: var(--prism-radius-5);
-  font: inherit;
+  font-family: var(--prism-font-family-sans);
+  font-size: var(--prism-text-label-font-size);
+  font-weight: var(--prism-text-label-font-weight);
+  line-height: 1;
 }
-[data-prism-page-size] select:focus-visible {
+[data-prism-page-size] select:focus-visible,
+[data-prism-select]:focus-visible {
   outline: 2px solid var(--prism-color-focus-ring);
   outline-offset: var(--prism-focus-ring-offset);
 }
