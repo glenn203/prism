@@ -1,9 +1,10 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { anims, drawn, wait } from '../../test/choice.js';
+import { polishMotion } from '../../test/polish-motion.js';
 import { axe } from '../../test/axe.js';
 import { captureSubmit, mount, submitted } from '../../test/fixture.js';
 
-async function setup(page: Page, markup: string) {
+async function setup(page: Page, markup: string, motion = false) {
   const errors: string[] = [];
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(m.text());
@@ -11,6 +12,7 @@ async function setup(page: Page, markup: string) {
   await mount(page, markup);
   await page.addStyleTag({ path: 'src/tokens/tokens.css' });
   await page.addStyleTag({ path: 'src/theme/theme.css' });
+  if (motion) await polishMotion(page);
   // Styling the page starts colour transitions; let them finish.
   await wait(page, 600);
   return errors;
@@ -342,7 +344,11 @@ test.describe('prism-checkbox: motion', () => {
   });
 
   test('a change from code moves the same way as a click', async ({ page }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await host(page).evaluate(
       (el) => ((el as never as { checked: boolean }).checked = true),
     );
@@ -363,7 +369,11 @@ test.describe('prism-checkbox: motion', () => {
   test('every layer shares one clock and only transform, opacity and the check stroke move', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await tap(page);
     const run = await anims(host(page));
     expect(new Set(run.map((a) => a.duration)).size).toBe(1);
@@ -389,7 +399,11 @@ test.describe('prism-checkbox: motion', () => {
   test('checking and unchecking take about the same time, 300-500ms, and hand back to the stylesheet', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await tap(page);
     const on = (await anims(host(page)))[0]!.duration;
     await wait(page, 700);
@@ -404,7 +418,11 @@ test.describe('prism-checkbox: motion', () => {
   test('checking: the fill grows from the centre, then the check draws in with a tiny overshoot', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await tap(page);
     const dur = (await anims(host(page)))[0]!.duration;
     const frames = [];
@@ -431,7 +449,11 @@ test.describe('prism-checkbox: motion', () => {
   test('the box pops: squishes down, then past rest and back', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await tap(page);
     const dur = (await anims(host(page)))[0]!.duration;
     const sy = [];
@@ -444,7 +466,11 @@ test.describe('prism-checkbox: motion', () => {
   test('every frame is continuous: no step or change of step jumps', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     for (let round = 0; round < 2; round++) {
       await tap(page);
       const dur = (await anims(host(page)))[0]!.duration;
@@ -480,7 +506,11 @@ test.describe('prism-checkbox: motion', () => {
   test('turning round mid-move carries on from where it is: no snap', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     for (const at of [40, 90, 150, 230, 300]) {
       await tap(page);
       const ahead = await drawn(host(page), at + 16.7);
@@ -500,7 +530,11 @@ test.describe('prism-checkbox: motion', () => {
   test('rapid taps always end at rest, in the right state, with nothing left running', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     for (let i = 0; i < 9; i++) {
       await tap(page);
       await wait(page, 55);
@@ -517,7 +551,11 @@ test.describe('prism-checkbox: motion', () => {
   test('the end of the move is exactly the stylesheet rest pose: no jump on hand-over', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     for (let round = 0; round < 3; round++) {
       await tap(page);
       const dur = (await anims(host(page)))[0]!.duration;
@@ -543,6 +581,7 @@ test.describe('prism-checkbox: motion', () => {
     await setup(
       page,
       '<prism-checkbox id="c" label="C" indeterminate></prism-checkbox>',
+      true,
     );
     await tap(page); // dash to check
     const dur = (await anims(host(page)))[0]!.duration;
@@ -582,7 +621,11 @@ test.describe('prism-checkbox: motion', () => {
   test('press squishes the box, letting go outside does nothing', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     const b = (await box(page, 'C').boundingBox())!;
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.mouse.down();
@@ -600,7 +643,11 @@ test.describe('prism-checkbox: motion', () => {
   test('Space squishes too, and the toggle lands on release', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await box(page, 'C').focus();
     await page.keyboard.down('Space');
     await wait(page, 300);
@@ -614,7 +661,11 @@ test.describe('prism-checkbox: motion', () => {
   test('a mouse tap toggles once and the release is part of the same move', async ({
     page,
   }) => {
-    await setup(page, '<prism-checkbox id="c" label="C"></prism-checkbox>');
+    await setup(
+      page,
+      '<prism-checkbox id="c" label="C"></prism-checkbox>',
+      true,
+    );
     await box(page, 'C').click();
     expect((await anims(host(page))).length).toBe(5);
     expect(new Set((await anims(host(page))).map((a) => a.start)).size).toBe(1);

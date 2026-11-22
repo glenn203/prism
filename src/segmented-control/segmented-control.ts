@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { canAnimate } from '../internal/choice-motion.js';
+import { canPolishAnimate } from '../internal/choice-motion.js';
 import { controlSize, textRole } from '../internal/control-styles.js';
 import {
   fieldPartsStyles,
@@ -49,19 +49,22 @@ import type { PrismSegment } from './segment.js';
  *   value. Resets to the starting value with the form.
  * - Fires `input` and `change` after each user pick.
  * - Disabling the control disables every segment in it.
- * - Pressing scales the segment evenly (about 3%) and it eases back. Under
- *   `prefers-reduced-motion: reduce` only the press colour shows.
+ * - With polish motion on, pressing scales the segment evenly (about 3%) and
+ *   it eases back. Otherwise, and under `prefers-reduced-motion: reduce`, only
+ *   the press colour shows.
  * - Each segment's parts also carry `checked` and `disabled` while they apply,
  *   so a theme can target `::part(segment checked)`.
  * - Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`
  *   shares the row equally.
- * - Motion: the indicator slides to the picked segment on two springs (one per
- *   edge) so it stretches on the way, about 325ms (`--prism-motion-segmented`), with a small overshoot that
- *   never leaves the track. A new pick during the move turns it round from where
- *   it is. Transform and opacity only. Nothing moves on first paint, on a
- *   resize, or when the width of a segment changes: the indicator just follows.
- *   A change from code moves the same way as a click. Under
- *   `prefers-reduced-motion: reduce` it jumps and the colours change at once.
+ * - With polish motion on, the indicator slides to the picked segment on two
+ *   springs (one per edge) so it stretches on the way, about 325ms
+ *   (`--prism-motion-segmented`), with a small overshoot that never leaves the
+ *   track. A new pick during the move turns it round from where it is.
+ *   Transform and opacity only. Nothing moves on first paint, on a resize, or
+ *   when the width of a segment changes: the indicator just follows. A change
+ *   from code moves the same way as a click. Without polish motion, and under
+ *   `prefers-reduced-motion: reduce`, the indicator jumps to a static selected
+ *   surface and the colours change at once.
  *
  * @tag prism-segmented-control
  * @slot - The `prism-segment` choices.
@@ -400,7 +403,7 @@ export class PrismSegmentedControl extends FormAssociated(LitElement) {
     const to = this.#pose();
     if (!to) return;
     const from = this.#motion.target;
-    if (!from || !canAnimate(this, this.indicator)) {
+    if (!from || !canPolishAnimate(this, this.indicator)) {
       this.#motion.snap(to);
       return this.#rest();
     }

@@ -1,6 +1,6 @@
 import { LitElement, css, html, nothing, unsafeCSS } from 'lit';
 import { property, query } from 'lit/decorators.js';
-import { canAnimate } from '../internal/choice-motion.js';
+import { canPolishAnimate } from '../internal/choice-motion.js';
 import { FormAssociated } from '../internal/form-associated.js';
 import { uniqueId } from '../internal/ids.js';
 import {
@@ -279,7 +279,10 @@ export class PrismSelect extends FormAssociated(LitElement) {
   }
 
   #canMove(): boolean {
-    return canAnimate(this, this.renderRoot?.querySelector('[part="anchor"]'));
+    return canPolishAnimate(
+      this,
+      this.renderRoot?.querySelector('[part="anchor"]'),
+    );
   }
 
   /** The native `input` event reaches the host as it is; take the value first. */

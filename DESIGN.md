@@ -477,7 +477,7 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
 - State layer: `stateLayer()` on the hit area, with the overlay drawn by the box above
   the fill and below the mark. Off: hover 6%, pressed 12%. Selected (checked,
   indeterminate or the picked radio): 11%, 15% when hovered. Disabled: no change.
-- Motion is a pose of a few numbers, each on its own spring (`internal/spring.ts`,
+- Motion (opt-in polish motion; without it the box, fill and mark snap to rest) is a pose of a few numbers, each on its own spring (`internal/spring.ts`,
   the switch's closed-form maths), drawn by one pure function and played by the Web
   Animations API on every layer at once (`internal/spring-motion.ts`). One clock, so
   the box, fill, mark and light pass cannot drift apart. A new target takes a move over
@@ -610,7 +610,8 @@ a change from code moves like a user's, and reduced motion changes state at once
 
 **Press (shared).** `pressScale()` (`src/internal/press-scale.ts`) animates the CSS
 `scale` property of the pressed element, so it stacks with any `transform` (card tilt).
-One uniform scale on both axes: nothing squishes unevenly.
+One uniform scale on both axes: nothing squishes unevenly. The scale only plays inside a
+polish motion scope; without it, only the pressed colour shows (when marked).
 
 | Control                                    | Depth                   |
 | ------------------------------------------ | ----------------------- |
@@ -636,7 +637,7 @@ One uniform scale on both axes: nothing squishes unevenly.
 **Check draw (shared).** `CheckMark` (`src/internal/check-mark.ts`) draws a tick by
 stroke offset on a spring and takes over mid-flight. Used by a
 `checkable` `prism-menu-item` and the `prism-card-select` check. It snaps on first paint,
-while hidden and under reduced motion. A "done" confirmation is not provided: it would
+while hidden, without polish motion, and under reduced motion. A "done" confirmation is not provided: it would
 need its own timing and placement per component.
 
 - `prism-menu-item[checkable]` is `menuitemcheckbox` with `aria-checked` (`checked`).
@@ -704,14 +705,15 @@ untouched. They wait for approval.
 
 ## Polish layer (opt-in)
 
-An optional layer for demos and products that want a slightly more finished feel. It changes corners and adds two pointer effects. It never changes layout, type, colour roles or focus visibility, and it does nothing unless an ancestor carries `data-prism-polish`.
+An optional layer for demos and products that want a slightly more finished feel. It changes corners, adds two pointer effects, and holds the springy motion that used to be on by default. It never changes layout, type, colour roles or focus visibility, and it does nothing unless an ancestor carries `data-prism-polish`.
 
-- **Switch.** `data-prism-polish` on any ancestor (the page root for a global switch): empty or `all` turns on all three, or list `squircle`, `light`, `tilt`. `off` (or `none`) turns it off again inside a scope. Load `@glenn203/prism/polish.css` after the theme, and call `enablePolish()` once for the two pointer effects. The Storybook toolbar sets the attribute for you.
+- **On and off.** `data-prism-polish` on any ancestor (the page root for a global setting): empty or `all` turns on every effect, or list `squircle`, `light`, `tilt`, `motion`. `off` (or `none`) turns it off again inside a scope. Load `@glenn203/prism/polish.css` after the theme, and call `enablePolish()` once for the two pointer effects. Motion springs also read the attribute directly. The Storybook toolbar sets the attribute for you.
 - **Squircle corners.** `--prism-corner-shape` becomes `squircle`, and radii on buttons, icon buttons, tags, text fields, checkbox boxes, cards, menus and menu items are multiplied by `--prism-corner-scale` (1.5). Both are gated by `@supports (corner-shape: squircle)`; where it is not supported nothing changes, so the normal radius stays. The scale is there because a squircle at the same radius reads tighter than a round corner. Pills and the switch track are left alone.
 - **Light-following border.** On hover and keyboard focus, buttons and clickable, selectable or raised cards draw a 1px gradient ring (the spectrum hues at their 600 level in light, 300 in dark) whose highlight follows the pointer through `--prism-pointer-x` and `--prism-pointer-y`. It is a mask over the border box, so it sits on top of the existing border and focus ring and never replaces them; the border keeps its 3:1 contrast. Disabled and borderless cards, touch (`hover: none`, `pointer: coarse`) and forced colours get no ring.
 - **Card tilt.** Cards only, at most `--prism-tilt-max` (2.5 degrees) under `--prism-tilt-perspective`, easing back on leave. Transform only. Never on buttons, on a dragged card, on touch, or when motion is reduced.
+- **Motion.** Press-scale (button, icon button, tag, card, card title, segment), the invalid-field nudge, the floating-label spring, checkbox and radio squish, the check-mark draw, and the segmented indicator springs. Off, the default stays still and readable: the segmented control keeps a static selected surface, and a check mark simply appears. The switch is not part of this effect.
 - **Fields.** Text inputs and the select trigger get the same ring on hover and while focus is inside (measured on the control or trigger, not on the label above). It sits under the floating label and is not drawn on disabled or invalid fields.
-- **Reduced motion.** Corners still apply. The ring has no fade, the pointer is not tracked, nothing tilts.
+- **Reduced motion.** Corners still apply. The ring has no fade, the pointer is not tracked, nothing tilts, and the motion springs do not play.
 - **Support.** `corner-shape` is new and not in every browser yet; where it is missing the corners stay round. The ring needs `mask-composite` and `light-dark()`.
 
 ## Design file mapping

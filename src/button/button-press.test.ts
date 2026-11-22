@@ -8,6 +8,7 @@ import {
   scaleAnims,
   scaleOf,
 } from '../../test/press.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 async function setup(page: Page, markup: string, theme = 'light') {
   await mount(page, markup);
@@ -17,6 +18,7 @@ async function setup(page: Page, markup: string, theme = 'light') {
     (t) => document.documentElement.setAttribute('data-prism-theme', t),
     theme,
   );
+  await polishMotion(page);
   await wait(page, 600);
 }
 
@@ -28,6 +30,18 @@ const SIZES = `
   <prism-icon-button id="icon" label="Add">+</prism-icon-button>`;
 
 const host = (page: Page, id: string) => page.locator(id);
+
+test('without polish motion, a press does not scale', async ({ page }) => {
+  await mount(page, SIZES);
+  await page.addStyleTag({ path: 'src/tokens/tokens.css' });
+  await page.addStyleTag({ path: 'src/theme/theme.css' });
+  await wait(page, 600);
+  const h = host(page, '#md');
+  await mouseDown(page, h);
+  await wait(page, 350);
+  expect(await scaleOf(h, 'button')).toBe(1);
+  await page.mouse.up();
+});
 
 test.describe('press: depth is proportional to size', () => {
   const cases: [string, number][] = [

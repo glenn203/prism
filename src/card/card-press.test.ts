@@ -7,11 +7,13 @@ import {
   scaleAnims,
   scaleOf,
 } from '../../test/press.js';
+import { polishMotion } from '../../test/polish-motion.js';
 
 async function setup(page: Page, markup: string, polish = false) {
   await mount(page, markup);
   await page.addStyleTag({ path: 'src/tokens/tokens.css' });
   await page.addStyleTag({ path: 'src/theme/theme.css' });
+  await polishMotion(page);
   if (polish) {
     await page.addStyleTag({ path: 'src/theme/polish.css' });
     await page.evaluate(() =>
@@ -92,7 +94,7 @@ test.describe('clickable card press', () => {
   }) => {
     await setup(
       page,
-      `<div data-prism-polish="tilt" style="padding:40px">${LINK}</div>`,
+      `<div data-prism-polish="tilt motion" style="padding:40px">${LINK}</div>`,
       true,
     );
     const b = (await body(page).boundingBox())!;
