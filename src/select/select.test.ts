@@ -357,24 +357,43 @@ test('popup: elevated, and with reduced motion it only fades, in under a frame',
   for (const ms of popup.ms) expect(ms).toBeLessThan(0.001);
 });
 
-test('with motion allowed the popup grows out of the trigger on a transition', async ({
+test('the open popup sits under the field, the same width, left-aligned', async ({
   page,
 }) => {
-  await mount(page, `<prism-select label="Fruit">${OPTIONS}</prism-select>`);
+  await mount(
+    page,
+    `<div style="padding:24px;inline-size:280px"><prism-select label="Fruit">${OPTIONS}</prism-select></div>`,
+  );
   await withTheme(page);
   await needsBaseSelect(page);
   await page.getByRole('combobox', { name: 'Fruit' }).click();
-  const props = await page
-    .locator('prism-select')
-    .evaluate(
-      (el) =>
-        getComputedStyle(
-          el.shadowRoot!.querySelector('[part="trigger"]')!,
-          '::picker(select)',
-        ).transitionProperty,
-    );
-  expect(props).toContain('transform');
-  expect(props).toContain('opacity');
+  const geo = await page.locator('prism-select').evaluate((el) => {
+    const trigger = el.shadowRoot!.querySelector(
+      '[part="trigger"]',
+    ) as HTMLElement;
+    const option = el.shadowRoot!.querySelector(
+      'option:not([hidden])',
+    ) as HTMLElement;
+    const t = trigger.getBoundingClientRect();
+    const o = option.getBoundingClientRect();
+    return {
+      triggerLeft: t.left,
+      triggerWidth: t.width,
+      triggerBottom: t.bottom,
+      optionLeft: o.left,
+      optionTop: o.top,
+      optionWidth: o.width,
+    };
+  });
+  // Options sit inside the picker padding, so compare layout boxes, not
+  // computed `left` (anchor positioning reports that as 0).
+  expect(geo.optionLeft).toBeGreaterThanOrEqual(geo.triggerLeft);
+  expect(geo.optionLeft - geo.triggerLeft).toBeLessThanOrEqual(8);
+  expect(geo.optionWidth).toBeGreaterThan(geo.triggerWidth - 16);
+  expect(geo.optionWidth).toBeLessThanOrEqual(geo.triggerWidth);
+  const gap = geo.optionTop - geo.triggerBottom;
+  expect(gap).toBeGreaterThanOrEqual(0);
+  expect(gap).toBeLessThanOrEqual(12);
 });
 
 test('forced colors: the highlighted option is Highlight with readable text and check mark, not boxes', async ({
