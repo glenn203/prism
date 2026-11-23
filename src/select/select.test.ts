@@ -470,9 +470,7 @@ test('forced colors: the highlighted option is Highlight with readable text and 
   expect(stats.share).toBeLessThan(0.6);
 });
 
-test('attached error box is inset 8px on each side of the control', async ({
-  page,
-}) => {
+test('MessageBox is flush with the control', async ({ page }) => {
   await mount(
     page,
     `<prism-select label="Fruit" required>${OPTIONS}<span slot="error">Pick one</span></prism-select>`,
@@ -491,11 +489,14 @@ test('attached error box is inset 8px on each side of the control', async ({
     return {
       left: e.left - t.left,
       right: t.right - e.right,
+      width: e.width,
+      controlWidth: t.width,
       tuck: t.bottom - e.top,
     };
   });
-  expect(r.left).toBeCloseTo(8, 0);
-  expect(r.right).toBeCloseTo(8, 0);
+  expect(r.left).toBeCloseTo(0, 0);
+  expect(r.right).toBeCloseTo(0, 0);
+  expect(r.width).toBeCloseTo(r.controlWidth, 0);
   // Attached: starts under the control's bottom edge, no gap.
   expect(r.tuck).toBeGreaterThan(0);
 });
@@ -544,7 +545,7 @@ const errorBox = (page: Page, tag: string) =>
   });
 
 for (const tag of ['prism-select', 'prism-text-field']) {
-  test(`${tag}: flat attached error box (no shadow, inset 8px, tucked, replaces helper)`, async ({
+  test(`${tag}: flat MessageBox (no shadow, flush, tucked, replaces helper)`, async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -558,16 +559,16 @@ for (const tag of ['prism-select', 'prism-text-field']) {
     expect(r.shadow).toBe('none');
     expect(r.bg).not.toBe('rgba(0, 0, 0, 0)');
     expect(r.fontSize).toBe('12px');
-    expect(r.left).toBeCloseTo(8, 0);
-    expect(r.right).toBeCloseTo(8, 0);
+    expect(r.left).toBeCloseTo(0, 0);
+    expect(r.right).toBeCloseTo(0, 0);
     expect(r.tuck).toBeGreaterThan(0);
     expect(r.helperHidden).toBe(true);
-    // Attached error box values.
+    // MessageBox values.
     expect(r.letterSpacing).toBe('normal');
     expect(r.weight).toBe('400');
     expect(r.lineHeight).toBe('16px');
-    expect(r.radii).toEqual(['0px', '0px', '8px', '8px']);
-    expect(r.padding).toEqual(['7px', '8px', '3px', '8px']);
+    expect(r.radii).toEqual(['0px', '0px', '5px', '5px']);
+    expect(r.padding).toEqual(['7px', '12px', '3px', '12px']);
     expect(r.overlap).toBe('-2px');
   });
 }
@@ -727,7 +728,7 @@ for (const tag of ['prism-select', 'prism-text-field']) {
   });
 }
 
-test('select error box matches the text field error box exactly', async ({
+test('select MessageBox matches the text field MessageBox exactly', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -836,7 +837,7 @@ test('select error box matches the text field error box exactly', async ({
 });
 
 for (const tag of ['prism-text-field', 'prism-select']) {
-  test(`${tag}: error box flares out from under the control (concave top fillets)`, async ({
+  test(`${tag}: MessageBox fillets collapse when the inset is 0`, async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -844,6 +845,31 @@ for (const tag of ['prism-text-field', 'prism-select']) {
     await mount(
       page,
       `<div style="padding:20px;inline-size:240px"><${tag} label="Fruit" required>${inner}<span slot="error">Pick one</span></${tag}></div>`,
+    );
+    await withTheme(page);
+    const size = await page.locator(tag).evaluate(async (el) => {
+      const host = el as HTMLElement & {
+        reportValidity(): boolean;
+        updateComplete: Promise<unknown>;
+      };
+      host.reportValidity();
+      await host.updateComplete;
+      const box = el.shadowRoot!.querySelector('[part="error"]')!;
+      const before = getComputedStyle(box, '::before');
+      const after = getComputedStyle(box, '::after');
+      return [before.width, before.height, after.width, after.height];
+    });
+    expect(size).toEqual(['0px', '0px', '0px', '0px']);
+  });
+
+  test(`${tag}: MessageBox flares out from under the control when inset`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const inner = tag === 'prism-select' ? OPTIONS : '';
+    await mount(
+      page,
+      `<div style="padding:20px;inline-size:240px;--prism-message-box-inset:8px"><${tag} label="Fruit" required>${inner}<span slot="error">Pick one</span></${tag}></div>`,
     );
     await withTheme(page);
     const geo = await page.locator(tag).evaluate(async (el) => {
@@ -859,12 +885,14 @@ for (const tag of ['prism-text-field', 'prism-select']) {
         .querySelector('[part="trigger"], [part="input"]')!
         .getBoundingClientRect();
       const box = root.querySelector('[part="error"]')!;
+      const boxRect = box.getBoundingClientRect();
       const before = getComputedStyle(box, '::before');
       const after = getComputedStyle(box, '::after');
       return {
         ctlBottom: ctl.bottom,
-        boxLeft: box.getBoundingClientRect().left,
-        boxRight: box.getBoundingClientRect().right,
+        boxLeft: boxRect.left,
+        boxRight: boxRect.right,
+        inset: [boxRect.left - ctl.left, ctl.right - boxRect.right],
         pseudo: [before, after].map((p) => ({
           content: p.content,
           bg: p.backgroundColor,
@@ -874,6 +902,8 @@ for (const tag of ['prism-text-field', 'prism-select']) {
         fill: getComputedStyle(box).backgroundColor,
       };
     });
+    expect(geo.inset[0]).toBeCloseTo(8, 0);
+    expect(geo.inset[1]).toBeCloseTo(8, 0);
     for (const p of geo.pseudo) {
       expect(p.content).toBe('""');
       expect(p.bg).toBe(geo.fill);

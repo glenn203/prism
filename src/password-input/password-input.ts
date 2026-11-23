@@ -16,14 +16,14 @@ import { iconEye, iconEyeOff } from '../internal/icons.js';
  *
  * @tag prism-password-input
  * @slot description - Helper text (e.g. password rules).
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
  * @csspart control - Wrapper around input and toggle.
  * @csspart input - The native input.
  * @csspart toggle - The show/hide button.
  * @csspart icon - The toggle icon.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled.
  * @cssstate revealed - The password is visible.

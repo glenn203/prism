@@ -84,7 +84,7 @@ export const Sizes: S = {
   `,
 };
 
-/** Submit the form empty to see the attached error box. */
+/** Submit the form empty to see the MessageBox. */
 export const Invalid: S = {
   ...reference,
   args: { required: true },

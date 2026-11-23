@@ -25,7 +25,7 @@ const AFFIX_GAP = 8;
  * @slot prefix - Short text or an icon before the value.
  * @slot suffix - Short text or an icon after the value.
  * @slot description - Helper text, announced with the input.
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
  * @csspart control - Wrapper around the native input.
  * @csspart input - The native input.
@@ -33,7 +33,7 @@ const AFFIX_GAP = 8;
  * @csspart suffix - Wrapper around the suffix slot.
  * @csspart clear - The clear button.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled (own or via fieldset).
  * @cssstate floated - With `floating`: the label sits on the top edge.

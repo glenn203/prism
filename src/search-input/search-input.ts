@@ -12,7 +12,7 @@ import { iconSearch, iconX } from '../internal/icons.js';
  *
  * @tag prism-search-input
  * @slot description - Helper text.
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
  * @csspart control - Wrapper around icon, input and clear button.
  * @csspart search-icon - Leading decorative search icon.
@@ -20,7 +20,7 @@ import { iconSearch, iconX } from '../internal/icons.js';
  * @csspart clear - The clear button.
  * @csspart icon - Icons.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @fires input - On typing and on clear.

@@ -52,14 +52,14 @@ const CHEVRON = `url("data:image/svg+xml,${encodeURIComponent(
  * @tag prism-select
  * @slot - `prism-option` elements.
  * @slot description - Helper text. Replaced by the error while invalid.
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
- * @csspart field - Wrapper around trigger and attached error.
+ * @csspart field - Wrapper around trigger and MessageBox.
  * @csspart anchor - Wrapper around the trigger only (it nudges when invalid).
  * @csspart trigger - The native select (focus target). Its popup is `::picker(select)`, its indicator `::picker-icon`.
  * @csspart option - Each native option. Style its `:checked`, `:hover` and `::checkmark`.
  * @csspart description - Helper text wrapper.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled.
  * @cssstate placeholder - No value selected.

@@ -106,7 +106,7 @@ test('all: label 2px above, description 4px below, shared error box', async ({
         s.borderBottomLeftRadius,
       ];
     });
-    expect(err, t).toEqual(['7px', '8px', '3px', '-2px', '8px']);
+    expect(err, t).toEqual(['7px', '12px', '3px', '-2px', '5px']);
   }
 });
 
