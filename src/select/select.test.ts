@@ -470,9 +470,7 @@ test('forced colors: the highlighted option is Highlight with readable text and 
   expect(stats.share).toBeLessThan(0.6);
 });
 
-test('MessageBox is inset 1px on each side of the control', async ({
-  page,
-}) => {
+test('MessageBox is flush with the control', async ({ page }) => {
   await mount(
     page,
     `<prism-select label="Fruit" required>${OPTIONS}<span slot="error">Pick one</span></prism-select>`,
@@ -496,9 +494,9 @@ test('MessageBox is inset 1px on each side of the control', async ({
       tuck: t.bottom - e.top,
     };
   });
-  expect(r.left).toBeCloseTo(1, 0);
-  expect(r.right).toBeCloseTo(1, 0);
-  expect(r.width).toBeCloseTo(r.controlWidth - 2, 0);
+  expect(r.left).toBeCloseTo(0, 0);
+  expect(r.right).toBeCloseTo(0, 0);
+  expect(r.width).toBeCloseTo(r.controlWidth, 0);
   // Attached: starts under the control's bottom edge, no gap.
   expect(r.tuck).toBeGreaterThan(0);
 });
@@ -547,7 +545,7 @@ const errorBox = (page: Page, tag: string) =>
   });
 
 for (const tag of ['prism-select', 'prism-text-field']) {
-  test(`${tag}: flat MessageBox (no shadow, inset 1px, tucked, replaces helper)`, async ({
+  test(`${tag}: flat MessageBox (no shadow, flush, tucked, replaces helper)`, async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -561,8 +559,8 @@ for (const tag of ['prism-select', 'prism-text-field']) {
     expect(r.shadow).toBe('none');
     expect(r.bg).not.toBe('rgba(0, 0, 0, 0)');
     expect(r.fontSize).toBe('12px');
-    expect(r.left).toBeCloseTo(1, 0);
-    expect(r.right).toBeCloseTo(1, 0);
+    expect(r.left).toBeCloseTo(0, 0);
+    expect(r.right).toBeCloseTo(0, 0);
     expect(r.tuck).toBeGreaterThan(0);
     expect(r.helperHidden).toBe(true);
     // MessageBox values.
@@ -846,7 +844,7 @@ for (const tag of ['prism-text-field', 'prism-select']) {
     const inner = tag === 'prism-select' ? OPTIONS : '';
     await mount(
       page,
-      `<div style="padding:20px;inline-size:240px;--prism-message-box-inset:0"><${tag} label="Fruit" required>${inner}<span slot="error">Pick one</span></${tag}></div>`,
+      `<div style="padding:20px;inline-size:240px"><${tag} label="Fruit" required>${inner}<span slot="error">Pick one</span></${tag}></div>`,
     );
     await withTheme(page);
     const size = await page.locator(tag).evaluate(async (el) => {

@@ -252,12 +252,13 @@ prism-select::part(trigger):focus {
     inset 0 0 0 var(--prism-border-width, 1px) var(--_focus-border);
 }
 /* ---------- Shared MessageBox (text field + select) ----------
- * Attached to the field. Inset 1px by default (--prism-message-box-inset:
- * 1px). A theme can set a different inset; fillets show when the inset is
- * non-zero and collapse when it is 0. Prism's font family. No shadow;
- * --prism-elevation-urgent is reserved, unused. Replaces helper text. */
+ * Attached to the field. Flush with the control by default
+ * (--prism-message-box-inset: 0). A theme can set a non-zero inset to pull
+ * it in and show the top fillets, which collapse when the inset is 0.
+ * Prism's font family. No shadow; --prism-elevation-urgent is reserved,
+ * unused. Replaces helper text. */
 :root {
-  --prism-message-box-inset: 1px;
+  --prism-message-box-inset: 0;
 }
 :is(
   prism-text-input,
