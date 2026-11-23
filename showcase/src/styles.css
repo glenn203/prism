@@ -4,10 +4,15 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip;
+}
+
 html,
 body {
   margin: 0;
   min-block-size: 100dvh;
+  max-inline-size: 100%;
 }
 
 body {
@@ -22,6 +27,9 @@ body {
   min-block-size: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-x: clip;
 }
 
 .site-header {
@@ -56,6 +64,9 @@ body {
 .site-nav a {
   color: var(--prism-color-text);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 36px;
   padding: var(--prism-space-2) var(--prism-space-3);
   border-radius: var(--prism-radius-1);
 }
@@ -75,6 +86,8 @@ body {
   flex-wrap: wrap;
   gap: var(--prism-space-4);
   align-items: center;
+  align-content: start;
+  max-inline-size: 100%;
 }
 
 .theme-switcher .group {
@@ -94,10 +107,13 @@ main.site-main {
   padding: var(--prism-space-8) var(--prism-space-6) var(--prism-space-12);
   max-inline-size: 1120px;
   inline-size: 100%;
+  min-inline-size: 0;
   margin-inline: auto;
   display: grid;
   gap: var(--prism-space-10);
   align-content: start;
+  container-type: inline-size;
+  container-name: page;
 }
 
 .site-footer {
@@ -110,6 +126,9 @@ main.site-main {
 
 .site-footer a {
   color: var(--prism-color-text);
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 24px;
 }
 
 .hero {
@@ -121,6 +140,7 @@ main.site-main {
 .hero h1,
 .page-head h1 {
   margin: 0;
+  overflow-wrap: anywhere;
   font-family: var(--prism-text-heading-1-font-family);
   font-size: var(--prism-text-heading-1-font-size);
   font-weight: var(--prism-text-heading-1-font-weight);
@@ -146,7 +166,8 @@ main.site-main {
 .cards {
   display: grid;
   gap: var(--prism-space-4);
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  min-inline-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
 .preview-row {
@@ -154,6 +175,8 @@ main.site-main {
   flex-wrap: wrap;
   gap: var(--prism-space-2);
   align-items: center;
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .stack {
@@ -164,7 +187,8 @@ main.site-main {
 .panel-grid {
   display: grid;
   gap: var(--prism-space-6);
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  min-inline-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
 }
 
 .panel {
@@ -174,6 +198,8 @@ main.site-main {
   display: grid;
   gap: var(--prism-space-4);
   align-content: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .panel h2,
@@ -188,17 +214,22 @@ main.site-main {
 .section {
   display: grid;
   gap: var(--prism-space-4);
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .swatches {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
   gap: var(--prism-space-2);
+  min-inline-size: 0;
 }
 
 .swatch {
   display: grid;
   gap: var(--prism-space-2);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
   font-size: var(--prism-text-caption-font-size);
   line-height: var(--prism-text-caption-line-height);
   color: var(--prism-color-text-muted);
@@ -226,7 +257,117 @@ main.site-main {
 .compare {
   display: grid;
   gap: var(--prism-space-4);
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  min-inline-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.stack,
+.page-head,
+.hero,
+.site-header,
+.site-footer,
+.site-nav,
+.theme-switcher {
+  min-inline-size: 0;
+}
+
+.recipe-grid {
+  display: grid;
+  gap: var(--prism-space-4);
+  min-inline-size: 0;
+  max-inline-size: min(960px, 100%);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.recipe-grid > h2,
+.recipe-heading {
+  grid-column: 1 / -1;
+}
+
+.recipe-toolbar {
+  display: grid;
+  gap: var(--prism-space-2);
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+  font: var(--prism-text-body-font-size) var(--prism-font-family-sans);
+}
+
+.recipe-toolbar select {
+  max-inline-size: 100%;
+}
+
+.pricing-grid {
+  display: grid;
+  gap: var(--prism-space-4);
+  min-inline-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.kanban-board {
+  display: grid;
+  gap: var(--prism-space-6);
+  grid-template-columns: repeat(3, minmax(240px, 300px));
+  align-items: start;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  padding-block-end: var(--prism-space-2);
+}
+
+@media (max-width: 47.99rem) {
+  .site-header {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    align-content: start;
+    gap: var(--prism-space-3);
+    padding: var(--prism-space-3) var(--prism-space-4);
+  }
+
+  .site-brand {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 32px;
+  }
+
+  .site-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    inline-size: 100%;
+    max-inline-size: 100%;
+  }
+
+  .site-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding-inline: var(--prism-space-2);
+  }
+
+  .theme-switcher {
+    gap: var(--prism-space-2);
+  }
+
+  main.site-main {
+    padding: var(--prism-space-6) var(--prism-space-4) var(--prism-space-10);
+  }
+
+  .site-footer {
+    padding: var(--prism-space-4);
+  }
+}
+
+@container page (min-width: 44rem) {
+  .swatches {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
 }
 
 .neutral-scope {
