@@ -10,7 +10,7 @@ Source: `prism.tokens.json` (W3C DTCG). Build: `pnpm tokens` →
 - **One primitive:** `--prism-unit` = 4px (0.25rem, so it scales with user font size). Everything else is a multiple of it.
 - **Numbers mean something.** `space-N` = N × 4px. `font-size-N` and `font-line-height-N` = N px. An agent can read the value from the name with no lookup table.
 - **Sizes that aren't numbers are ordered:** `sm` < `md` < `lg` (control heights). Radius uses value-in-name (`radius-5` = 5px).
-- **Text roles** (`text-body-*`, `text-label-*`, `text-heading-1-*`, `text-code-*` …) bundle size, line height, weight and family. Components should use roles; reach for the numeric scales only when no role fits.
+- **Text roles** (`text-supporting-*`, `text-large-*`, `text-body-*`, `text-label-*`, `text-heading-1-*`, `text-code-*` …) bundle size, line height, weight and family. Components should use roles; reach for the numeric scales only when no role fits.
 - All line heights, spacing and control heights are multiples of 4px. Exceptions: `border-width` (1px) and the focus ring (2px offset, 3px ring, 0.5px blur); radii use their own odd-pixel ramp. Font sizes 14 and 18 sit on 2px steps; their line heights stay on 4px.
 - Borders are drawn inside control heights (`box-sizing: border-box`).
 

@@ -96,10 +96,10 @@ body {
 }
 
 .theme-switcher .group > span {
-  font-family: var(--prism-text-caption-font-family);
-  font-size: var(--prism-text-caption-font-size);
-  font-weight: var(--prism-text-caption-font-weight);
-  line-height: var(--prism-text-caption-line-height);
+  font-family: var(--prism-text-supporting-font-family);
+  font-size: var(--prism-text-supporting-font-size);
+  font-weight: var(--prism-text-supporting-font-weight);
+  line-height: var(--prism-text-supporting-line-height);
   color: var(--prism-color-text-muted);
 }
 
@@ -120,8 +120,8 @@ main.site-main {
   padding: var(--prism-space-5) var(--prism-space-6);
   border-block-start: var(--prism-border-width) solid var(--prism-color-border);
   color: var(--prism-color-text-muted);
-  font-size: var(--prism-text-caption-font-size);
-  line-height: var(--prism-text-caption-line-height);
+  font-size: var(--prism-text-supporting-font-size);
+  line-height: var(--prism-text-supporting-line-height);
 }
 
 .site-footer a {
@@ -151,10 +151,10 @@ main.site-main {
 .page-head p {
   margin: 0;
   max-inline-size: 62ch;
-  font-family: var(--prism-text-body-lg-font-family);
-  font-size: var(--prism-text-body-lg-font-size);
-  font-weight: var(--prism-text-body-lg-font-weight);
-  line-height: var(--prism-text-body-lg-line-height);
+  font-family: var(--prism-text-large-font-family);
+  font-size: var(--prism-text-large-font-size);
+  font-weight: var(--prism-text-large-font-weight);
+  line-height: var(--prism-text-large-line-height);
   color: var(--prism-color-text-muted);
 }
 
@@ -230,8 +230,8 @@ main.site-main {
   gap: var(--prism-space-2);
   min-inline-size: 0;
   overflow-wrap: anywhere;
-  font-size: var(--prism-text-caption-font-size);
-  line-height: var(--prism-text-caption-line-height);
+  font-size: var(--prism-text-supporting-font-size);
+  line-height: var(--prism-text-supporting-line-height);
   color: var(--prism-color-text-muted);
 }
 

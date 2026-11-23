@@ -135,7 +135,7 @@ export class PrismRadioGroup extends FormAssociated(LitElement) {
         cursor: var(--prism-choice-cursor-disabled, default);
       }
       [part~='option-description'] {
-        ${textRole('caption')}
+        ${textRole('supporting')}
       }
     `,
     stateLayer("[part~='control']"),

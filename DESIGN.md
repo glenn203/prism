@@ -690,7 +690,7 @@ untouched. They wait for approval.
 | Private property   | Value                                   | Where                                                                     |
 | ------------------ | --------------------------------------- | ------------------------------------------------------------------------- |
 | `--_title-*`       | 14px / 20px / 600 sans                  | `prism-card-title` (component title style)                                |
-| `--_supporting-*`  | 12px / 20px / 400 sans                  | description and meta (spec says 12/20; token `caption` is 12/16)          |
+| `--_supporting-*`  | 12px / 20px / 400 sans                  | description and meta (spec says 12/20; token `supporting` is 12/16)       |
 | `--_pad`           | density pad units + 2 (12 / 16 / 20px)  | `prism-card`                                                              |
 | `--_metric-*`      | 28px / 36px / 600 sans, tabular figures | `prism-card-metric` (metric text style; the spec leaves it to Typography) |
 | `CARD_LIST_MIN_PX` | 280                                     | card list minimum card width (spec: "at least 280px")                     |

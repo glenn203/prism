@@ -4930,11 +4930,11 @@
             {
               "name": "role",
               "type": {
-                "text": "'label' | 'body' | 'caption'"
+                "text": "'label' | 'body' | 'supporting'"
               }
             }
           ],
-          "description": "Text-role font shorthand. role = label | body | caption"
+          "description": "Text-role font shorthand. role = label | body | supporting"
         }
       ],
       "exports": [
@@ -4971,7 +4971,7 @@
         {
           "kind": "variable",
           "name": "fieldChromeStyles",
-          "default": "css` :host { display: block; } :host([hidden]) { display: none; } [part='label'] { display: block; ${textRole('label')} } [part='description'], [part='error'] { ${textRole('caption')} } [part='description'][hidden], [part='error'][hidden] { display: none; } `",
+          "default": "css` :host { display: block; } :host([hidden]) { display: none; } [part='label'] { display: block; ${textRole('label')} } [part='description'], [part='error'] { ${textRole('supporting')} } [part='description'][hidden], [part='error'][hidden] { display: none; } `",
           "description": "Private shared field chrome: label, description and error, with stable ids\n`${id}-label|-description|-error`. Used by every Prism field. Not exported."
         },
         {

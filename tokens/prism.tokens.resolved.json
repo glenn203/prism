@@ -263,23 +263,23 @@
         "type": "dimension",
         "value": 36
       },
-      "text.caption.font-size": {
-        "cssVar": "--prism-text-caption-font-size",
+      "text.supporting.font-size": {
+        "cssVar": "--prism-text-supporting-font-size",
         "type": "number",
         "value": 12
       },
-      "text.caption.line-height": {
-        "cssVar": "--prism-text-caption-line-height",
+      "text.supporting.line-height": {
+        "cssVar": "--prism-text-supporting-line-height",
         "type": "number",
         "value": 16
       },
-      "text.caption.font-weight": {
-        "cssVar": "--prism-text-caption-font-weight",
+      "text.supporting.font-weight": {
+        "cssVar": "--prism-text-supporting-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.caption.font-family": {
-        "cssVar": "--prism-text-caption-font-family",
+      "text.supporting.font-family": {
+        "cssVar": "--prism-text-supporting-font-family",
         "type": "number",
         "value": [
           "Inter",
@@ -338,23 +338,23 @@
           "sans-serif"
         ]
       },
-      "text.body-lg.font-size": {
-        "cssVar": "--prism-text-body-lg-font-size",
+      "text.large.font-size": {
+        "cssVar": "--prism-text-large-font-size",
         "type": "number",
         "value": 16
       },
-      "text.body-lg.line-height": {
-        "cssVar": "--prism-text-body-lg-line-height",
+      "text.large.line-height": {
+        "cssVar": "--prism-text-large-line-height",
         "type": "number",
         "value": 24
       },
-      "text.body-lg.font-weight": {
-        "cssVar": "--prism-text-body-lg-font-weight",
+      "text.large.font-weight": {
+        "cssVar": "--prism-text-large-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.body-lg.font-family": {
-        "cssVar": "--prism-text-body-lg-font-family",
+      "text.large.font-family": {
+        "cssVar": "--prism-text-large-font-family",
         "type": "number",
         "value": [
           "Inter",
@@ -1714,23 +1714,23 @@
         "type": "dimension",
         "value": 36
       },
-      "text.caption.font-size": {
-        "cssVar": "--prism-text-caption-font-size",
+      "text.supporting.font-size": {
+        "cssVar": "--prism-text-supporting-font-size",
         "type": "number",
         "value": 12
       },
-      "text.caption.line-height": {
-        "cssVar": "--prism-text-caption-line-height",
+      "text.supporting.line-height": {
+        "cssVar": "--prism-text-supporting-line-height",
         "type": "number",
         "value": 16
       },
-      "text.caption.font-weight": {
-        "cssVar": "--prism-text-caption-font-weight",
+      "text.supporting.font-weight": {
+        "cssVar": "--prism-text-supporting-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.caption.font-family": {
-        "cssVar": "--prism-text-caption-font-family",
+      "text.supporting.font-family": {
+        "cssVar": "--prism-text-supporting-font-family",
         "type": "number",
         "value": [
           "Inter",
@@ -1789,23 +1789,23 @@
           "sans-serif"
         ]
       },
-      "text.body-lg.font-size": {
-        "cssVar": "--prism-text-body-lg-font-size",
+      "text.large.font-size": {
+        "cssVar": "--prism-text-large-font-size",
         "type": "number",
         "value": 16
       },
-      "text.body-lg.line-height": {
-        "cssVar": "--prism-text-body-lg-line-height",
+      "text.large.line-height": {
+        "cssVar": "--prism-text-large-line-height",
         "type": "number",
         "value": 24
       },
-      "text.body-lg.font-weight": {
-        "cssVar": "--prism-text-body-lg-font-weight",
+      "text.large.font-weight": {
+        "cssVar": "--prism-text-large-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.body-lg.font-family": {
-        "cssVar": "--prism-text-body-lg-font-family",
+      "text.large.font-family": {
+        "cssVar": "--prism-text-large-font-family",
         "type": "number",
         "value": [
           "Inter",
@@ -3165,23 +3165,23 @@
         "type": "dimension",
         "value": 36
       },
-      "text.caption.font-size": {
-        "cssVar": "--prism-text-caption-font-size",
+      "text.supporting.font-size": {
+        "cssVar": "--prism-text-supporting-font-size",
         "type": "number",
         "value": 12
       },
-      "text.caption.line-height": {
-        "cssVar": "--prism-text-caption-line-height",
+      "text.supporting.line-height": {
+        "cssVar": "--prism-text-supporting-line-height",
         "type": "number",
         "value": 16
       },
-      "text.caption.font-weight": {
-        "cssVar": "--prism-text-caption-font-weight",
+      "text.supporting.font-weight": {
+        "cssVar": "--prism-text-supporting-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.caption.font-family": {
-        "cssVar": "--prism-text-caption-font-family",
+      "text.supporting.font-family": {
+        "cssVar": "--prism-text-supporting-font-family",
         "type": "number",
         "value": [
           "Inter",
@@ -3240,23 +3240,23 @@
           "sans-serif"
         ]
       },
-      "text.body-lg.font-size": {
-        "cssVar": "--prism-text-body-lg-font-size",
+      "text.large.font-size": {
+        "cssVar": "--prism-text-large-font-size",
         "type": "number",
         "value": 16
       },
-      "text.body-lg.line-height": {
-        "cssVar": "--prism-text-body-lg-line-height",
+      "text.large.line-height": {
+        "cssVar": "--prism-text-large-line-height",
         "type": "number",
         "value": 24
       },
-      "text.body-lg.font-weight": {
-        "cssVar": "--prism-text-body-lg-font-weight",
+      "text.large.font-weight": {
+        "cssVar": "--prism-text-large-font-weight",
         "type": "number",
         "value": 400
       },
-      "text.body-lg.font-family": {
-        "cssVar": "--prism-text-body-lg-font-family",
+      "text.large.font-family": {
+        "cssVar": "--prism-text-large-font-family",
         "type": "number",
         "value": [
           "Inter",

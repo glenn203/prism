@@ -108,7 +108,7 @@ export const choiceStyles = css`
   }
   [part~='description'],
   [part~='error'] {
-    ${textRole('caption')}
+    ${textRole('supporting')}
   }
   [part~='description'][hidden],
   [part~='error'][hidden] {

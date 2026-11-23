@@ -239,7 +239,7 @@
   },
   "text": {
     "$description": "Semantic text roles. Each role = size + line-height + weight (+ family). Use these in components; use the numeric scales only when no role fits.",
-    "caption": {
+    "supporting": {
       "font-size": {
         "$value": "{font.size.12}"
       },
@@ -281,7 +281,7 @@
         "$value": "{font.family.sans}"
       }
     },
-    "body-lg": {
+    "large": {
       "font-size": {
         "$value": "{font.size.16}"
       },
