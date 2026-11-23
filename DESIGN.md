@@ -584,7 +584,7 @@ a change from code moves like a user's, and reduced motion changes state at once
   to the field's control and the select's trigger on hover and focus.
 - **Error.** On the change to invalid the field makes one small sideways nudge (`n`, spring
   46 and 0.3, up to 5px, about two swings, transform only). Not on focus, and not again
-  while it stays invalid. The attached error box, `aria-invalid` and `aria-describedby`
+  while it stays invalid. The MessageBox, `aria-invalid` and `aria-describedby`
   work as before; the error text is on the error surface at AA.
 - **Read-only** uses the surface fill and keeps its ring and focus; disabled is inert.
 - **Select.** A native `select` in shadow DOM, named by a real `label`, with a native

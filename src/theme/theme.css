@@ -211,7 +211,7 @@ prism-button[variant='ghost']:state(disabled)::part(base) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-text-muted);
 }
-/* Text field error: see the shared attached error box below. */
+/* Text field error: see the shared MessageBox below. */
 :is(
     prism-text-input,
     prism-password-input,
@@ -376,9 +376,14 @@ prism-select::part(trigger):focus {
       var(--_focus-halo),
     inset 0 0 0 var(--prism-border-width, 1px) var(--_focus-border);
 }
-/* ---------- Shared attached error box (text field + select) ----------
- * Attached to the field: 8px side margins and Prism's font family. No shadow;
- * --prism-elevation-urgent is reserved, unused. Replaces helper text. */
+/* ---------- Shared MessageBox (text field + select) ----------
+ * Attached to the field. Full width by default (--prism-message-box-inset:
+ * 0). A theme can set a non-zero inset to pull it in and show the top
+ * fillets. Prism's font family. No shadow; --prism-elevation-urgent is
+ * reserved, unused. Replaces helper text. */
+:root {
+  --prism-message-box-inset: 0;
+}
 :is(
   prism-text-input,
   prism-password-input,
@@ -391,7 +396,7 @@ prism-select::part(trigger) {
   position: relative;
   z-index: 1;
 }
-/* Select trigger sits above the attached error box. */
+/* Select trigger sits above the MessageBox. */
 prism-select::part(trigger) {
   z-index: 2;
 }
@@ -408,11 +413,15 @@ prism-select::part(error) {
    * cap tops sit ~8px down and the baseline 7px from the bottom, so the
    * text reads optically centered. */
   --_prism-status-overlap: calc(var(--prism-space-1) / 2);
+  --_prism-message-box-fillet: min(
+    var(--prism-message-box-inset),
+    var(--prism-radius-5)
+  );
   margin-block-start: calc(-1 * var(--_prism-status-overlap));
-  margin-inline: var(--prism-space-2);
+  margin-inline: var(--prism-message-box-inset);
   padding-block: calc(var(--_prism-status-overlap) + 5px) 3px;
-  padding-inline: var(--prism-space-2);
-  border-radius: 0 0 8px 8px; /* element radius; not on Prism's odd ramp */
+  padding-inline: var(--prism-control-padding-inline);
+  border-radius: 0 0 var(--prism-radius-5) var(--prism-radius-5);
   background: var(--prism-color-error-surface);
   color: var(--prism-color-on-error-surface);
   font-size: var(--prism-text-caption-font-size);
@@ -423,9 +432,11 @@ prism-select::part(error) {
   box-shadow: none;
   pointer-events: none; /* overlap is visual only */
 }
-/* Tuck cue: concave fillets (radius-5) flare the box's top corners into the
- * control's flat bottom edge, so it reads as growing out from under the input
- * despite the 8px side margins. Same fill token, no shadow. */
+/* Tuck cue: concave fillets flare the box's top corners into the
+ * control's flat bottom edge when --prism-message-box-inset is non-zero,
+ * so it reads as growing out from under the input. The fillet size is
+ * min(inset, radius-5) and collapses to 0 at the default inset. Same
+ * fill token, no shadow. */
 :is(
   prism-text-input,
   prism-password-input,
@@ -455,8 +466,8 @@ prism-select::part(error)::after {
   content: '';
   position: absolute;
   inset-block-start: var(--_prism-status-overlap);
-  inline-size: var(--prism-radius-5);
-  block-size: var(--prism-radius-5);
+  inline-size: var(--_prism-message-box-fillet);
+  block-size: var(--_prism-message-box-fillet);
   background: var(--prism-color-error-surface);
 }
 :is(
@@ -467,11 +478,11 @@ prism-select::part(error)::after {
     prism-text-field
   )::part(error)::before,
 prism-select::part(error)::before {
-  inset-inline-start: calc(-1 * var(--prism-radius-5));
+  inset-inline-start: calc(-1 * var(--_prism-message-box-fillet));
   mask: radial-gradient(
     circle at 0 100%,
-    transparent var(--prism-radius-5),
-    #000 calc(var(--prism-radius-5) + 0.5px)
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
   );
 }
 :is(
@@ -482,11 +493,11 @@ prism-select::part(error)::before {
     prism-text-field
   )::part(error)::after,
 prism-select::part(error)::after {
-  inset-inline-end: calc(-1 * var(--prism-radius-5));
+  inset-inline-end: calc(-1 * var(--_prism-message-box-fillet));
   mask: radial-gradient(
     circle at 100% 100%,
-    transparent var(--prism-radius-5),
-    #000 calc(var(--prism-radius-5) + 0.5px)
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
   );
 }
 /* Error-only: runs when the box is un-hidden (invalid), never on focus. */
@@ -498,7 +509,7 @@ prism-select::part(error)::after {
     prism-text-field
   ):state(invalid)::part(error),
 prism-select:state(invalid)::part(error) {
-  /* Standard ease, never a spring (no bounce on the error box). */
+  /* Standard ease, never a spring (no bounce on the MessageBox). */
   animation: prism-error-in var(--prism-duration-default)
     var(--prism-ease-standard) backwards;
 }

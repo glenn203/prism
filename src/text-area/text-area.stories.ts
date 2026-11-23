@@ -54,7 +54,7 @@ export const Fixed: Story = { ...reference, args: { resize: 'none' } };
 
 export const Disabled: Story = { ...reference, args: { disabled: true } };
 
-/** The attached error box appears after the field is reported invalid. */
+/** The MessageBox appears after the field is reported invalid. */
 export const Invalid: Story = {
   ...reference,
   args: { required: true },

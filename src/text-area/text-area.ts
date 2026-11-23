@@ -14,13 +14,13 @@ import { visuallyHidden } from '../internal/visually-hidden.js';
  *
  * @tag prism-text-area
  * @slot description - Helper text.
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
  * @csspart control - Wrapper around the textarea.
  * @csspart input - The native textarea.
  * @csspart counter - The visible character counter.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @cssstate at-limit - The value has reached maxlength.

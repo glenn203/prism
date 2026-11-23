@@ -81,10 +81,10 @@ over numeric `1/2/3`).
 | --------------------------- | -------------------------------------------------------------- | --------------------------------------- |
 | `--prism-elevation-default` | Resting raised surface (open menu, popover)                    | neutral-950, hue 255, 6% + 12%          |
 | `--prism-elevation-hover`   | RESERVED, unused (option hover is a flat neutral-100/200 tint) | neutral-950, hue 255, 8% + 16%, tighter |
-| `--prism-elevation-urgent`  | Error-urgent (attached error box)                              | red-600, hue 27, 12% + 24%              |
+| `--prism-elevation-urgent`  | Error-urgent (MessageBox)                                      | red-600, hue 27, 12% + 24%              |
 
 Related: `--prism-color-error-surface` (error red at 10% alpha, ≈ #fce8eb on white; text contrast 9.62:1) is the flat fill for
-the attached error box (text field and select, no shadow); `--prism-motion-duration-medium` (200ms) drives the menu
+the MessageBox (text field and select, no shadow); `--prism-motion-duration-medium` (200ms) drives the menu
 slide-down and error reveal. Both animations are disabled under
 `prefers-reduced-motion`.
 

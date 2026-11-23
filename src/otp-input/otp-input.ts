@@ -15,13 +15,13 @@ import { TextControl } from '../internal/text-control.js';
  *
  * @tag prism-otp-input
  * @slot description - Helper text (e.g. "Sent to •••• 1234").
- * @slot error - Error text, shown in the attached status box when invalid.
+ * @slot error - Error text, shown in the MessageBox when invalid.
  * @csspart label - The label.
  * @csspart control - Wrapper around the boxes and the invisible input.
  * @csspart cells - Row of visual boxes.
  * @csspart cell - One visual box (also `cell-active`, `cell-filled`).
  * @csspart description - Wrapper around the description slot.
- * @csspart error - Attached error status box.
+ * @csspart error - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @cssstate focused - The input has focus (drives the active box ring).
@@ -33,7 +33,7 @@ export class PrismOtpInput extends TextControl {
   static override styles: CSSResultGroup = [
     TextControl.styles,
     css`
-      /* Shrink-wrap so the attached error box matches the row of boxes. */
+      /* Shrink-wrap so the MessageBox matches the row of boxes. */
       :host {
         display: inline-block;
       }

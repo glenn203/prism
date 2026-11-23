@@ -80,7 +80,7 @@ export const WithHelper: Story = {
   args: { description: 'Marked length of the mounted lens.' },
 };
 
-/** The attached error box appears after the field is reported invalid. */
+/** The MessageBox appears after the field is reported invalid. */
 export const ErrorState: Story = {
   ...reference,
   args: { required: true, description: 'Marked length of the mounted lens.' },

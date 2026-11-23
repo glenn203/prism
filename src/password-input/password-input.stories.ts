@@ -59,7 +59,7 @@ export const NewPassword: Story = {
 
 export const Disabled: Story = { ...reference, args: { disabled: true } };
 
-/** The attached error box appears after the field is reported invalid. */
+/** The MessageBox appears after the field is reported invalid. */
 export const Invalid: Story = {
   ...reference,
   args: { required: true },
