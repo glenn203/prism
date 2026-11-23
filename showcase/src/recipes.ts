@@ -183,11 +183,7 @@ const PLANS: [string, string, string, string[]][] = [
 export const pricingPlans = () =>
   group(
     'Choose a plan',
-    html`<prism-card-group
-      selection="single"
-      label="Plan"
-      class="pricing-grid"
-    >
+    html`<prism-card-group selection="single" label="Plan" class="pricing-grid">
       ${PLANS.map(
         ([v, name, price, items]) =>
           html`<prism-card
