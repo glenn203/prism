@@ -26,7 +26,7 @@ const switcher = (theme: ShowcaseTheme) =>
     <div class="group">
       <prism-segmented-control
         label="Accent"
-        size="sm"
+        hide-label
         value=${theme.accent ? 'accent' : 'neutral'}
         @change=${(e: Event) => {
           const value = (e.target as HTMLElement & { value: string }).value;
@@ -40,7 +40,7 @@ const switcher = (theme: ShowcaseTheme) =>
     <div class="group">
       <prism-segmented-control
         label="Appearance"
-        size="sm"
+        hide-label
         value=${theme.appearance}
         @change=${(e: Event) => {
           const value = (e.target as HTMLElement & { value: string }).value;

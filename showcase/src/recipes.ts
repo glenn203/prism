@@ -133,10 +133,10 @@ export const kpiDashboard = () =>
   html`<section
     data-prism-time-range="Last 24 hours"
     aria-labelledby="kpi-h"
-    style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));max-inline-size:960px"
+    class="recipe-grid"
   >
-    <h2 id="kpi-h">Activity overview</h2>
-    <label style="grid-column:1/-1;font:14px var(--prism-font-family-sans)"
+    <h2 id="kpi-h" class="recipe-heading">Activity overview</h2>
+    <label class="recipe-toolbar"
       >Time range
       <select
         data-prism-select
@@ -186,7 +186,7 @@ export const pricingPlans = () =>
     html`<prism-card-group
       selection="single"
       label="Plan"
-      style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"
+      class="pricing-grid"
     >
       ${PLANS.map(
         ([v, name, price, items]) =>
@@ -390,8 +390,7 @@ const TASKS: Record<string, [string, string, string, string][]> = {
 export const kanbanBoard = () => {
   const board = document.createElement('section');
   board.setAttribute('aria-label', 'Project tasks');
-  board.style.cssText =
-    'display:grid;gap:24px;grid-template-columns:repeat(3,minmax(0,300px));align-items:start;overflow:auto';
+  board.className = 'kanban-board';
   let n = 0;
   for (const [column, cards] of Object.entries(TASKS)) {
     const id = `kanban-h-${++n}`;

@@ -21,7 +21,7 @@ const sample = () => html`
       value="64"
       tone="accent"
       show-value
-      style="flex:1;min-inline-size:180px"
+      style="flex:1;min-inline-size:min(180px,100%)"
     ></prism-progress>
   </div>
 `;
