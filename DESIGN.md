@@ -551,6 +551,23 @@ three are built. (2) Tag `size` and Badge `tone` are not in the specs.
   Both start on the same frame, so a pick, an arrow-key move and a change from code all
   look the same.
 
+### MessageBox
+
+A short text box that tucks against a neighbor. The host is the painted box;
+there is no inner part. Put it before the neighbor (`placement="top"`) or after
+it (`placement="bottom"`, the default). `intent` is `error` (default) or
+`info`. Error uses the error surface, the text on that surface, and a border
+that matches the fill. Info uses the shared message-box tint, info text, and
+the info border.
+
+`--prism-message-box-inset` is 0 by default, so the box is flush with the
+neighbor. A theme can set a non-zero inset to pull it in and show the fillets,
+which collapse when the inset is 0.
+
+`announce` is `polite` (default), `assertive`, or `off`. Fields set it to
+`off` and rely on `aria-invalid` and `aria-describedby`. An empty default slot
+hides the box.
+
 ### Text input and Select motion (names provisional)
 
 Same rules as the switch, checkbox and radio: transform and opacity only, one spring driver
@@ -584,8 +601,9 @@ a change from code moves like a user's, and reduced motion changes state at once
   to the field's control and the select's trigger on hover and focus.
 - **Error.** On the change to invalid the field makes one small sideways nudge (`n`, spring
   46 and 0.3, up to 5px, about two swings, transform only). Not on focus, and not again
-  while it stays invalid. The MessageBox, `aria-invalid` and `aria-describedby`
-  work as before; the error text is on the error surface at AA.
+  while it stays invalid. The field renders a MessageBox inside its own shadow
+  root (`announce="off"`, part `message-box`) and points `aria-describedby` at
+  it, together with `aria-invalid`. The error text is on the error surface at AA.
 - **Read-only** uses the surface fill and keeps its ring and focus; disabled is inert.
 - **Select.** A native `select` in shadow DOM, named by a real `label`, with a native
   `option` for each `prism-option` child (a data carrier: `value`, `disabled`, `selected`,

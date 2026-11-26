@@ -59,7 +59,7 @@ const CHEVRON = `url("data:image/svg+xml,${encodeURIComponent(
  * @csspart trigger - The native select (focus target). Its popup is `::picker(select)`, its indicator `::picker-icon`.
  * @csspart option - Each native option. Style its `:checked`, `:hover` and `::checkmark`.
  * @csspart description - Helper text wrapper.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled.
  * @cssstate placeholder - No value selected.

@@ -21,7 +21,7 @@ import { TextControl } from '../internal/text-control.js';
  * @csspart cells - Row of visual boxes.
  * @csspart cell - One visual box (also `cell-active`, `cell-filled`).
  * @csspart description - Wrapper around the description slot.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @cssstate focused - The input has focus (drives the active box ring).

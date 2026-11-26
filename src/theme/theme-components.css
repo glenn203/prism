@@ -942,9 +942,19 @@ prism-radio-group::part(dot) {
 :is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
   border-color: var(--prism-color-error);
 }
-:is(prism-checkbox, prism-radio-group)::part(error) {
+:is(prism-checkbox, prism-radio-group)::part(message-box) {
+  margin: 0;
   margin-block-start: var(--prism-space-1);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--prism-color-error-text);
+  box-shadow: none;
+}
+:is(prism-checkbox, prism-radio-group)::part(message-box)::before,
+:is(prism-checkbox, prism-radio-group)::part(message-box)::after {
+  content: none;
 }
 :is(prism-checkbox, prism-radio-group)::part(description),
 prism-radio-group::part(option-description) {
@@ -1047,9 +1057,19 @@ prism-segmented-control::part(description) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-text-muted);
 }
-prism-segmented-control::part(error) {
+prism-segmented-control::part(message-box) {
+  margin: 0;
   margin-block-start: var(--prism-space-1);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--prism-color-error-text);
+  box-shadow: none;
+}
+prism-segmented-control::part(message-box)::before,
+prism-segmented-control::part(message-box)::after {
+  content: none;
 }
 prism-segmented-control::part(segment) {
   --_bg: transparent;

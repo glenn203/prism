@@ -403,3 +403,102 @@ code {
   --prism-color-accent-text: oklch(0.83 0.1 300);
   --prism-color-accent-surface: oklch(0.3 0.137 300);
 }
+
+/* ---------- MessageBox page ---------- */
+.mbx-page {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  display: grid;
+  gap: var(--prism-space-10);
+}
+
+.mbx-note {
+  margin: 0;
+  color: var(--prism-color-text-muted);
+  max-inline-size: 70ch;
+  overflow-wrap: anywhere;
+}
+
+.mbx-matrix {
+  display: grid;
+  gap: var(--prism-space-6);
+  min-inline-size: 0;
+}
+
+.mbx-row {
+  display: grid;
+  gap: var(--prism-space-5);
+  min-inline-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.mbx-cell {
+  display: grid;
+  gap: var(--prism-space-3);
+  align-content: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  padding: var(--prism-space-4);
+  background: var(--prism-color-surface);
+  border-radius: var(--prism-radius-3);
+  border: var(--prism-border-width) solid var(--prism-color-border);
+}
+
+.mbx-cell h3 {
+  margin: 0;
+  font-family: var(--prism-text-supporting-font-family);
+  font-size: var(--prism-text-supporting-font-size);
+  font-weight: var(--prism-font-weight-medium, 500);
+  line-height: var(--prism-text-supporting-line-height);
+  color: var(--prism-color-text-muted);
+  text-transform: lowercase;
+}
+
+.mbx-pair-top,
+.mbx-pair-bottom {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.mbx-pair .mbx-plate,
+.mbx-pair prism-message-box,
+.mbx-cell prism-text-input,
+.mbx-cell prism-select {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.mbx-plate {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--prism-space-1);
+  align-content: center;
+  min-block-size: var(--prism-control-height-md, 2.25rem);
+  padding: var(--prism-space-3) var(--prism-control-padding-inline);
+  border: var(--prism-border-width) solid var(--prism-color-border-strong);
+  border-radius: var(--prism-radius-5);
+  background: var(--prism-color-bg);
+}
+
+.mbx-plate-label {
+  font-family: var(--prism-text-supporting-font-family);
+  font-size: var(--prism-text-supporting-font-size);
+  line-height: var(--prism-text-supporting-line-height);
+  color: var(--prism-color-text-muted);
+}
+
+.mbx-plate-body {
+  font-family: var(--prism-text-body-font-family);
+  font-size: var(--prism-text-body-font-size);
+  line-height: var(--prism-text-body-line-height);
+  overflow-wrap: anywhere;
+}
+
+.mbx-long {
+  max-inline-size: min(360px, 100%);
+  min-inline-size: 0;
+}

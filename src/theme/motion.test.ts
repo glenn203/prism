@@ -62,11 +62,16 @@ test('error box keeps the standard ease (no spring)', async ({ page }) => {
     .evaluate((e) =>
       (e as HTMLElement & { reportValidity(): boolean }).reportValidity(),
     );
-  expect(await part(page, 'prism-text-field', 'error', 'animation-name')).toBe(
-    'prism-error-in',
-  );
   expect(
-    await part(page, 'prism-text-field', 'error', 'animation-timing-function'),
+    await part(page, 'prism-text-field', 'message-box', 'animation-name'),
+  ).toBe('prism-error-in');
+  expect(
+    await part(
+      page,
+      'prism-text-field',
+      'message-box',
+      'animation-timing-function',
+    ),
   ).toBe('cubic-bezier(0.2, 0, 0, 1)');
 });
 
@@ -108,7 +113,7 @@ test('reduced motion: popup does not travel, error and ring are instant, tokens 
     .evaluate((e) =>
       (e as HTMLElement & { reportValidity(): boolean }).reportValidity(),
     );
-  expect(await part(page, 'prism-text-field', 'error', 'animation-name')).toBe(
-    'none',
-  );
+  expect(
+    await part(page, 'prism-text-field', 'message-box', 'animation-name'),
+  ).toBe('none');
 });

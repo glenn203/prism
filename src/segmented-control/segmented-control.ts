@@ -78,7 +78,7 @@ import type { PrismSegment } from './segment.js';
  * @csspart indicator - The sliding shape under the picked segment.
  * @csspart segment - One segment's label: it holds the input and the segment, and scales while pressed.
  * @csspart base - A segment's native radio input, laid over it; it carries the focus ring.
- * @csspart error - The error message.
+ * @csspart message-box - The error message.
  * @cssstate disabled - The control is disabled.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @fires input - After the user picks a segment.

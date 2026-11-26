@@ -72,10 +72,11 @@ customElements.define('lumen-button', class extends PrismButton {});
 
 ## Components
 
-| Tag                | Parts                                    | States                | Slots                   |
-| ------------------ | ---------------------------------------- | --------------------- | ----------------------- |
-| `prism-button`     | `base`, `label`                          | `disabled`, `pressed` | default, `start`, `end` |
-| `prism-text-input` | `label`, `input`, `description`, `error` | `invalid`, `disabled` | `description`, `error`  |
+| Tag                 | Parts                                          | States                | Slots                   |
+| ------------------- | ---------------------------------------------- | --------------------- | ----------------------- |
+| `prism-button`      | `base`, `label`                                | `disabled`, `pressed` | default, `start`, `end` |
+| `prism-text-input`  | `label`, `input`, `description`, `message-box` | `invalid`, `disabled` | `description`, `error`  |
+| `prism-message-box` | host (no inner part)                           | `empty`               | default                 |
 
 The full API is in `custom-elements.json`. `prism-text-field` is a
 deprecated alias of `prism-text-input` and will be removed before 1.0.

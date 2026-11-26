@@ -881,7 +881,7 @@ for (const theme of ['light', 'dark'] as const) {
           bg: px(getComputedStyle(el.parentElement!).backgroundColor),
           edge: px(q('edge').borderTopColor),
           label: px(q('label').color),
-          error: px(q('error').color),
+          error: px(q('message-box').color),
           description: px(q('description').color),
         };
       });

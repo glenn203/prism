@@ -20,7 +20,7 @@ import { visuallyHidden } from '../internal/visually-hidden.js';
  * @csspart input - The native textarea.
  * @csspart counter - The visible character counter.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @cssstate at-limit - The value has reached maxlength.

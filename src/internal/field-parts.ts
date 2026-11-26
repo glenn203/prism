@@ -2,10 +2,12 @@ import { css, html, nothing, type TemplateResult } from 'lit';
 import type { DirectiveResult } from 'lit/directive.js';
 import type { StyleMapDirective } from 'lit/directives/style-map.js';
 import { textRole } from './control-styles.js';
+import '../message-box/define.js';
 
 /**
- * Private shared field parts: label, description and error, with stable ids
- * `${id}-label|-description|-error`. Used by every Prism field. Not exported.
+ * Private shared field parts: label, description and message-box, with
+ * stable ids `${id}-label|-description|-message-box`. Used by every Prism
+ * field. Not exported.
  */
 export const fieldPartsStyles = css`
   :host {
@@ -19,11 +21,11 @@ export const fieldPartsStyles = css`
     ${textRole('label')}
   }
   [part='description'],
-  [part='error'] {
+  [part='message-box'] {
     ${textRole('supporting')}
   }
   [part='description'][hidden],
-  [part='error'][hidden] {
+  [part='message-box'][hidden] {
     display: none;
   }
 `;
@@ -50,14 +52,21 @@ export const renderDescription = (id: string): TemplateResult =>
   </div>`;
 
 export const renderError = (id: string): TemplateResult =>
-  html`<div part="error" id="${id}-error" aria-live="polite" hidden>
+  html`<prism-message-box
+    part="message-box"
+    id="${id}-message-box"
+    intent="error"
+    placement="bottom"
+    announce="off"
+    hidden
+  >
     <slot name="error"></slot>
-  </div>`;
+  </prism-message-box>`;
 
 /**
- * Sets aria-invalid / aria-describedby on the control and shows the error
- * only while invalid. The error is referenced only while it is shown.
- * A group (fieldset) takes `ariaInvalid: false`: the attribute is not
+ * Sets aria-invalid / aria-describedby on the control and shows the
+ * MessageBox only while invalid. The box is referenced only while it is
+ * shown. A group (fieldset) takes `ariaInvalid: false`: the attribute is not
  * supported on its role, and its native inputs report their own validity.
  */
 export function syncFieldA11y(
@@ -70,8 +79,10 @@ export function syncFieldA11y(
   if (ariaInvalid) control.setAttribute('aria-invalid', String(invalid));
   const describedBy =
     invalid && hideDescriptionWhenInvalid
-      ? `${id}-error`
-      : `${id}-description${invalid ? ` ${id}-error` : ''}`;
+      ? `${id}-message-box`
+      : `${id}-description${invalid ? ` ${id}-message-box` : ''}`;
   control.setAttribute('aria-describedby', describedBy);
-  root.querySelector('[part="error"]')?.toggleAttribute('hidden', !invalid);
+  root
+    .querySelector('[part="message-box"]')
+    ?.toggleAttribute('hidden', !invalid);
 }
