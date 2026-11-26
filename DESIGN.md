@@ -557,8 +557,8 @@ A short text box that tucks against a neighbor. The host is the painted box;
 there is no inner part. Put it before the neighbor (`placement="top"`) or after
 it (`placement="bottom"`, the default). `intent` is `error` (default) or
 `info`. Error uses the error surface, the text on that surface, and a border
-that matches the fill. Info uses the shared message-box tint, info text, and
-the info border.
+that matches the fill. Info uses the shared message-box tint and muted
+(supporting) text, with no border.
 
 `--prism-message-box-inset` is 0 by default, so the box is flush with the
 neighbor. A theme can set a non-zero inset to pull it in and show the fillets,

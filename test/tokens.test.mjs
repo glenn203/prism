@@ -683,25 +683,19 @@ test('on-error-surface pairs with error-surface; error-status-text is its alias'
   assert.ok(r >= 4.5, `${r}`);
 });
 
-test('message-box tokens: flush inset, tint, borders, and info text contrast', () => {
+test('message-box tokens: flush inset, tint, and muted text contrast', () => {
   assert.equal(resolved.modes.default['message-box.inset'].value, 0);
   assert.equal(tok('color.danger-border'), tok('color.error-surface'));
-  assert.equal(tok('color.info-border'), tok('color.info'));
   for (const theme of THEMES) {
     const ink = theme === 'dark' ? 'neutral.0' : 'neutral.900';
     const r = ratio(
-      srgb(tokIn(theme, 'color.info-text')),
+      srgb(tokIn(theme, 'color.text-muted')),
       veil(tokIn(theme, ink), tokIn(theme, 'color.bg'), 0.06),
     );
-    assert.ok(r >= 4.5, `${theme} info-text on message-box-tint ${r}`);
-    const border = ratio(
-      srgb(tokIn(theme, 'color.info-border')),
-      veil(tokIn(theme, ink), tokIn(theme, 'color.bg'), 0.06),
+    console.log(
+      `  [${theme}] text-muted on message-box-tint (over bg): ${r.toFixed(2)}:1`,
     );
-    assert.ok(
-      border >= 3,
-      `${theme} info-border on message-box-tint ${border}`,
-    );
+    assert.ok(r >= 4.5, `${theme} text-muted on message-box-tint ${r}`);
   }
 });
 

@@ -52,7 +52,7 @@ The palette is small and built around light: one hued **neutral** band (`--prism
 
 **Display P3.** The 500, 600 and 700 steps are written beyond sRGB. `tokens.css` declares the gamut-mapped sRGB value (same lightness and hue, less chroma), then the full value in `@media (color-gamut: p3)`, then hex for engines without `oklch()`. The resolved JSON marks these colours `"gamut": "p3"` and always carries the sRGB `hex`.
 
-**Roles.** Use these, not the ramps: `color-bg`, `-surface`, `-text`, `-text-muted`, `-border`, `-border-strong`, `-border-popup`, `-accent` (near-black / near-white by default; spectral when `accent.css` is loaded), `-on-accent`, `-accent-text`, `-accent-surface`, `-focus-ring`, `-focus-border` (the focused field's border, a meaning colour; the 50% ring and 12% halo follow it), and the tone families `-info`, `-success`, `-warning`, `-danger` (each with `-text` and `-surface`), `-neutral` and `-neutral-surface`, `-on-solid` (text on solid tone fills), `-lift` (near-white, mixed into a progress fill's left end), `-track-shadow` (the progress track's inset edge), plus the error roles (`-error`, `-error-text`, `-error-surface`, `-on-error-surface`), MessageBox roles (`-message-box-tint`, `-danger-border`, `-info-border`), and the layout token `--prism-message-box-inset` (default 0).
+**Roles.** Use these, not the ramps: `color-bg`, `-surface`, `-text`, `-text-muted`, `-border`, `-border-strong`, `-border-popup`, `-accent` (near-black / near-white by default; spectral when `accent.css` is loaded), `-on-accent`, `-accent-text`, `-accent-surface`, `-focus-ring`, `-focus-border` (the focused field's border, a meaning colour; the 50% ring and 12% halo follow it), and the tone families `-info`, `-success`, `-warning`, `-danger` (each with `-text` and `-surface`), `-neutral` and `-neutral-surface`, `-on-solid` (text on solid tone fills), `-lift` (near-white, mixed into a progress fill's left end), `-track-shadow` (the progress track's inset edge), plus the error roles (`-error`, `-error-text`, `-error-surface`, `-on-error-surface`), MessageBox roles (`-message-box-tint`, `-danger-border`), and the layout token `--prism-message-box-inset` (default 0).
 
 **Gradients.** `--prism-gradient-spectrum` (violet to magenta), `--prism-gradient-refract` (violet through blue into cyan) and `--prism-gradient-mist` (pale tints, safe behind `color-text`). They interpolate in OKLCH where supported and fall back to a plain gradient.
 
@@ -85,7 +85,7 @@ over numeric `1/2/3`).
 
 Related: `--prism-color-error-surface` is the flat fill for an error MessageBox
 (text field and select, no shadow). Info uses `--prism-color-message-box-tint`
-(a 6% neutral wash), `--prism-color-info-text` and `--prism-color-info-border`.
+(a 6% neutral wash) and `--prism-color-text-muted`, with no border.
 `--prism-motion-duration-medium` (200ms) drives the menu slide-down and error
 reveal. Both animations are disabled under `prefers-reduced-motion`.
 

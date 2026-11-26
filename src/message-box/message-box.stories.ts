@@ -94,7 +94,7 @@ export const Placement: Story = {
   `,
 };
 
-/** Error uses the error surface. Info uses the neutral tint and info tokens. */
+/** Error uses the error surface. Info uses the neutral tint and muted text, with no border. */
 export const Intent: Story = {
   ...reference,
   render: () => html`

@@ -416,9 +416,9 @@ prism-message-box {
   pointer-events: none;
 }
 prism-message-box[intent='info'] {
+  border: none;
   background: var(--prism-color-message-box-tint);
-  color: var(--prism-color-info-text);
-  border-color: var(--prism-color-info-border);
+  color: var(--prism-color-text-muted);
 }
 prism-message-box:not([placement]),
 prism-message-box[placement='bottom'] {

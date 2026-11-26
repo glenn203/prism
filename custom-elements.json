@@ -1435,7 +1435,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A group of card actions. NAME PROVISIONAL.\n\nWhere it sits decides its rules (from its `slot`):\n- `slot=\"header\"`: up to two ghost `prism-icon-button`s, or one overflow\n  `prism-menu`. No text buttons. On a narrow card the icon buttons fold into\n  one overflow menu († narrow rule: page says \"about 280px or less\").\n- `slot=\"footer\"`: up to two `prism-button`s, ghost or secondary (soft),\n  plus one primary only on a `standalone` card. A \"View all\" link counts as\n  one. Medium size (small in a widget footer), 8px apart, at the end (mirrors in right-to-left).\n- no slot (content-only card): the last row of the content, at the end,\n  medium size, 8px apart, ghost and secondary only. Soft goes on the right,\n  ghost to its left (put the ghost button first in the DOM). The row wraps\n  to the next line on the end side and sits at the bottom of the card.\n\nInvalid children are hidden with a dev error.",
+          "description": "A group of card actions. NAME PROVISIONAL.\n\nWhere it sits decides its rules (from its `slot`):\n- `slot=\"header\"`: up to two ghost `prism-icon-button`s, or one overflow\n  `prism-menu`. No text buttons. On a narrow card the icon buttons fold into\n  one overflow menu (\u2020 narrow rule: page says \"about 280px or less\").\n- `slot=\"footer\"`: up to two `prism-button`s, ghost or secondary (soft),\n  plus one primary only on a `standalone` card. A \"View all\" link counts as\n  one. Medium size (small in a widget footer), 8px apart, at the end (mirrors in right-to-left).\n- no slot (content-only card): the last row of the content, at the end,\n  medium size, 8px apart, ghost and secondary only. Soft goes on the right,\n  ghost to its left (put the ghost button first in the DOM). The row wraps\n  to the next line on the end side and sits at the bottom of the card.\n\nInvalid children are hidden with a dev error.",
           "name": "PrismCardActions",
           "slots": [
             {
@@ -1568,7 +1568,7 @@
                   "text": "void"
                 }
               },
-              "description": "† Narrow header: icon buttons fold into one overflow menu."
+              "description": "\u2020 Narrow header: icon buttons fold into one overflow menu."
             },
             {
               "kind": "method",
@@ -2070,7 +2070,7 @@
         },
         {
           "kind": "class",
-          "description": "A grid or single-column list of cards, with paging, selection that is kept\nacross pages, and the loading, empty and error states. NAME PROVISIONAL. Section owns these states on a real page; this element\ngives them a default look and fires events so a Section can take over.\n\n```html\n<prism-card-list label=\"Resources\" selection=\"multi\" total=\"120\" page=\"2\">\n  <prism-card type=\"selectable\" kind=\"collection\" value=\"h-13\">…</prism-card>\n</prism-card-list>\n```\n\n- **Layout.** Columns follow the list's own width (a container query), not\n  the screen: under 640px one column, 640 to 1023 two, 1024 to 1279 three,\n  1280 and up four. Cards stay at least 280px wide, the gap is space-4 (16px)\n  and cards in a row share a height. `columns=\"1\"` pins one column (Aside,\n  Drawer, Modal). No masonry.\n- **Semantics.** An inner wrapper around the cards is the labelled `list` and\n  each card a `listitem` (the card sets its own role). The host has no role,\n  so the selected count, pager and status region sit outside the list. Titles stay real headings: give every card\n  the same `level`, one below the Section heading. With `total` set, each\n  card gets `aria-posinset` and `aria-setsize` from the data, not from what\n  is on the page.\n- **Paging.** Server-side: you swap the children when `prism-card-list-page`\n  fires. `page-size` is 12, 24 or 48 (default 24). The pager shows even when\n  there is one page. A `pagination` slot replaces it with a real Pagination\n  component; `load-more` shows a \"Load more\" button instead.\n- **Selection** uses the same cards, `value` ids and controller as\n  `prism-card-group`, multi only (use a group for a single choice). Ids not\n  on screen stay selected when the page changes; a visible \"N selected\" and\n  \"Clear selection\" sit above the cards unless `hide-selection-bar` is set\n  or you fill the `toolbar` slot.\n- **States** (`state`): `loading` (skeleton cards, list busy, polite\n  \"Loading\"), `refreshing` (cards stay, quiet busy line), `empty` (fill the\n  `empty` slot), `no-matches` (\"No matches\" and Clear filters), `error`\n  (what failed and Retry). A single failed card uses `state=\"error\"` on the\n  card itself.",
+          "description": "A grid or single-column list of cards, with paging, selection that is kept\nacross pages, and the loading, empty and error states. NAME PROVISIONAL. Section owns these states on a real page; this element\ngives them a default look and fires events so a Section can take over.\n\n```html\n<prism-card-list label=\"Resources\" selection=\"multi\" total=\"120\" page=\"2\">\n  <prism-card type=\"selectable\" kind=\"collection\" value=\"h-13\">\u2026</prism-card>\n</prism-card-list>\n```\n\n- **Layout.** Columns follow the list's own width (a container query), not\n  the screen: under 640px one column, 640 to 1023 two, 1024 to 1279 three,\n  1280 and up four. Cards stay at least 280px wide, the gap is space-4 (16px)\n  and cards in a row share a height. `columns=\"1\"` pins one column (Aside,\n  Drawer, Modal). No masonry.\n- **Semantics.** An inner wrapper around the cards is the labelled `list` and\n  each card a `listitem` (the card sets its own role). The host has no role,\n  so the selected count, pager and status region sit outside the list. Titles stay real headings: give every card\n  the same `level`, one below the Section heading. With `total` set, each\n  card gets `aria-posinset` and `aria-setsize` from the data, not from what\n  is on the page.\n- **Paging.** Server-side: you swap the children when `prism-card-list-page`\n  fires. `page-size` is 12, 24 or 48 (default 24). The pager shows even when\n  there is one page. A `pagination` slot replaces it with a real Pagination\n  component; `load-more` shows a \"Load more\" button instead.\n- **Selection** uses the same cards, `value` ids and controller as\n  `prism-card-group`, multi only (use a group for a single choice). Ids not\n  on screen stay selected when the page changes; a visible \"N selected\" and\n  \"Clear selection\" sit above the cards unless `hide-selection-bar` is set\n  or you fill the `toolbar` slot.\n- **States** (`state`): `loading` (skeleton cards, list busy, polite\n  \"Loading\"), `refreshing` (cards stay, quiet busy line), `empty` (fill the\n  `empty` slot), `no-matches` (\"No matches\" and Clear filters), `error`\n  (what failed and Retry). A single failed card uses `state=\"error\"` on the\n  card itself.",
           "name": "PrismCardList",
           "cssParts": [
             {
@@ -4075,7 +4075,7 @@
             "text": "number"
           },
           "default": "280",
-          "description": "PROPOSED (page: \"about 280px or less †\"): the narrow breakpoint."
+          "description": "PROPOSED (page: \"about 280px or less \u2020\"): the narrow breakpoint."
         },
         {
           "kind": "variable",
@@ -9855,7 +9855,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A short text box that tucks against a neighbor on one side. The host is\nthe painted box; there is no inner part. Every intent uses the same\nanatomy (background, 1px border, text); only tokens change the look.\n\nv1 ships `intent` values `error` (default) and `info`.",
+          "description": "A short text box that tucks against a neighbor on one side. The host is\nthe painted box; there is no inner part. Error uses a fill, a matching\nborder and on-fill text. Info uses a neutral tint and muted text, with\nno border.",
           "name": "PrismMessageBox",
           "cssProperties": [
             {
@@ -9872,8 +9872,8 @@
               "name": "--prism-color-danger-border"
             },
             {
-              "description": "Info outline colour.",
-              "name": "--prism-color-info-border"
+              "description": "Info text (secondary / supporting).",
+              "name": "--prism-color-text-muted"
             }
           ],
           "slots": [
@@ -9901,7 +9901,7 @@
                 "text": "MessageBoxIntent"
               },
               "default": "'error'",
-              "description": "Colour family for the box. v1 ships `error` (default) and `info`.",
+              "description": "Colour family for the box: `error` (default) or `info`.",
               "attribute": "intent",
               "reflects": true
             },
@@ -10002,7 +10002,7 @@
                 "text": "MessageBoxIntent"
               },
               "default": "'error'",
-              "description": "Colour family for the box. v1 ships `error` (default) and `info`.",
+              "description": "Colour family for the box: `error` (default) or `info`.",
               "fieldName": "intent"
             },
             {
@@ -10207,7 +10207,7 @@
           ],
           "slots": [
             {
-              "description": "Helper text (e.g. \"Sent to •••• 1234\").",
+              "description": "Helper text (e.g. \"Sent to \u2022\u2022\u2022\u2022 1234\").",
               "name": "description"
             },
             {
@@ -15281,7 +15281,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A row of mutually exclusive choices that share one sliding indicator, like a\nset of radio buttons drawn as a switch between views: `<prism-segmented-control\nlabel=\"Range\"><prism-segment value=\"day\">Day</prism-segment>…`.\n\n- A native `<fieldset>` with a `<legend>` carrying `label` (`hide-label`\n  keeps it for screen readers only). Put help text in the `description` slot\n  and the message for a failed check in the `error` slot.\n- Each child `prism-segment` is drawn as a native `<input type=\"radio\">` inside\n  a real `<label>`, all in this one shadow root so they share a name. Tab\n  stop, arrow keys (all four, skipping disabled segments) and Space are the\n  browser's, with no key handling here. Chrome and Firefox also wrap round at\n  the ends and flip Left and Right in right-to-left text; WebKit does\n  neither, as for any native radios.\n- `value` is the picked segment's `value` (empty: none, and no indicator).\n  It is what is submitted under `name`. `required` fails validation while\n  none is picked. A segment with `checked` in the markup sets the starting\n  value. Resets to the starting value with the form.\n- Fires `input` and `change` after each user pick.\n- Disabling the control disables every segment in it.\n- With polish motion on, pressing scales the segment evenly (about 3%) and\n  it eases back. Otherwise, and under `prefers-reduced-motion: reduce`, only\n  the press colour shows.\n- Each segment's parts also carry `checked` and `disabled` while they apply,\n  so a theme can target `::part(segment checked)`.\n- Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`\n  shares the row equally.\n- With polish motion on, the indicator slides to the picked segment on two\n  springs (one per edge) so it stretches on the way, about 325ms\n  (`--prism-motion-segmented`), with a small overshoot that never leaves the\n  track. A new pick during the move turns it round from where it is.\n  Transform and opacity only. Nothing moves on first paint, on a resize, or\n  when the width of a segment changes: the indicator just follows. A change\n  from code moves the same way as a click. Without polish motion, and under\n  `prefers-reduced-motion: reduce`, the indicator jumps to a static selected\n  surface and the colours change at once.",
+          "description": "A row of mutually exclusive choices that share one sliding indicator, like a\nset of radio buttons drawn as a switch between views: `<prism-segmented-control\nlabel=\"Range\"><prism-segment value=\"day\">Day</prism-segment>\u2026`.\n\n- A native `<fieldset>` with a `<legend>` carrying `label` (`hide-label`\n  keeps it for screen readers only). Put help text in the `description` slot\n  and the message for a failed check in the `error` slot.\n- Each child `prism-segment` is drawn as a native `<input type=\"radio\">` inside\n  a real `<label>`, all in this one shadow root so they share a name. Tab\n  stop, arrow keys (all four, skipping disabled segments) and Space are the\n  browser's, with no key handling here. Chrome and Firefox also wrap round at\n  the ends and flip Left and Right in right-to-left text; WebKit does\n  neither, as for any native radios.\n- `value` is the picked segment's `value` (empty: none, and no indicator).\n  It is what is submitted under `name`. `required` fails validation while\n  none is picked. A segment with `checked` in the markup sets the starting\n  value. Resets to the starting value with the form.\n- Fires `input` and `change` after each user pick.\n- Disabling the control disables every segment in it.\n- With polish motion on, pressing scales the segment evenly (about 3%) and\n  it eases back. Otherwise, and under `prefers-reduced-motion: reduce`, only\n  the press colour shows.\n- Each segment's parts also carry `checked` and `disabled` while they apply,\n  so a theme can target `::part(segment checked)`.\n- Sizes `sm`, `md`, `lg` follow the control heights and density. `full-width`\n  shares the row equally.\n- With polish motion on, the indicator slides to the picked segment on two\n  springs (one per edge) so it stretches on the way, about 325ms\n  (`--prism-motion-segmented`), with a small overshoot that never leaves the\n  track. A new pick during the move turns it round from where it is.\n  Transform and opacity only. Nothing moves on first paint, on a resize, or\n  when the width of a segment changes: the indicator just follows. A change\n  from code moves the same way as a click. Without polish motion, and under\n  `prefers-reduced-motion: reduce`, the indicator jumps to a static selected\n  surface and the colours change at once.",
           "name": "PrismSegmentedControl",
           "cssProperties": [
             {
@@ -17542,7 +17542,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A multi-line text input. `autosize` grows it with its content (from\n`rows`). With `maxlength` and `counter`, shows \"n / max\"; the visible\ncounter is aria-hidden and a polite live region announces only when the\nremaining count gets low (≤ 10% or ≤ 20) and at the limit, debounced, so\ntyping isn't drowned in announcements.",
+          "description": "A multi-line text input. `autosize` grows it with its content (from\n`rows`). With `maxlength` and `counter`, shows \"n / max\"; the visible\ncounter is aria-hidden and a polite live region announces only when the\nremaining count gets low (\u2264 10% or \u2264 20) and at the limit, debounced, so\ntyping isn't drowned in announcements.",
           "name": "PrismTextArea",
           "cssParts": [
             {

@@ -51,8 +51,8 @@ export const messageBoxPage = () => {
         <h1>MessageBox</h1>
         <p>
           A text-only box that tucks against a neighbor on the top or bottom
-          edge. Error is the default intent; info uses a neutral tint with the
-          info text and border. The default inset is 0, so the box is flush with
+          edge. Error is the default intent; info uses a neutral tint and muted
+          text, with no border. The default inset is 0, so the box is flush with
           the neighbor. Use the appearance control in the header to switch light
           and dark.
         </p>

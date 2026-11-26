@@ -4,12 +4,8 @@ import { textRole } from '../internal/control-styles.js';
 import { visuallyHidden } from '../internal/visually-hidden.js';
 
 export type MessageBoxPlacement = 'top' | 'bottom';
-/**
- * Intent of the message. v1 ships `error` (default) and `info`. `success`
- * and `warning` are reserved for a later release; setting them today falls
- * back to `error`.
- */
-export type MessageBoxIntent = 'info' | 'success' | 'warning' | 'error';
+/** Intent of the message: `error` (default) or `info`. */
+export type MessageBoxIntent = 'error' | 'info';
 export type MessageBoxAnnounce = 'polite' | 'assertive' | 'off';
 
 const SHIPPED_INTENTS = new Set<MessageBoxIntent>(['error', 'info']);
@@ -18,10 +14,9 @@ const ANNOUNCES = new Set<MessageBoxAnnounce>(['polite', 'assertive', 'off']);
 
 /**
  * A short text box that tucks against a neighbor on one side. The host is
- * the painted box; there is no inner part. Every intent uses the same
- * anatomy (background, 1px border, text); only tokens change the look.
- *
- * v1 ships `intent` values `error` (default) and `info`.
+ * the painted box; there is no inner part. Error uses a fill, a matching
+ * border and on-fill text. Info uses a neutral tint and muted text, with
+ * no border.
  *
  * @tag prism-message-box
  * @slot - The message text only. Required to show the box.
@@ -30,7 +25,7 @@ const ANNOUNCES = new Set<MessageBoxAnnounce>(['polite', 'assertive', 'off']);
  *   min(inset, radius-5).
  * @cssprop [--prism-color-message-box-tint] - Info fill (a neutral wash).
  * @cssprop [--prism-color-danger-border] - Error border; matches the fill.
- * @cssprop [--prism-color-info-border] - Info outline colour.
+ * @cssprop [--prism-color-text-muted] - Info text (secondary / supporting).
  */
 export class PrismMessageBox extends LitElement {
   static override styles = [
@@ -74,9 +69,7 @@ export class PrismMessageBox extends LitElement {
    */
   @property({ reflect: true }) placement: MessageBoxPlacement = 'bottom';
 
-  /**
-   * Colour family for the box. v1 ships `error` (default) and `info`.
-   */
+  /** Colour family for the box: `error` (default) or `info`. */
   @property({ reflect: true }) intent: MessageBoxIntent = 'error';
 
   /** How (or whether) a live region announces the text. */
