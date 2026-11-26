@@ -898,7 +898,7 @@
     },
     "message-box-tint": {
       "$value": "color-mix(in oklch, {neutral.900} 6%, transparent)",
-      "$description": "MessageBox info fill: a 6% neutral wash. Text and border come from the info tokens.",
+      "$description": "MessageBox info fill: a 6% neutral wash. Info text is color-text-muted; there is no border.",
       "$extensions": {
         "prism.dark": "color-mix(in oklch, {neutral.0} 6%, transparent)"
       }

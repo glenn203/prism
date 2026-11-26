@@ -98,6 +98,7 @@ test.describe('prism-message-box', () => {
           bg: cs.backgroundColor,
           color: cs.color,
           border: cs.borderTopColor,
+          borderWidth: cs.borderTopWidth,
         };
       };
       const probe = (name: string) => {
@@ -114,17 +115,16 @@ test.describe('prism-message-box', () => {
         errorSurface: probe('--prism-color-error-surface'),
         onError: probe('--prism-color-on-error-surface'),
         dangerBorder: probe('--prism-color-danger-border'),
-        infoText: probe('--prism-color-info-text'),
-        infoBorder: probe('--prism-color-info-border'),
+        muted: probe('--prism-color-text-muted'),
         tint: probe('--prism-color-message-box-tint'),
       };
     });
     expect(paint.e.bg).toBe(paint.errorSurface);
     expect(paint.e.color).toBe(paint.onError);
     expect(paint.e.border).toBe(paint.dangerBorder);
-    expect(paint.i.color).toBe(paint.infoText);
-    expect(paint.i.border).toBe(paint.infoBorder);
+    expect(paint.i.color).toBe(paint.muted);
     expect(paint.i.bg).toBe(paint.tint);
+    expect(paint.i.borderWidth).toBe('0px');
   });
 
   test('an empty slot hides the box, and text shows it again', async ({

@@ -7,7 +7,7 @@
  *   node scripts/contrast-report.mjs
  */
 import { readFileSync } from 'node:fs';
-import { contrast, contrastP3 } from './oklch.mjs';
+import { contrast, contrastP3, oklchToHex } from './oklch.mjs';
 
 const resolved = JSON.parse(
   readFileSync(
@@ -88,8 +88,53 @@ for (const theme of ['light', 'dark']) {
   }
 }
 
+// MessageBox info: text-muted on the 6% tint composited over color-bg.
+const srgbOf = (str) => {
+  const h = oklchToHex(str);
+  return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+};
+const lumRgb = (c) => {
+  const l = c.map((v) =>
+    v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4,
+  );
+  return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2];
+};
+const rgbRatio = (a, b) => {
+  const [x, y] = [lumRgb(a), lumRgb(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+const veil = (on, page, p) => {
+  const [o, b] = [srgbOf(on), srgbOf(page)];
+  return o.map((v, i) => v * p + b[i] * (1 - p));
+};
+const neu = (theme, k) =>
+  theme === 'dark' && resolved.themes.dark[k]
+    ? resolved.themes.dark[k].value
+    : resolved.modes.default[k].value;
+
+let veilCount = 0;
+for (const theme of ['light', 'dark']) {
+  veilCount += 1;
+  const ink = theme === 'dark' ? 'neutral.0' : 'neutral.900';
+  const r = rgbRatio(
+    srgbOf(colorIn(theme, 'text-muted')),
+    veil(neu(theme, ink), colorIn(theme, 'bg'), 0.06),
+  );
+  const ok = r >= 4.5;
+  if (!ok) failed += 1;
+  console.log(
+    pad(theme, 6),
+    pad('color-text-muted', 22),
+    pad('tint over color-bg', 20),
+    pad('4.5', 5),
+    pad(r.toFixed(2), 6),
+    pad(r.toFixed(2), 6),
+    ok ? 'pass' : 'FAIL',
+  );
+}
+
 if (failed) {
   console.error(`\n${failed} pair(s) below AA`);
   process.exit(1);
 }
-console.log(`\n${pairs.length * 2} pairs, all at or above AA`);
+console.log(`\n${pairs.length * 2 + veilCount} pairs, all at or above AA`);
