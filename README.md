@@ -95,13 +95,16 @@ pnpm exec playwright install chromium
 | `pnpm analyze`         | Writes `custom-elements.json`                                   |
 | `pnpm lint`            | ESLint, stylelint, prefix check, types                          |
 | `pnpm format`          | Prettier                                                        |
-| `pnpm test`            | Playwright browser tests                                        |
+| `pnpm check`           | Lint, Prettier, and the token unit tests (the CI lint job)      |
+| `pnpm test`            | Playwright Chromium tests                                       |
 | `pnpm storybook`       | Storybook on port 6006                                          |
 | `pnpm build-storybook` | Static Storybook in `storybook-static/`                         |
 | `pnpm showcase`        | Theme showcase on port 4177                                     |
 | `pnpm build-showcase`  | Static showcase in `showcase-static/`                           |
 | `pnpm build-pages`     | Storybook at the root, showcase in `storybook-static/showcase/` |
 | `pnpm changeset`       | Records a change for the next release                           |
+
+Testing has three tiers. `pnpm check` is the fast local loop: the same lint, format, and token tests as the CI lint job. On a pull request, Chromium tests follow what changed: docs or showcase-only changes skip the browser suite (the showcase still builds); a change in one component folder runs that folder's tests; shared tokens, theme, or config run the full four-shard Chromium suite. Pushes to `main` always run the full Chromium suite. Firefox and WebKit run nightly and on demand, not after every push to `main`. A newer push on the same branch cancels an in-progress CI run, including on `main`.
 
 The Storybook toolbar can switch light and dark, turn polish on or off, and (preview-only) change the font (Inter, Geist with Geist Mono, Figtree, Manrope, Plus Jakarta Sans, Onest). The font switcher sets `--prism-font-family-sans` on the preview root and loads the font from Google Fonts. Tokens and text styles do not change, and Inter stays the default. Stories are the neutral reference; polish is off until you turn it on.
 

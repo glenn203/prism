@@ -213,6 +213,7 @@
     "lint": "eslint . && stylelint 'src/**/*.css' 'showcase/**/*.css' && node scripts/check-prefixes.mjs && node scripts/build-theme.mjs check && tsc --noEmit",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "check": "pnpm lint && pnpm format:check && node --test test/tokens.test.mjs",
     "test": "node --test test/tokens.test.mjs && playwright test --project=chromium",
     "test:browsers": "playwright test --project=firefox --project=webkit",
     "storybook": "storybook dev -p 6006 --no-open",
