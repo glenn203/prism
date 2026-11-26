@@ -1,8 +1,8 @@
 name: CI
 
-# The pull request gate: lint and the Chromium suite, the suite split across
-# four parallel jobs. Firefox and WebKit run in browsers.yml, nightly and after
-# each push to main. Branch protection requires the `check` job.
+# Lint plus Chromium. How much of the suite runs depends on what changed
+# (see scripts/ci-test-mode.mjs). Firefox and WebKit run in browsers.yml,
+# nightly or on demand. Branch protection requires the `check` job.
 on:
   push:
     branches: [main]
@@ -13,9 +13,38 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.detect.outputs.mode }}
+      tests: ${{ steps.detect.outputs.tests }}
+      showcase: ${{ steps.detect.outputs.showcase }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "push" ]; then
+            result=$(node scripts/ci-test-mode.mjs --event push)
+          else
+            git fetch --no-tags --depth=1 origin "$BASE" "$HEAD" 2>/dev/null || true
+            files=$(git diff --name-only "$BASE" "$HEAD")
+            result=$(printf '%s\n' "$files" | node scripts/ci-test-mode.mjs --event pull_request)
+          fi
+          printf '%s\n' "$result"
+          {
+            echo "$result"
+          } >> "$GITHUB_OUTPUT"
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -27,11 +56,14 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: node --test test/tokens.test.mjs
+      # Same as local `pnpm check`: lint, Prettier, and the token unit tests.
+      - run: pnpm check
+      # The showcase build is well under 10s once dist/ exists.
+      - run: pnpm build-showcase
 
   test:
+    needs: changes
+    if: ${{ needs.changes.outputs.mode == 'full' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -45,6 +77,20 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Playwright version
+        id: playwright
+        run: |
+          version=$(node -e "
+            const t = require('fs').readFileSync('pnpm-lock.yaml', 'utf8');
+            const m = t.match(/^  playwright@([0-9]+\.[0-9]+\.[0-9]+):/m);
+            if (!m) throw new Error('playwright version not found in pnpm-lock.yaml');
+            process.stdout.write(m[1]);
+          ")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
       - run: pnpm exec playwright install --with-deps chromium
       # Layout tests measure glyph boxes; the theme's first font is Inter, so
       # CI needs it installed or text metrics differ from local runs.
@@ -59,9 +105,47 @@ jobs:
           path: blob-report
           retention-days: 7
 
+  test-targeted:
+    needs: changes
+    if: ${{ needs.changes.outputs.mode == 'targeted' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Playwright version
+        id: playwright
+        run: |
+          version=$(node -e "
+            const t = require('fs').readFileSync('pnpm-lock.yaml', 'utf8');
+            const m = t.match(/^  playwright@([0-9]+\.[0-9]+\.[0-9]+):/m);
+            if (!m) throw new Error('playwright version not found in pnpm-lock.yaml');
+            process.stdout.write(m[1]);
+          ")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: sudo apt-get update && sudo apt-get install -y fonts-inter && fc-match Inter
+      - run: pnpm tokens
+      - name: Run tests for changed folders
+        run: pnpm exec playwright test --project=chromium ${{ needs.changes.outputs.tests }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-targeted
+          path: blob-report
+          retention-days: 7
+
   report:
-    needs: test
-    if: ${{ !cancelled() }}
+    needs: [test, test-targeted]
+    if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,12 +167,40 @@ jobs:
           path: playwright-report
           retention-days: 14
 
-  # The one required check: green only when lint and every shard pass.
+  # Required check: lint must pass, and the test jobs that ran must pass.
+  # Skipped jobs (the mode that did not apply) must not fail this gate.
   check:
-    needs: [lint, test]
-    if: ${{ always() }}
+    needs: [changes, lint, test, test-targeted]
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          test "${{ needs.lint.result }}" = success
-          test "${{ needs.test.result }}" = success
+      - name: Gate
+        env:
+          MODE: ${{ needs.changes.outputs.mode }}
+          CHANGES: ${{ needs.changes.result }}
+          LINT: ${{ needs.lint.result }}
+          TEST: ${{ needs.test.result }}
+          TARGETED: ${{ needs.test-targeted.result }}
+        run: |
+          set -euo pipefail
+          echo "mode=$MODE changes=$CHANGES lint=$LINT test=$TEST targeted=$TARGETED"
+          test "$CHANGES" = success
+          test "$LINT" = success
+          case "$MODE" in
+            full)
+              test "$TEST" = success
+              test "$TARGETED" = skipped
+              ;;
+            targeted)
+              test "$TEST" = skipped
+              test "$TARGETED" = success
+              ;;
+            none)
+              test "$TEST" = skipped
+              test "$TARGETED" = skipped
+              ;;
+            *)
+              echo "unknown mode: $MODE"
+              exit 1
+              ;;
+          esac

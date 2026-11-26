@@ -8,8 +8,8 @@ export default defineConfig({
   // CI shards write blob reports, merged into one HTML report afterwards.
   reporter: process.env.CI ? [['github'], ['blob']] : 'list',
   use: { baseURL: 'http://localhost:6009', trace: 'on-first-retry' },
-  // Chromium gates every PR (`pnpm test`); Firefox and WebKit run nightly and
-  // after each push to main (`pnpm test:browsers`).
+  // Chromium gates every PR (`pnpm test`); Firefox and WebKit run nightly
+  // and on demand (`pnpm test:browsers`), not on every push to main.
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
