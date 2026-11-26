@@ -96,7 +96,7 @@ test('all: label 2px above, description 4px below, shared error box', async ({
       );
     const err = await page.locator(`prism-${t}`).evaluate((el) => {
       const s = getComputedStyle(
-        el.shadowRoot!.querySelector('[part="error"]')!,
+        el.shadowRoot!.querySelector('[part="message-box"]')!,
       );
       return [
         s.paddingTop,
@@ -510,7 +510,7 @@ test('OtpInput error is red text only, 5px below the boxes, clears the focus rin
   await box.focus();
   const g = await page.locator('prism-otp-input').evaluate((el) => {
     const r = el.shadowRoot!;
-    const err = r.querySelector<HTMLElement>('[part="error"]')!;
+    const err = r.querySelector<HTMLElement>('[part="message-box"]')!;
     const cs = getComputedStyle(err);
     const before = getComputedStyle(err, '::before').content;
     const cells = r.querySelector('[part~="cells"]')!.getBoundingClientRect();
@@ -549,7 +549,7 @@ test('OtpInput error is red text only, 5px below the boxes, clears the focus rin
     .locator('prism-text-input')
     .evaluate(
       (el) =>
-        getComputedStyle(el.shadowRoot!.querySelector('[part="error"]')!)
+        getComputedStyle(el.shadowRoot!.querySelector('[part="message-box"]')!)
           .backgroundColor,
     );
   expect(other).not.toBe('rgba(0, 0, 0, 0)');

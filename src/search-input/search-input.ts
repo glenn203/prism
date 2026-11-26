@@ -20,7 +20,7 @@ import { iconSearch, iconX } from '../internal/icons.js';
  * @csspart clear - The clear button.
  * @csspart icon - Icons.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation.
  * @cssstate disabled - Disabled.
  * @fires input - On typing and on clear.

@@ -10,6 +10,7 @@ import './icon-button/define.js';
 import './menu/define.js';
 import './tag/define.js';
 import './badge/define.js';
+import './message-box/define.js';
 import './avatar/define.js';
 import './progress/define.js';
 import './running-indicator/define.js';

@@ -792,6 +792,10 @@
         "prism.dark": "oklch(0.3 0.068 235)"
       }
     },
+    "info-border": {
+      "$value": "{color.info}",
+      "$description": "MessageBox info outline. Uses the info solid so the edge is at least 3:1 on the page."
+    },
     "success": {
       "$value": "{color.green.600}",
       "$description": "Success tone solid fill and icons.",
@@ -855,6 +859,10 @@
         "prism.dark": "oklch(0.3 0.111 12)"
       }
     },
+    "danger-border": {
+      "$value": "{color.error-surface}",
+      "$description": "MessageBox error border. Matches color-error-surface so the box reads as filled, with no visible outline."
+    },
     "error": {
       "$value": "{color.red.600}",
       "$description": "Error borders and icons.",
@@ -887,6 +895,13 @@
     "error-status-text": {
       "$value": "{color.on-error-surface}",
       "$description": "DEPRECATED alias of color-on-error-surface."
+    },
+    "message-box-tint": {
+      "$value": "color-mix(in oklch, {neutral.900} 6%, transparent)",
+      "$description": "MessageBox info fill: a 6% neutral wash. Text and border come from the info tokens.",
+      "$extensions": {
+        "prism.dark": "color-mix(in oklch, {neutral.0} 6%, transparent)"
+      }
     }
   },
   "state": {
@@ -1104,6 +1119,14 @@
     "track": {
       "$value": "inset 0 0 2px 0 {color.track-shadow}",
       "$description": "Progress track: a faint inset edge all the way round. Painted over the fill too, so the edge stays even where the bar is full."
+    }
+  },
+  "message-box": {
+    "$type": "dimension",
+    "$description": "MessageBox layout. Inset is 0 by default, so the box is flush with the neighbor. Fillets are min(inset, radius-5).",
+    "inset": {
+      "$value": "0",
+      "$description": "How far the box sits inside the neighbor. 0 is flush with the neighbor's outer edge."
     }
   },
   "gradient": {

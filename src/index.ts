@@ -16,6 +16,12 @@ export { PrismTag } from './tag/tag.js';
 export type { TagTone, TagJob } from './tag/tag.js';
 export { PrismBadge } from './badge/badge.js';
 export type { BadgeStatus } from './badge/badge.js';
+export { PrismMessageBox } from './message-box/message-box.js';
+export type {
+  MessageBoxPlacement,
+  MessageBoxIntent,
+  MessageBoxAnnounce,
+} from './message-box/message-box.js';
 export { PrismAvatar, initialsOf } from './avatar/avatar.js';
 export type { AvatarSize } from './avatar/avatar.js';
 export { PrismProgress } from './progress/progress.js';

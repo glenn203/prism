@@ -376,15 +376,12 @@ prism-select::part(trigger):focus {
       var(--_focus-halo),
     inset 0 0 0 var(--prism-border-width, 1px) var(--_focus-border);
 }
-/* ---------- Shared MessageBox (text field + select) ----------
- * Attached to the field. Flush with the control by default
- * (--prism-message-box-inset: 0). A theme can set a non-zero inset to pull
- * it in and show the top fillets, which collapse when the inset is 0.
- * Prism's font family. No shadow; --prism-elevation-urgent is reserved,
- * unused. Replaces helper text. */
-:root {
-  --prism-message-box-inset: 0;
-}
+/* ---------- Shared MessageBox ----------
+ * Standalone prism-message-box and the field message-box share this look.
+ * Flush with the neighbor by default (--prism-message-box-inset comes from
+ * tokens, default 0). A theme can set a non-zero inset to pull it in and
+ * show the fillets, which collapse when the inset is 0. No shadow;
+ * --prism-elevation-urgent is reserved, unused. Replaces helper text. */
 :is(
   prism-text-input,
   prism-password-input,
@@ -401,52 +398,133 @@ prism-select::part(trigger) {
 prism-select::part(trigger) {
   z-index: 2;
 }
-:is(
-  prism-text-input,
-  prism-password-input,
-  prism-search-input,
-  prism-text-area,
-  prism-text-field
-)::part(error),
-prism-select::part(error) {
+prism-message-box {
   /* 2px tuck (half unit). Visible: 5px + 16px line + 3px = 24px. The line
    * box starts 5px below the control (clears the 4px focus reach by 1px);
    * cap tops sit ~8px down and the baseline 7px from the bottom, so the
    * text reads optically centered. */
   --_prism-status-overlap: calc(var(--prism-space-1) / 2);
   --_prism-message-box-fillet: min(
-    var(--prism-message-box-inset),
+    var(--prism-message-box-inset, 0),
     var(--prism-radius-5)
   );
-  margin-block-start: calc(-1 * var(--_prism-status-overlap));
-  margin-inline: var(--prism-message-box-inset);
-  padding-block: calc(var(--_prism-status-overlap) + 5px) 3px;
-  padding-inline: var(--prism-control-padding-inline);
-  border-radius: 0 0 var(--prism-radius-5) var(--prism-radius-5);
+  box-sizing: border-box;
+  border: var(--prism-border-width) solid var(--prism-color-danger-border);
   background: var(--prism-color-error-surface);
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-text-supporting-font-size);
-  font-weight: var(--prism-font-weight-regular);
-  line-height: var(--prism-font-line-height-16);
-  letter-spacing: normal;
-  text-transform: none;
   box-shadow: none;
-  pointer-events: none; /* overlap is visual only */
+  pointer-events: none;
 }
-/* Tuck cue: concave fillets flare the box's top corners into the
- * control's flat bottom edge when --prism-message-box-inset is non-zero,
- * so it reads as growing out from under the input. The fillet size is
+prism-message-box[intent='info'] {
+  background: var(--prism-color-message-box-tint);
+  color: var(--prism-color-info-text);
+  border-color: var(--prism-color-info-border);
+}
+prism-message-box:not([placement]),
+prism-message-box[placement='bottom'] {
+  margin-block-start: calc(-1 * var(--_prism-status-overlap));
+  margin-inline: var(--prism-message-box-inset, 0);
+  padding-block: calc(var(--_prism-status-overlap) + 5px) 3px;
+  padding-inline: var(--prism-control-padding-inline);
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+  border-end-start-radius: var(--prism-radius-5);
+  border-end-end-radius: var(--prism-radius-5);
+}
+prism-message-box[placement='top'] {
+  margin-block-end: calc(-1 * var(--_prism-status-overlap));
+  margin-inline: var(--prism-message-box-inset, 0);
+  padding-block: 3px calc(var(--_prism-status-overlap) + 5px);
+  padding-inline: var(--prism-control-padding-inline);
+  border-start-start-radius: var(--prism-radius-5);
+  border-start-end-radius: var(--prism-radius-5);
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+/* Tuck cue: concave fillets flare the box's corners into the neighbor
+ * when --prism-message-box-inset is non-zero. The fillet size is
  * min(inset, radius-5) and collapses to 0 when the inset is 0. Same
- * fill token, no shadow. */
+ * fill as the box, no shadow. */
+prism-message-box::before,
+prism-message-box::after {
+  content: '';
+  position: absolute;
+  inline-size: var(--_prism-message-box-fillet);
+  block-size: var(--_prism-message-box-fillet);
+  background: inherit;
+  pointer-events: none;
+}
+prism-message-box:not([placement])::before,
+prism-message-box:not([placement])::after,
+prism-message-box[placement='bottom']::before,
+prism-message-box[placement='bottom']::after {
+  inset-block-start: var(--_prism-status-overlap);
+}
+prism-message-box:not([placement])::before,
+prism-message-box[placement='bottom']::before {
+  inset-inline-start: calc(-1 * var(--_prism-message-box-fillet));
+  mask: radial-gradient(
+    circle at 0 100%,
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
+  );
+}
+prism-message-box:not([placement])::after,
+prism-message-box[placement='bottom']::after {
+  inset-inline-end: calc(-1 * var(--_prism-message-box-fillet));
+  mask: radial-gradient(
+    circle at 100% 100%,
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
+  );
+}
+prism-message-box[placement='top']::before,
+prism-message-box[placement='top']::after {
+  inset-block-end: var(--_prism-status-overlap);
+}
+prism-message-box[placement='top']::before {
+  inset-inline-start: calc(-1 * var(--_prism-message-box-fillet));
+  mask: radial-gradient(
+    circle at 0 0,
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
+  );
+}
+prism-message-box[placement='top']::after {
+  inset-inline-end: calc(-1 * var(--_prism-message-box-fillet));
+  mask: radial-gradient(
+    circle at 100% 0,
+    transparent var(--_prism-message-box-fillet),
+    #000 calc(var(--_prism-message-box-fillet) + 0.5px)
+  );
+}
+/* Fields expose the box as ::part(message-box). Theme type selectors do
+ * not enter a field's shadow, so the attached look is painted here. No
+ * border: the fill is the edge, and the box stays the same size as
+ * before. */
 :is(
   prism-text-input,
   prism-password-input,
   prism-search-input,
   prism-text-area,
   prism-text-field
-)::part(error),
-prism-select::part(error) {
-  position: relative;
+)::part(message-box),
+prism-select::part(message-box) {
+  --_prism-status-overlap: calc(var(--prism-space-1) / 2);
+  --_prism-message-box-fillet: min(
+    var(--prism-message-box-inset, 0),
+    var(--prism-radius-5)
+  );
+  margin-block-start: calc(-1 * var(--_prism-status-overlap));
+  margin-inline: var(--prism-message-box-inset, 0);
+  padding-block: calc(var(--_prism-status-overlap) + 5px) 3px;
+  padding-inline: var(--prism-control-padding-inline);
+  border: none;
+  border-radius: 0 0 var(--prism-radius-5) var(--prism-radius-5);
+  background: var(--prism-color-error-surface);
+  color: var(--prism-color-on-error-surface);
+  box-shadow: none;
+  pointer-events: none;
 }
 :is(
     prism-text-input,
@@ -454,22 +532,23 @@ prism-select::part(error) {
     prism-search-input,
     prism-text-area,
     prism-text-field
-  )::part(error)::before,
+  )::part(message-box)::before,
 :is(
     prism-text-input,
     prism-password-input,
     prism-search-input,
     prism-text-area,
     prism-text-field
-  )::part(error)::after,
-prism-select::part(error)::before,
-prism-select::part(error)::after {
+  )::part(message-box)::after,
+prism-select::part(message-box)::before,
+prism-select::part(message-box)::after {
   content: '';
   position: absolute;
   inset-block-start: var(--_prism-status-overlap);
   inline-size: var(--_prism-message-box-fillet);
   block-size: var(--_prism-message-box-fillet);
   background: var(--prism-color-error-surface);
+  pointer-events: none;
 }
 :is(
     prism-text-input,
@@ -477,8 +556,8 @@ prism-select::part(error)::after {
     prism-search-input,
     prism-text-area,
     prism-text-field
-  )::part(error)::before,
-prism-select::part(error)::before {
+  )::part(message-box)::before,
+prism-select::part(message-box)::before {
   inset-inline-start: calc(-1 * var(--_prism-message-box-fillet));
   mask: radial-gradient(
     circle at 0 100%,
@@ -492,8 +571,8 @@ prism-select::part(error)::before {
     prism-search-input,
     prism-text-area,
     prism-text-field
-  )::part(error)::after,
-prism-select::part(error)::after {
+  )::part(message-box)::after,
+prism-select::part(message-box)::after {
   inset-inline-end: calc(-1 * var(--_prism-message-box-fillet));
   mask: radial-gradient(
     circle at 100% 100%,
@@ -508,8 +587,8 @@ prism-select::part(error)::after {
     prism-search-input,
     prism-text-area,
     prism-text-field
-  ):state(invalid)::part(error),
-prism-select:state(invalid)::part(error) {
+  ):state(invalid)::part(message-box),
+prism-select:state(invalid)::part(message-box) {
   /* Standard ease, never a spring (no bounce on the MessageBox). */
   animation: prism-error-in var(--prism-duration-default)
     var(--prism-ease-standard) backwards;
@@ -663,19 +742,24 @@ prism-text-area:state(at-limit)::part(counter) {
  * No fill, inset, tuck, flares or box. Sits where the description sits, but
  * 5px below the boxes: the active box's focus ring reaches 4px, and a 4px gap
  * would leave 0px clearance; 5px clears it by 1px. */
-prism-otp-input::part(error) {
+prism-otp-input::part(message-box) {
+  margin: 0;
   margin-block-start: calc(
     var(--prism-focus-ring-offset) + var(--prism-focus-ring-width) +
       var(--prism-focus-halo-width) + 1px
   );
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-text-supporting-font-size);
-  font-weight: var(--prism-font-weight-regular);
-  line-height: var(--prism-font-line-height-16);
-  letter-spacing: normal;
-  text-transform: none;
+  box-shadow: none;
 }
-prism-otp-input:state(invalid)::part(error) {
+prism-otp-input::part(message-box)::before,
+prism-otp-input::part(message-box)::after {
+  content: none;
+}
+prism-otp-input:state(invalid)::part(message-box) {
   animation: prism-fade-in var(--prism-duration-default)
     var(--prism-ease-standard) backwards;
 }
@@ -782,9 +866,9 @@ prism-otp-input:state(disabled)::part(cell) {
     prism-search-input,
     prism-text-area,
     prism-text-field
-  )::part(error),
-  prism-select::part(error),
-  prism-otp-input::part(error) {
+  )::part(message-box),
+  prism-select::part(message-box),
+  prism-otp-input::part(message-box) {
     /* stylelint-disable-next-line declaration-no-important --
        reduced motion must cancel the error-box reveal on the part. */
     animation: none !important;
@@ -1610,9 +1694,19 @@ prism-radio-group::part(dot) {
 :is(prism-checkbox, prism-radio-group):state(invalid)::part(edge) {
   border-color: var(--prism-color-error);
 }
-:is(prism-checkbox, prism-radio-group)::part(error) {
+:is(prism-checkbox, prism-radio-group)::part(message-box) {
+  margin: 0;
   margin-block-start: var(--prism-space-1);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--prism-color-error-text);
+  box-shadow: none;
+}
+:is(prism-checkbox, prism-radio-group)::part(message-box)::before,
+:is(prism-checkbox, prism-radio-group)::part(message-box)::after {
+  content: none;
 }
 :is(prism-checkbox, prism-radio-group)::part(description),
 prism-radio-group::part(option-description) {
@@ -1715,9 +1809,19 @@ prism-segmented-control::part(description) {
   margin-block-start: var(--prism-space-1);
   color: var(--prism-color-text-muted);
 }
-prism-segmented-control::part(error) {
+prism-segmented-control::part(message-box) {
+  margin: 0;
   margin-block-start: var(--prism-space-1);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--prism-color-error-text);
+  box-shadow: none;
+}
+prism-segmented-control::part(message-box)::before,
+prism-segmented-control::part(message-box)::after {
+  content: none;
 }
 prism-segmented-control::part(segment) {
   --_bg: transparent;

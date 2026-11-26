@@ -48,6 +48,15 @@ export const homePage = () => html`
       >
     </prism-card>
     <prism-card type="clickable">
+      <prism-card-title slot="header" level="2" href=${href('message-box')}
+        >MessageBox</prism-card-title
+      >
+      <prism-card-description slot="header"
+        >Top or bottom, error or info, tucked against a field or a
+        plate.</prism-card-description
+      >
+    </prism-card>
+    <prism-card type="clickable">
       <prism-card-title slot="header" level="2" href=${href('motion')}
         >Motion</prism-card-title
       >

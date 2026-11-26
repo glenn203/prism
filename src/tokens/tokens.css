@@ -198,6 +198,7 @@
   --prism-color-info: var(--prism-color-blue-600);
   --prism-color-info-text: oklch(0.42 0.0892 235);
   --prism-color-info-surface: oklch(0.915 0.043 235);
+  --prism-color-info-border: var(--prism-color-info);
   --prism-color-success: var(--prism-color-green-600);
   --prism-color-success-text: oklch(0.42 0.0951 160);
   --prism-color-success-surface: oklch(0.915 0.07 160);
@@ -207,12 +208,14 @@
   --prism-color-danger: var(--prism-color-red-600);
   --prism-color-danger-text: oklch(0.42 0.168 12);
   --prism-color-danger-surface: oklch(0.915 0.0443 12);
+  --prism-color-danger-border: var(--prism-color-error-surface);
   --prism-color-error: var(--prism-color-red-600);
   --prism-color-error-text: var(--prism-color-red-700);
   --prism-color-error-surface-base: var(--prism-color-red-500);
   --prism-color-error-surface: color-mix(in oklch, var(--prism-color-error-surface-base) 8%, transparent);
   --prism-color-on-error-surface: var(--prism-color-red-800);
   --prism-color-error-status-text: var(--prism-color-on-error-surface);
+  --prism-color-message-box-tint: color-mix(in oklch, var(--prism-neutral-900) 6%, transparent);
   --prism-state-hover: 6%;
   --prism-state-pressed: 12%;
   --prism-state-selected: 11%;
@@ -249,6 +252,7 @@
   --prism-elevation-hover: 0 1px 2px color-mix(in oklch, var(--prism-color-shadow) 8%, transparent), 0 2px 6px -1px color-mix(in oklch, var(--prism-color-shadow) 16%, transparent);
   --prism-elevation-urgent: 0 1px 2px color-mix(in oklch, var(--prism-color-shadow-urgent) 12%, transparent), 0 4px 12px -2px color-mix(in oklch, var(--prism-color-shadow-urgent) 24%, transparent);
   --prism-elevation-track: inset 0 0 2px 0 var(--prism-color-track-shadow);
+  --prism-message-box-inset: 0;
   --prism-gradient-spectrum: linear-gradient(90deg, var(--prism-color-violet-500), var(--prism-color-blue-500), var(--prism-color-cyan-500), var(--prism-color-green-500), var(--prism-color-amber-500), var(--prism-color-red-500), var(--prism-color-magenta-500));
   --prism-gradient-refract: linear-gradient(135deg, var(--prism-color-violet-600), var(--prism-color-blue-500) 55%, var(--prism-color-cyan-500));
   --prism-gradient-mist: linear-gradient(120deg, var(--prism-color-violet-100), var(--prism-color-blue-50) 40%, var(--prism-color-cyan-100) 70%, var(--prism-color-magenta-50));
@@ -311,6 +315,7 @@
     --prism-color-focus-halo: oklch(0.5 0.12 255 / 0.12);
     --prism-color-track-shadow: oklch(0.155 0.01 255 / 0.06);
     --prism-color-error-surface: oklch(0.7 0.24 12 / 0.08);
+    --prism-color-message-box-tint: oklch(0.2 0.011 255 / 0.06);
     --prism-focus-ring-color: oklch(0.5 0.12 255 / 0.5);
     --prism-focus-halo-color: oklch(0.5 0.12 255 / 0.12);
     --prism-focus-ring-error-color: oklch(0.5 0.218 12 / 0.5);
@@ -368,6 +373,7 @@
   --prism-color-info: var(--prism-color-blue-500);
   --prism-color-info-text: oklch(0.83 0.099 235);
   --prism-color-info-surface: oklch(0.3 0.068 235);
+  --prism-color-info-border: var(--prism-color-info);
   --prism-color-success: var(--prism-color-green-500);
   --prism-color-success-text: oklch(0.83 0.22 160);
   --prism-color-success-surface: oklch(0.3 0.076 160);
@@ -381,6 +387,7 @@
   --prism-color-error-text: var(--prism-color-red-300);
   --prism-color-on-error-surface: var(--prism-color-red-100);
   --prism-color-error-status-text: var(--prism-color-on-error-surface);
+  --prism-color-message-box-tint: color-mix(in oklch, var(--prism-neutral-0) 6%, transparent);
   --prism-focus-halo: var(--prism-color-focus-halo);
   --prism-focus-ring-color: color-mix(in oklch, var(--prism-color-focus-border) 50%, transparent);
   --prism-focus-halo-color: color-mix(in oklch, var(--prism-color-focus-border) 12%, transparent);
@@ -424,6 +431,7 @@
     --prism-color-info: var(--prism-color-blue-500);
     --prism-color-info-text: oklch(0.83 0.099 235);
     --prism-color-info-surface: oklch(0.3 0.068 235);
+    --prism-color-info-border: var(--prism-color-info);
     --prism-color-success: var(--prism-color-green-500);
     --prism-color-success-text: oklch(0.83 0.22 160);
     --prism-color-success-surface: oklch(0.3 0.076 160);
@@ -437,6 +445,7 @@
     --prism-color-error-text: var(--prism-color-red-300);
     --prism-color-on-error-surface: var(--prism-color-red-100);
     --prism-color-error-status-text: var(--prism-color-on-error-surface);
+    --prism-color-message-box-tint: color-mix(in oklch, var(--prism-neutral-0) 6%, transparent);
     --prism-focus-halo: var(--prism-color-focus-halo);
     --prism-focus-ring-color: color-mix(in oklch, var(--prism-color-focus-border) 50%, transparent);
     --prism-focus-halo-color: color-mix(in oklch, var(--prism-color-focus-border) 12%, transparent);
@@ -480,6 +489,7 @@
   --prism-color-info: var(--prism-color-blue-600);
   --prism-color-info-text: oklch(0.42 0.112 235);
   --prism-color-info-surface: oklch(0.915 0.043 235);
+  --prism-color-info-border: var(--prism-color-info);
   --prism-color-success: var(--prism-color-green-600);
   --prism-color-success-text: oklch(0.42 0.125 160);
   --prism-color-success-surface: oklch(0.915 0.07 160);
@@ -493,6 +503,7 @@
   --prism-color-error-text: var(--prism-color-red-700);
   --prism-color-on-error-surface: var(--prism-color-red-800);
   --prism-color-error-status-text: var(--prism-color-on-error-surface);
+  --prism-color-message-box-tint: color-mix(in oklch, var(--prism-neutral-900) 6%, transparent);
   --prism-focus-halo: var(--prism-color-focus-halo);
   --prism-focus-ring-color: color-mix(in oklch, var(--prism-color-focus-border) 50%, transparent);
   --prism-focus-halo-color: color-mix(in oklch, var(--prism-color-focus-border) 12%, transparent);
@@ -526,6 +537,7 @@
   [data-prism-theme='dark'] {
     --prism-color-focus-halo: oklch(0.75 0.08 255 / 0.12);
     --prism-color-track-shadow: oklch(0 0 255 / 0.3);
+    --prism-color-message-box-tint: oklch(0.995 0.002 255 / 0.06);
     --prism-focus-ring-color: oklch(0.75 0.08 255 / 0.5);
     --prism-focus-halo-color: oklch(0.75 0.08 255 / 0.12);
     --prism-focus-ring-error-color: oklch(0.7 0.24 12 / 0.5);
@@ -537,6 +549,7 @@
     [data-prism-theme='auto'] {
       --prism-color-focus-halo: oklch(0.75 0.08 255 / 0.12);
       --prism-color-track-shadow: oklch(0 0 255 / 0.3);
+      --prism-color-message-box-tint: oklch(0.995 0.002 255 / 0.06);
       --prism-focus-ring-color: oklch(0.75 0.08 255 / 0.5);
       --prism-focus-halo-color: oklch(0.75 0.08 255 / 0.12);
       --prism-focus-ring-error-color: oklch(0.7 0.24 12 / 0.5);
@@ -548,6 +561,7 @@
   [data-prism-theme='light'] {
     --prism-color-focus-halo: oklch(0.5 0.12 255 / 0.12);
     --prism-color-track-shadow: oklch(0.155 0.01 255 / 0.06);
+    --prism-color-message-box-tint: oklch(0.2 0.011 255 / 0.06);
     --prism-focus-ring-color: oklch(0.5 0.12 255 / 0.5);
     --prism-focus-halo-color: oklch(0.5 0.12 255 / 0.12);
     --prism-focus-ring-error-color: oklch(0.5 0.218 12 / 0.5);
@@ -634,6 +648,7 @@
     --prism-color-focus-halo: #2e64a61f;
     --prism-color-track-shadow: #090c100f;
     --prism-color-error-surface: #ff5e7e14;
+    --prism-color-message-box-tint: #13161b0f;
     --prism-focus-ring-color: #2e64a680;
     --prism-focus-halo-color: #2e64a61f;
     --prism-focus-ring-error-color: #b8004480;
@@ -655,6 +670,7 @@
     --prism-color-warning-surface: #432604;
     --prism-color-danger-text: #ffaeb7;
     --prism-color-danger-surface: #58071f;
+    --prism-color-message-box-tint: #fcfdff0f;
     --prism-focus-ring-color: #8cb1e080;
     --prism-focus-halo-color: #8cb1e01f;
     --prism-focus-ring-error-color: #ff5e7e80;
@@ -676,6 +692,7 @@
       --prism-color-warning-surface: #432604;
       --prism-color-danger-text: #ffaeb7;
       --prism-color-danger-surface: #58071f;
+      --prism-color-message-box-tint: #fcfdff0f;
       --prism-focus-ring-color: #8cb1e080;
       --prism-focus-halo-color: #8cb1e01f;
       --prism-focus-ring-error-color: #ff5e7e80;
@@ -696,6 +713,7 @@
     --prism-color-warning-surface: #fddeaf;
     --prism-color-danger-text: #920034;
     --prism-color-danger-surface: #ffd8db;
+    --prism-color-message-box-tint: #13161b0f;
     --prism-focus-ring-color: #2e64a680;
     --prism-focus-halo-color: #2e64a61f;
     --prism-focus-ring-error-color: #b8004480;

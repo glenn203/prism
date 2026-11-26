@@ -19,6 +19,7 @@ export default defineConfig({
         recipes: page('recipes/index.html'),
         accent: page('accent/index.html'),
         motion: page('motion/index.html'),
+        'message-box': page('message-box/index.html'),
       },
     },
   },

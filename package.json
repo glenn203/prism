@@ -203,6 +203,14 @@
     "./segmented-control/define": {
       "types": "./dist/segmented-control/define.d.ts",
       "import": "./dist/segmented-control/define.js"
+    },
+    "./message-box": {
+      "types": "./dist/message-box/message-box.d.ts",
+      "import": "./dist/message-box/message-box.js"
+    },
+    "./message-box/define": {
+      "types": "./dist/message-box/define.d.ts",
+      "import": "./dist/message-box/define.js"
     }
   },
   "customElements": "./custom-elements.json",

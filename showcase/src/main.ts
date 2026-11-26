@@ -10,6 +10,7 @@ import { homePage } from './pages/home.js';
 import { motionPage } from './pages/motion.js';
 import { polishPage } from './pages/polish.js';
 import { recipesPage } from './pages/recipes.js';
+import { messageBoxPage } from './pages/message-box.js';
 import { mount } from './layout.js';
 
 initTheme();
@@ -25,6 +26,8 @@ const view =
         ? accentPage()
         : page === 'motion'
           ? motionPage()
-          : homePage();
+          : page === 'message-box'
+            ? messageBoxPage()
+            : homePage();
 
 mount(view);

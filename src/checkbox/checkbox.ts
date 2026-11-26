@@ -160,7 +160,7 @@ function draw(pose: Pose<Key>): Record<Layer, Keyframe> {
  * @csspart text - The label column.
  * @csspart label - The visible label.
  * @csspart description - The help text.
- * @csspart error - The error message.
+ * @csspart message-box - The error message.
  * @cssstate checked - The checkbox is checked.
  * @cssstate indeterminate - The checkbox is indeterminate.
  * @cssstate selected - Checked or indeterminate.

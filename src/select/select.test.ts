@@ -298,7 +298,8 @@ const errorAnimations = (page: Page) =>
     .locator('prism-select')
     .evaluate(
       (el) =>
-        el.shadowRoot!.querySelector('[part="error"]')!.getAnimations().length,
+        el.shadowRoot!.querySelector('[part="message-box"]')!.getAnimations()
+          .length,
     );
 
 test('error animation runs on invalid only, never on focus', async ({
@@ -484,7 +485,7 @@ test('MessageBox is flush with the control', async ({ page }) => {
       .shadowRoot!.querySelector('[part="trigger"]')!
       .getBoundingClientRect();
     const e = el
-      .shadowRoot!.querySelector('[part="error"]')!
+      .shadowRoot!.querySelector('[part="message-box"]')!
       .getBoundingClientRect();
     return {
       left: e.left - t.left,
@@ -512,7 +513,7 @@ const errorBox = (page: Page, tag: string) =>
     const ctl = el.shadowRoot!.querySelector(
       '[part="trigger"], [part="input"]',
     )!;
-    const box = el.shadowRoot!.querySelector('[part="error"]')!;
+    const box = el.shadowRoot!.querySelector('[part="message-box"]')!;
     const desc = el.shadowRoot!.querySelector('[part="description"]')!;
     const t = ctl.getBoundingClientRect();
     const e = box.getBoundingClientRect();
@@ -664,7 +665,7 @@ for (const tag of ['prism-select', 'prism-text-field']) {
       host.reportValidity();
       await host.updateComplete;
       // Top of the error text's line box (box top + padding-top).
-      const errBox = root.querySelector('[part="error"]')!;
+      const errBox = root.querySelector('[part="message-box"]')!;
       const errTop =
         errBox.getBoundingClientRect().top +
         parseFloat(getComputedStyle(errBox).paddingTop);
@@ -709,7 +710,9 @@ for (const tag of ['prism-select', 'prism-text-field']) {
       const ctl = root
         .querySelector('[part="trigger"], [part="input"]')!
         .getBoundingClientRect();
-      const box = root.querySelector('[part="error"]')!.getBoundingClientRect();
+      const box = root
+        .querySelector('[part="message-box"]')!
+        .getBoundingClientRect();
       const span = el.querySelector('[slot="error"]')!;
       const range = document.createRange();
       range.selectNodeContents(span);
@@ -752,7 +755,7 @@ test('select MessageBox matches the text field MessageBox exactly', async ({
       const root = el.shadowRoot!;
       const ctlEl = root.querySelector('[part="trigger"], [part="input"]')!;
       const ctl = ctlEl.getBoundingClientRect();
-      const boxEl = root.querySelector('[part="error"]')!;
+      const boxEl = root.querySelector('[part="message-box"]')!;
       const b = boxEl.getBoundingClientRect();
       const cs = getComputedStyle(boxEl);
       const range = document.createRange();
@@ -798,9 +801,9 @@ test('select MessageBox matches the text field MessageBox exactly', async ({
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   await page.mouse.move(0, 0);
   const shot = async (tag: string) =>
-    (await page.locator(tag).locator('[part="error"]').screenshot()).toString(
-      'base64',
-    );
+    (
+      await page.locator(tag).locator('[part="message-box"]').screenshot()
+    ).toString('base64');
   // Pixel diff in a canvas; allow 2/255 per channel for corner anti-aliasing.
   const diff = await page.evaluate(
     async ([a, b]) => {
@@ -854,7 +857,7 @@ for (const tag of ['prism-text-field', 'prism-select']) {
       };
       host.reportValidity();
       await host.updateComplete;
-      const box = el.shadowRoot!.querySelector('[part="error"]')!;
+      const box = el.shadowRoot!.querySelector('[part="message-box"]')!;
       const before = getComputedStyle(box, '::before');
       const after = getComputedStyle(box, '::after');
       return [before.width, before.height, after.width, after.height];
@@ -884,7 +887,7 @@ for (const tag of ['prism-text-field', 'prism-select']) {
       const ctl = root
         .querySelector('[part="trigger"], [part="input"]')!
         .getBoundingClientRect();
-      const box = root.querySelector('[part="error"]')!;
+      const box = root.querySelector('[part="message-box"]')!;
       const boxRect = box.getBoundingClientRect();
       const before = getComputedStyle(box, '::before');
       const after = getComputedStyle(box, '::after');

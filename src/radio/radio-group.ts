@@ -70,7 +70,7 @@ import { RadioOption } from './radio-option.js';
  * @csspart option-text - A radio's label column.
  * @csspart option-label - A radio's label.
  * @csspart option-description - A radio's help text.
- * @csspart error - The error message.
+ * @csspart message-box - The error message.
  * @cssstate disabled - The group is disabled.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @fires input - After the user picks a radio.

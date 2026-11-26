@@ -33,7 +33,7 @@ const AFFIX_GAP = 8;
  * @csspart suffix - Wrapper around the suffix slot.
  * @csspart clear - The clear button.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled (own or via fieldset).
  * @cssstate floated - With `floating`: the label sits on the top edge.

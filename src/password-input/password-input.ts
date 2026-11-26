@@ -23,7 +23,7 @@ import { iconEye, iconEyeOff } from '../internal/icons.js';
  * @csspart toggle - The show/hide button.
  * @csspart icon - The toggle icon.
  * @csspart description - Wrapper around the description slot.
- * @csspart error - MessageBox.
+ * @csspart message-box - MessageBox.
  * @cssstate invalid - Fails validation (after interaction or submit).
  * @cssstate disabled - Disabled.
  * @cssstate revealed - The password is visible.

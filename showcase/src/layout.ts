@@ -1,7 +1,8 @@
 import { html, render, type TemplateResult } from 'lit';
 import { applyTheme, getTheme, type ShowcaseTheme } from './theme.js';
 
-export type ShowcasePage = 'home' | 'polish' | 'recipes' | 'accent' | 'motion';
+export type ShowcasePage =
+  'home' | 'polish' | 'recipes' | 'accent' | 'motion' | 'message-box';
 
 const PAGES: { id: ShowcasePage; label: string }[] = [
   { id: 'home', label: 'Home' },
@@ -9,6 +10,7 @@ const PAGES: { id: ShowcasePage; label: string }[] = [
   { id: 'recipes', label: 'Recipes' },
   { id: 'accent', label: 'Accent' },
   { id: 'motion', label: 'Motion' },
+  { id: 'message-box', label: 'MessageBox' },
 ];
 
 export const baseUrl = import.meta.env.BASE_URL;
