@@ -51,14 +51,14 @@ export class PrismTextArea extends TextControl {
         resize: none;
         overflow-y: hidden;
       }
-      /* Shares the caption row with the description, aligned to the end. */
+      /* Shares the supporting row with the description, aligned to the end. */
       [part='counter'] {
         float: inline-end;
         margin-block-start: calc(
-          -1 * var(--prism-text-caption-line-height, 1rem)
+          -1 * var(--prism-text-supporting-line-height, 1rem)
         );
         padding-inline-start: var(--prism-space-2, 0.5rem);
-        ${textRole('caption')}
+        ${textRole('supporting')}
         text-align: end;
         font-variant-numeric: tabular-nums;
       }

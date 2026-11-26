@@ -300,7 +300,7 @@ prism-select::part(error) {
   border-radius: 0 0 var(--prism-radius-5) var(--prism-radius-5);
   background: var(--prism-color-error-surface);
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-text-caption-font-size);
+  font-size: var(--prism-text-supporting-font-size);
   font-weight: var(--prism-font-weight-regular);
   line-height: var(--prism-font-line-height-16);
   letter-spacing: normal;
@@ -544,7 +544,7 @@ prism-otp-input::part(error) {
       var(--prism-focus-halo-width) + 1px
   );
   color: var(--prism-color-on-error-surface);
-  font-size: var(--prism-text-caption-font-size);
+  font-size: var(--prism-text-supporting-font-size);
   font-weight: var(--prism-font-weight-regular);
   line-height: var(--prism-font-line-height-16);
   letter-spacing: normal;

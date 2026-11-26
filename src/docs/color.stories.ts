@@ -74,9 +74,9 @@ const styles = html`<style>
     margin-block-start: var(--prism-space-4);
   }
   .c-bars span {
-    font: var(--prism-text-caption-font-weight)
-      var(--prism-text-caption-font-size) /
-      var(--prism-text-caption-line-height) var(--prism-font-family-mono);
+    font: var(--prism-text-supporting-font-weight)
+      var(--prism-text-supporting-font-size) /
+      var(--prism-text-supporting-line-height) var(--prism-font-family-mono);
     color: var(--prism-color-text-muted);
   }
   .c-ramp {
@@ -102,9 +102,9 @@ const styles = html`<style>
   .c-meta {
     display: grid;
     padding: var(--prism-space-2);
-    font: var(--prism-text-caption-font-weight)
-      var(--prism-text-caption-font-size) /
-      var(--prism-text-caption-line-height) var(--prism-font-family-mono);
+    font: var(--prism-text-supporting-font-weight)
+      var(--prism-text-supporting-font-size) /
+      var(--prism-text-supporting-line-height) var(--prism-font-family-mono);
     color: var(--prism-color-text-muted);
     overflow-wrap: anywhere;
   }
@@ -141,9 +141,9 @@ const styles = html`<style>
     display: flex;
     align-items: center;
     gap: var(--prism-space-2);
-    font: var(--prism-text-caption-font-weight)
-      var(--prism-text-caption-font-size) /
-      var(--prism-text-caption-line-height) var(--prism-font-family-mono);
+    font: var(--prism-text-supporting-font-weight)
+      var(--prism-text-supporting-font-size) /
+      var(--prism-text-supporting-line-height) var(--prism-font-family-mono);
   }
   .c-dot {
     flex: none;

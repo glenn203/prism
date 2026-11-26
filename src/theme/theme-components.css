@@ -518,7 +518,7 @@ prism-card[data-prism-dragging] {
   border-radius: var(--prism-radius-7);
   box-shadow: var(--prism-elevation-default);
   font-family: var(--prism-font-family-sans);
-  font-size: var(--prism-text-caption-font-size);
+  font-size: var(--prism-text-supporting-font-size);
   line-height: var(--prism-font-line-height-20);
   overflow: hidden;
 }

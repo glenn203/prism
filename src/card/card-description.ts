@@ -12,7 +12,7 @@ export class PrismCardDescription extends LitElement {
   static override styles = css`
     :host {
       /* Supporting style (decided 12/20) on the card (12/20/400, per the spec).
-         The existing caption token is 12/16, so this is not a token yet. */
+         The existing supporting token is 12/16, so this is not a token yet. */
       --_supporting-font-family: var(
         --prism-font-family-sans,
         Inter,
@@ -20,7 +20,7 @@ export class PrismCardDescription extends LitElement {
         system-ui,
         sans-serif
       );
-      --_supporting-font-size: var(--prism-text-caption-font-size, 0.75rem);
+      --_supporting-font-size: var(--prism-text-supporting-font-size, 0.75rem);
       --_supporting-line-height: var(--prism-font-line-height-20, 1.25rem);
       --_supporting-font-weight: var(--prism-font-weight-regular, 400);
       display: block;

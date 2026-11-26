@@ -34,9 +34,9 @@ const styles = html`<style>
   }
   .f-meta {
     padding: var(--prism-space-2);
-    font: var(--prism-text-caption-font-weight)
-      var(--prism-text-caption-font-size) /
-      var(--prism-text-caption-line-height) var(--prism-font-family-mono);
+    font: var(--prism-text-supporting-font-weight)
+      var(--prism-text-supporting-font-size) /
+      var(--prism-text-supporting-line-height) var(--prism-font-family-mono);
   }
   .f-meta b {
     display: block;
@@ -210,10 +210,10 @@ const roles = [
   'heading-1',
   'heading-2',
   'heading-3',
-  'body-lg',
+  'large',
   'body',
   'label',
-  'caption',
+  'supporting',
   'code',
 ];
 export const Typography: StoryObj = {

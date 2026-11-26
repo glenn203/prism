@@ -29,12 +29,12 @@ export const controlBox = css`
   border-radius: var(--prism-radius-5, 5px);
 `;
 
-/** Text-role font shorthand. role = label | body | caption */
-export const textRole = (role: 'label' | 'body' | 'caption') => {
+/** Text-role font shorthand. role = label | body | supporting */
+export const textRole = (role: 'label' | 'body' | 'supporting') => {
   const fallback = {
     label: ['0.875rem', '1.25rem', '500'],
     body: ['0.875rem', '1.25rem', '400'],
-    caption: ['0.75rem', '1rem', '400'],
+    supporting: ['0.75rem', '1rem', '400'],
   }[role];
   const r = role;
   return css`
